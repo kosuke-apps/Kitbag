@@ -57,11 +57,11 @@ struct ThemeRoot<Content: View>: View {
 
   var body: some View {
     ThemeEnvironment(theme: store.theme) { content }
-      .preferredColorScheme(store.preferredScheme)
+      .background { WindowAppearance(scheme: store.preferredScheme) }
   }
 }
 
-/// Reads the colour scheme that is in effect (after `preferredColorScheme`) and hands down the matching palette.
+/// Reads the colour scheme that is in effect (the window's, see `WindowAppearance`) and hands down the matching palette.
 private struct ThemeEnvironment<Content: View>: View {
   @Environment(\.colorScheme) private var scheme
   let theme: KitbagTheme

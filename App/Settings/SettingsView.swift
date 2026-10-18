@@ -95,7 +95,10 @@ struct SettingsView: View {
 /// The themes as small previews to choose from.
 private struct ThemePicker: View {
   @Environment(ThemeStore.self) private var themes
-  @Environment(\.colorScheme) private var scheme
+
+  /// What each theme would look like with the appearance chosen below, not the one it is in now (a dark theme would
+  /// otherwise show every other theme dark).
+  private var scheme: ColorScheme { themes.appearance.colorScheme ?? SystemAppearance.scheme }
 
   var body: some View {
     ScrollView(.horizontal, showsIndicators: false) {
