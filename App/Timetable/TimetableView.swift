@@ -27,9 +27,7 @@ struct TimetableView: View {
   @State private var sheet: Sheet?
   @State private var showingViewer = false
   @State private var showingImporter = false
-  @State private var showingFileExporter = false
-  @State private var pdf: Data?
-  @State private var showingPDFExporter = false
+  @State private var exportFailed = false
   @State private var importFailed = false
 
   private var term: Timetable? {
@@ -86,15 +84,12 @@ struct TimetableView: View {
         importFailed = true
       }
     }
-    .fileExporter(
-      isPresented: $showingFileExporter, document: TimetableDocument(timetable: term ?? Timetable()),
-      contentType: .json,
-      defaultFilename: term?.termName ?? "Timetable"
-    ) { _ in }
-    .fileExporter(
-      isPresented: $showingPDFExporter, document: PDFFile(data: pdf ?? Data()), contentType: .pdf,
-      defaultFilename: term?.termName ?? "Timetable"
-    ) { _ in }
+    .alert(Text("The file could not be made.", tableName: "Timetable"), isPresented: $exportFailed) {
+      Button {
+      } label: {
+        Text("OK", tableName: "Notes")
+      }
+    }
     .alert(Text("Could not read that file.", tableName: "Timetable"), isPresented: $importFailed) {
       Button {
       } label: {
@@ -192,9 +187,22 @@ struct TimetableView: View {
     return Timetable(year: year, season: season, startDate: dates.start, endDate: dates.end)
   }
 
+  /// The A4 page as a PDF, in the share sheet (which has Save to Files). It works from the zoomed viewer too.
   private func exportPDF(_ term: Timetable) {
-    pdf = TimetablePDF.data(for: term, heading: term.pageHeading)
-    if pdf != nil { showingPDFExporter = true }
+    guard let data = TimetablePDF.data(for: term, heading: term.pageHeading),
+      ShareSheet.present(data: data, name: "\(term.termName).pdf")
+    else {
+      exportFailed = true
+      return
+    }
+  }
+
+  /// The term as a Kitbag timetable file (JSON), to keep or to import on another device.
+  private func exportFile(_ term: Timetable) {
+    guard let data = try? term.fileData(), ShareSheet.present(data: data, name: "\(term.termName).json") else {
+      exportFailed = true
+      return
+    }
   }
 
   // MARK: Parts
@@ -263,7 +271,7 @@ struct TimetableView: View {
           }
         }
         Button {
-          showingFileExporter = true
+          exportFile(term)
         } label: {
           Label {
             Text("Export file…", tableName: "Timetable")

@@ -125,39 +125,3 @@ final class TimetableStore {
     }
   }
 }
-
-/// A term as a file for the system's "Save to Files" sheet.
-struct TimetableDocument: FileDocument {
-  static var readableContentTypes: [UTType] { [.json] }
-
-  var timetable: Timetable
-
-  init(timetable: Timetable) { self.timetable = timetable }
-
-  init(configuration: ReadConfiguration) throws {
-    guard let data = configuration.file.regularFileContents else { throw CocoaError(.fileReadCorruptFile) }
-    timetable = try Timetable(fileData: data)
-  }
-
-  func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-    FileWrapper(regularFileWithContents: try timetable.fileData())
-  }
-}
-
-/// A PDF for the system's "Save to Files" sheet.
-struct PDFFile: FileDocument {
-  static var readableContentTypes: [UTType] { [.pdf] }
-
-  var data: Data
-
-  init(data: Data) { self.data = data }
-
-  init(configuration: ReadConfiguration) throws {
-    guard let contents = configuration.file.regularFileContents else { throw CocoaError(.fileReadCorruptFile) }
-    data = contents
-  }
-
-  func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-    FileWrapper(regularFileWithContents: data)
-  }
-}

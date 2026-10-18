@@ -774,6 +774,17 @@
         }
       }
     },
+    "The file could not be made.": {
+      "comment": "Alert when exporting a timetable or PDF fails.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルを作れませんでした．"
+          }
+        }
+      }
+    },
     "The last day must not be before the first.": {
       "localizations": {
         "ja": {

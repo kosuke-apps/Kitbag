@@ -179,21 +179,6 @@ extension DataSettings {
   }
 }
 
-/// The system share sheet for a file (AirDrop, Save to Files, Mail), presented from whatever is on top. Wrapping it in a
-/// SwiftUI sheet made it close again at once.
-@MainActor
-private enum ShareSheet {
-  static func present(_ url: URL) {
-    let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
-      .first { $0.activationState == .foregroundActive }
-    guard var top = scene?.keyWindow?.rootViewController else { return }
-    while let presented = top.presentedViewController { top = presented }
-    let controller = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-    controller.popoverPresentationController?.sourceView = top.view
-    top.present(controller, animated: true)
-  }
-}
-
 extension View {
   /// Asks before a backup replaces what is in Kitbag, does it, and says how it went. Set `url` to a backup file.
   func restoreBackup(_ url: Binding<URL?>) -> some View {
