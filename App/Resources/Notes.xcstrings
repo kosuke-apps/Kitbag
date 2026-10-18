@@ -1,6 +1,105 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%lld attachments": {
+      "comment": "Accessibility label for the paperclip count of a note in a list.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添付 %lld 件"
+          }
+        }
+      }
+    },
+    "Add a photo": {
+      "comment": "Button that adds a photo to a note.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写真を追加"
+          }
+        }
+      }
+    },
+    "Attach": {
+      "comment": "Accessibility label of the paperclip menu.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添付"
+          }
+        }
+      }
+    },
+    "Attach a file": {
+      "comment": "Button that attaches a file to a note.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルを添付"
+          }
+        }
+      }
+    },
+    "Bold": {
+      "comment": "Accessibility label of a format button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "太字"
+          }
+        }
+      }
+    },
+    "Bulleted list": {
+      "comment": "Accessibility label of a format button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "箇条書き"
+          }
+        }
+      }
+    },
+    "Checklist": {
+      "comment": "Accessibility label of a format button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チェックリスト"
+          }
+        }
+      }
+    },
+    "Code": {
+      "comment": "Accessibility label of a format button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コード"
+          }
+        }
+      }
+    },
+    "Could not attach that.": {
+      "comment": "Alert shown when a photo or file could not be added to a note.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添付できませんでした．"
+          }
+        }
+      }
+    },
     "Course": {
       "localizations": {
         "ja": {
@@ -27,6 +126,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "このメモを削除しますか？"
+          }
+        }
+      }
+    },
+    "Heading": {
+      "comment": "Accessibility label of the heading button above the keyboard.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見出し"
+          }
+        }
+      }
+    },
+    "Heading %lld": {
+      "comment": "A menu item that makes the line a heading; the number is the level (1 to 3).",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見出し %lld"
+          }
+        }
+      }
+    },
+    "Hide the keyboard": {
+      "comment": "Accessibility label of the button that hides the keyboard.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キーボードを閉じる"
+          }
+        }
+      }
+    },
+    "Italic": {
+      "comment": "Accessibility label of a format button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "斜体"
           }
         }
       }
@@ -73,6 +216,39 @@
         }
       }
     },
+    "Numbered list": {
+      "comment": "Accessibility label of a format button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "番号付きリスト"
+          }
+        }
+      }
+    },
+    "OK": {
+      "comment": "Dismisses an alert.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "Open": {
+      "comment": "Opens an attachment in Quick Look.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開く"
+          }
+        }
+      }
+    },
     "Pin": {
       "localizations": {
         "ja": {
@@ -94,12 +270,56 @@
         }
       }
     },
+    "Quote": {
+      "comment": "Accessibility label of a format button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引用"
+          }
+        }
+      }
+    },
+    "Remove attachment": {
+      "comment": "Removes a photo or file from a note.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添付を削除"
+          }
+        }
+      }
+    },
     "Search notes": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "メモを検索"
+          }
+        }
+      }
+    },
+    "Share": {
+      "comment": "Shares an attachment.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共有"
+          }
+        }
+      }
+    },
+    "Strikethrough": {
+      "comment": "Accessibility label of a format button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取り消し線"
           }
         }
       }

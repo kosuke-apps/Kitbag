@@ -66,4 +66,44 @@ struct NoteTests {
     #expect(try NoteBook(fileData: data) == book)
     #expect(String(decoding: data, as: UTF8.self).contains("2026-"))
   }
+
+  @Test func readsTitleAndPreviewWithoutMarks() {
+    let note = Note(body: "## **Shopping** list\n- [ ] milk\n- [x] eggs\n_bold_ move")
+    #expect(note.title == "Shopping list")
+    #expect(note.preview == "☐ milk ☑ eggs bold move")
+  }
+
+  @Test func countsAnAttachmentAsContent() {
+    let file = NoteAttachment(name: "Lecture 3.pdf", storedName: "a.pdf", byteCount: 10)
+    #expect(Note(body: "", attachments: [file]).isEmpty == false)
+    #expect(Note(body: "").isEmpty)
+    let book = NoteBook(notes: [Note(body: "", attachments: [file]), Note(body: "other", createdAt: moment(5))])
+    #expect(book.search("lecture").count == 1)
+  }
+
+  @Test func recognisesPicturesAndNamesStoredFiles() {
+    let id = UUID()
+    #expect(NoteAttachment.storedName(id: id, originalName: "Photo.HEIC") == "\(id.uuidString)/Photo.HEIC")
+    #expect(NoteAttachment.storedName(id: id, originalName: "a/b: c.pdf") == "\(id.uuidString)/a-b- c.pdf")
+    #expect(NoteAttachment.storedName(id: id, originalName: "  ") == "\(id.uuidString)/file")
+    #expect(NoteAttachment(name: "p", storedName: "id/x.jpeg", byteCount: 1).isImage)
+    #expect(NoteAttachment(name: "p", storedName: "id/x.PNG", byteCount: 1).isImage)
+    #expect(!NoteAttachment(name: "p", storedName: "id/x.pdf", byteCount: 1).isImage)
+  }
+
+  @Test func readsAFileFromBeforeAttachments() throws {
+    let json = """
+      {"version":1,"notes":[{"id":"6D49C272-CF51-4607-B62C-CCF0D86CEBBB","body":"old","isPinned":false,\
+      "createdAt":"2026-10-01T10:00:00Z","modifiedAt":"2026-10-01T10:00:00Z"}]}
+      """
+    let book = try NoteBook(fileData: Data(json.utf8))
+    #expect(book.notes.count == 1)
+    #expect(book.notes[0].attachments.isEmpty)
+  }
+
+  @Test func roundTripsAttachments() throws {
+    let file = NoteAttachment(name: "Sketch.png", storedName: "b.png", byteCount: 2048, addedAt: moment(3))
+    let book = NoteBook(notes: [Note(body: "x", createdAt: moment(0), attachments: [file])])
+    #expect(try NoteBook(fileData: try book.fileData()) == book)
+  }
 }

@@ -18,8 +18,8 @@ adds what is specific to this project.
   icon, which tools and which parts of Today are shown and in what order), the tools Timetable (grid in the
   look of a printed UW–Madison timetable as an A4 page, a PDF export, terms with dates, credits and course details), GPA
   (grades, term and cumulative GPA, what-if and target calculators), Calendar (deadlines with reminders,
-  month page and list, import and export of calendar files, subscription to Canvas or Google calendars), Notes (search, course, pin) and Weather (one dense screen: now, a strip of days from a week back to ten ahead, a chart and an hourly table with twelve measures, the day's totals; Open-Meteo), and Headway and Mantissa as
-  guests. Next: richer notes (formatting, photos, files), a Kitbag-wide language setting. Nothing in it is a placeholder for an
+  month page and list, import and export of calendar files, subscription to Canvas or Google calendars), Notes (Markdown with live formatting, photos and files, search, course, pin) and Weather (one dense screen: now, a strip of days from a week back to ten ahead, a chart and an hourly table with twelve measures, the day's totals; Open-Meteo), and Headway and Mantissa as
+  guests. Next: a Kitbag-wide language setting. Nothing in it is a placeholder for an
   unbuilt feature.
 - Out of scope for now: features that cross tools (for example bus times for the next class), accounts, the App Store
   (it needs the paid Developer Program), anything that needs a paid account (WeatherKit, remote push, iCloud: the weather comes from the free Open-Meteo service instead).
@@ -59,13 +59,17 @@ adds what is specific to this project.
     (all the terms; which one is in force today), `GradeScale` and `GPA` (UW–Madison, US plus/minus and Japanese scales;
     averages by credits; the average a target needs), `HomeLayout` (a saved order and hidden items, merged with what
     exists), `Deadline` and `DeadlineBook` (reminder dates, grouping by how soon), `Note` and `NoteBook` (title from the first
-    line, pinned first, search), `Weather` (`Place`, `WeatherKind` from WMO codes, `Forecast` with a week of past hours, and
+    line without its marks, pinned first, search over text and attachment names), `NoteAttachment` (a photo or file kept
+    with a note: its name, where it is stored, its size), `Markdown` (`MarkdownBlock` reads what a line is: heading,
+    bullet, checkbox, number, quote; `plain` strips the marks for titles and previews) and `MarkdownEditing` (what the
+    buttons above the keyboard do: bold, italic, strike, code, line markers, continuing a list on return, checking a
+    box; all on UTF-16 offsets, the units a text view reports), `Weather` (`Place`, `WeatherKind` from WMO codes, `Forecast` with a week of past hours, and
     `OpenMeteo`: the request URLs and the decoding of the service's answers), `CalendarEvent` and `Recurrence` (an event
     and the occurrences of its repeat rule inside a window), `ICalendar` (the parser: line unfolding, time zones, all-day
     events, VTODO, daily, weekly, monthly and yearly rules with count, until and exceptions; a rule it cannot read
     becomes a single event), `ICSWriter` (deadlines with an alarm, a term's classes as weekly events with an end date)
     and `DeadlineImport` (what an imported file adds or updates, matched by `Deadline.sourceUID`). Every user file has a
-    `version`. `Tests/KitbagCoreTests/` uses invented data only (122 tests).
+    `version`. `Tests/KitbagCoreTests/` uses invented data only (152 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
     `NoteStore`, `WeatherStore`, `SubscriptionStore`) at launch, and refreshes the weather and the stale subscriptions when
     the app becomes active.
@@ -94,8 +98,13 @@ adds what is specific to this project.
     refresh keeps the events it had and shows the reason), `CalendarTransfer` (import, export and the subscription
     screens). Subscribed events are shown as hollow dots on the month page, as "Subscribed" rows in a day's agenda and
     in Today's due-soon list; they are never copied into the deadlines.
-  - `App/Notes/`: `NoteStore` (writes shortly after typing stops, drops empty notes), `NotesView` (list, search,
-    editor with a bottom toolbar), `NoteStyle` (the sticky-note colour).
+  - `App/Notes/`: `NoteStore` (writes shortly after typing stops, drops empty notes; attachments are copied to
+    `Attachments/<note id>/<attachment id>/<file name>` next to the notes file and go with the note), `NotesView` (list,
+    search, editor with a bottom toolbar), `MarkdownEditor` (a UITextView that draws the Markdown as it is typed, with a
+    scrolling bar of format buttons above the keyboard, list continuation on return and taps on checkboxes and links;
+    it does not restyle while the keyboard is composing, so Japanese input is not interrupted), `AttachmentViews` (the
+    row of thumbnails under the text, Quick Look, share and remove), `NoteStyle` (the sticky-note colour). Photos come
+    from the system picker, which needs no permission; files come from the file importer.
   - `App/Weather/`: `WeatherStore` (fetch, cache in `weather-v2.json`, chosen place or the phone's location),
     `WeatherView` (header and now figures, `DayStrip`, `HourChart` with Swift Charts, `HourlyTable` with the measures as
     rows and hours as columns, day totals, credit), `PlacePicker` and `WeatherCard` (the Today card), `WeatherFormat`

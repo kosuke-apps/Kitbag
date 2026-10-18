@@ -1,4 +1,6 @@
 import KitbagCore
+import PhotosUI
+import QuickLook
 import SwiftUI
 
 /// The notes tool: a list with search, pinned notes first, and an editor for each note.
@@ -148,6 +150,12 @@ struct NoteRow: View {
         if note.isPinned {
           Image(systemName: "pin.fill").font(.caption).foregroundStyle(.orange)
         }
+        if !note.attachments.isEmpty {
+          Label("\(note.attachments.count)", systemImage: "paperclip")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .accessibilityLabel(Text("\(note.attachments.count) attachments", tableName: "Notes"))
+        }
       }
       if !note.preview.isEmpty {
         Text(note.preview).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
@@ -167,7 +175,7 @@ struct NoteRow: View {
   }
 }
 
-/// The text of one note. It saves as you type, and an empty note is dropped when you leave.
+/// The text of one note, with its photos and files. It saves as you type, and an empty note is dropped when you leave.
 struct NoteEditor: View {
   @Environment(NoteStore.self) private var store
   @Environment(TimetableStore.self) private var timetable
@@ -177,53 +185,139 @@ struct NoteEditor: View {
 
   @State private var text = ""
   @State private var confirmingDelete = false
-  @FocusState private var focused: Bool
+  @State private var showingPhotos = false
+  @State private var showingFiles = false
+  @State private var pickedPhotos: [PhotosPickerItem] = []
+  @State private var preview: URL?
+  @State private var attachFailed = false
 
   var body: some View {
     let note = store.book.note(id: noteID)
-    TextEditor(text: $text)
-      .focused($focused)
-      .scrollContentBackground(.hidden)
-      .padding(.horizontal, 12)
-      .themedScreen()
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItemGroup(placement: .bottomBar) {
-          Button {
-            store.setPinned(id: noteID, !(note?.isPinned ?? false))
-          } label: {
-            Image(systemName: note?.isPinned == true ? "pin.slash" : "pin")
-          }
-          .accessibilityLabel(
-            note?.isPinned == true ? Text("Unpin", tableName: "Notes") : Text("Pin", tableName: "Notes"))
-          courseMenu(note: note)
-          ShareLink(item: text) { Image(systemName: "square.and.arrow.up") }
-            .disabled(text.isEmpty)
-          Spacer()
-          Button(role: .destructive) {
-            confirmingDelete = true
-          } label: {
-            Image(systemName: "trash")
-          }
-          .accessibilityLabel(Text("Delete", tableName: "Notes"))
-        }
+    VStack(spacing: 0) {
+      MarkdownEditor(
+        text: $text, autofocus: note?.body.isEmpty ?? false,
+        onPhoto: { showingPhotos = true }, onFile: { showingFiles = true }
+      )
+      if let note, !note.attachments.isEmpty {
+        Divider()
+        AttachmentStrip(noteID: noteID, attachments: note.attachments, preview: $preview)
       }
-      .confirmationDialog(
-        Text("Delete this note?", tableName: "Notes"), isPresented: $confirmingDelete, titleVisibility: .visible
-      ) {
-        Button(role: .destructive) {
-          store.remove(id: noteID)
-          dismiss()
+    }
+    .themedScreen()
+    .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
+      ToolbarItemGroup(placement: .bottomBar) {
+        Button {
+          store.setPinned(id: noteID, !(note?.isPinned ?? false))
         } label: {
-          Text("Delete", tableName: "Notes")
+          Image(systemName: note?.isPinned == true ? "pin.slash" : "pin")
+        }
+        .accessibilityLabel(
+          note?.isPinned == true ? Text("Unpin", tableName: "Notes") : Text("Pin", tableName: "Notes"))
+        courseMenu(note: note)
+        attachMenu
+        ShareLink(item: text) { Image(systemName: "square.and.arrow.up") }
+          .disabled(text.isEmpty)
+        Spacer()
+        Button(role: .destructive) {
+          confirmingDelete = true
+        } label: {
+          Image(systemName: "trash")
+        }
+        .accessibilityLabel(Text("Delete", tableName: "Notes"))
+      }
+    }
+    .confirmationDialog(
+      Text("Delete this note?", tableName: "Notes"), isPresented: $confirmingDelete, titleVisibility: .visible
+    ) {
+      Button(role: .destructive) {
+        store.remove(id: noteID)
+        dismiss()
+      } label: {
+        Text("Delete", tableName: "Notes")
+      }
+    }
+    .photosPicker(isPresented: $showingPhotos, selection: $pickedPhotos, maxSelectionCount: 10, matching: .images)
+    .fileImporter(isPresented: $showingFiles, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in
+      attachFiles(result)
+    }
+    .quickLookPreview($preview)
+    .alert(Text("Could not attach that.", tableName: "Notes"), isPresented: $attachFailed) {
+      Button {
+      } label: {
+        Text("OK", tableName: "Notes")
+      }
+    }
+    .onAppear { text = note?.body ?? "" }
+    .onChange(of: text) { _, new in store.updateBody(id: noteID, new) }
+    .onChange(of: pickedPhotos) { _, items in
+      guard !items.isEmpty else { return }
+      Task { await attachPhotos(items) }
+    }
+    .onDisappear { store.finish(id: noteID) }
+  }
+
+  private var attachMenu: some View {
+    Menu {
+      Button {
+        showingPhotos = true
+      } label: {
+        Label {
+          Text("Add a photo", tableName: "Notes")
+        } icon: {
+          Image(systemName: "photo")
         }
       }
-      .onAppear {
-        text = note?.body ?? ""
-        if text.isEmpty { focused = true }
+      Button {
+        showingFiles = true
+      } label: {
+        Label {
+          Text("Attach a file", tableName: "Notes")
+        } icon: {
+          Image(systemName: "paperclip")
+        }
       }
-      .onChange(of: text) { _, new in store.updateBody(id: noteID, new) }
-      .onDisappear { store.finish(id: noteID) }
+    } label: {
+      Image(systemName: "paperclip")
+    }
+    .accessibilityLabel(Text("Attach", tableName: "Notes"))
+  }
+
+  private func attachPhotos(_ items: [PhotosPickerItem]) async {
+    pickedPhotos = []
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.dateFormat = "yyyy-MM-dd HH.mm.ss"
+    let stamp = formatter.string(from: Date())
+    for (offset, item) in items.enumerated() {
+      guard let data = try? await item.loadTransferable(type: Data.self) else {
+        attachFailed = true
+        continue
+      }
+      let ext = item.supportedContentTypes.first?.preferredFilenameExtension ?? "jpg"
+      let suffix = items.count > 1 ? " (\(offset + 1))" : ""
+      do {
+        try store.attach(data: data, name: "Photo \(stamp)\(suffix).\(ext)", to: noteID)
+      } catch {
+        attachFailed = true
+      }
+    }
+  }
+
+  private func attachFiles(_ result: Result<[URL], Error>) {
+    guard case .success(let urls) = result else {
+      if case .failure = result { attachFailed = true }
+      return
+    }
+    for url in urls {
+      let scoped = url.startAccessingSecurityScopedResource()
+      defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+      do {
+        try store.attach(fileAt: url, to: noteID)
+      } catch {
+        attachFailed = true
+      }
+    }
   }
 
   private func courseMenu(note: Note?) -> some View {

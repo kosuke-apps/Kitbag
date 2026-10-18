@@ -61,12 +61,68 @@ final class NoteStore {
 
   func remove(id: UUID) {
     book.remove(id: id)
+    try? FileManager.default.removeItem(at: folder(for: id))
     saveNow()
   }
 
   /// Called when an editor closes: an empty note is dropped, and the rest is written at once.
   func finish(id: UUID) {
-    if let note = book.note(id: id), note.isEmpty { book.remove(id: id) }
+    if let note = book.note(id: id), note.isEmpty {
+      book.remove(id: id)
+      try? FileManager.default.removeItem(at: folder(for: id))
+    }
+    saveNow()
+  }
+
+  // MARK: Attachments
+
+  /// Where the photos and files of a note are kept: one folder per note, so that deleting the note deletes them.
+  func folder(for noteID: UUID) -> URL {
+    AppFiles.url("Attachments/\(noteID.uuidString)")
+  }
+
+  func url(for attachment: NoteAttachment, in noteID: UUID) -> URL {
+    folder(for: noteID).appending(path: attachment.storedName)
+  }
+
+  /// Keeps `data` (a photo from the picker) with the note under `name`.
+  func attach(data: Data, name: String, to noteID: UUID) throws {
+    try add(name: name, byteCount: data.count, to: noteID) { try AppFiles.write(data, to: $0) }
+  }
+
+  /// Keeps a copy of a file with the note. The original is left where it is.
+  func attach(fileAt source: URL, to noteID: UUID) throws {
+    let size = (try? source.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+    try add(name: source.lastPathComponent, byteCount: size, to: noteID) { destination in
+      try FileManager.default.createDirectory(
+        at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+      try FileManager.default.copyItem(at: source, to: destination)
+    }
+  }
+
+  func removeAttachment(_ id: UUID, from noteID: UUID) {
+    guard var note = book.note(id: noteID), let attachment = note.attachments.first(where: { $0.id == id }) else {
+      return
+    }
+    // The file sits in a folder of its own, which goes with it.
+    let file = url(for: attachment, in: noteID)
+    let parent = file.deletingLastPathComponent()
+    try? FileManager.default.removeItem(at: parent == folder(for: noteID) ? file : parent)
+    note.attachments.removeAll { $0.id == id }
+    note.modifiedAt = Date()
+    book.upsert(note)
+    saveNow()
+  }
+
+  private func add(name: String, byteCount: Int, to noteID: UUID, write: (URL) throws -> Void) throws {
+    guard var note = book.note(id: noteID) else { return }
+    let id = UUID()
+    let attachment = NoteAttachment(
+      id: id, name: name, storedName: NoteAttachment.storedName(id: id, originalName: name), byteCount: byteCount)
+    try write(url(for: attachment, in: noteID))
+    note.attachments.append(attachment)
+    note.modifiedAt = Date()
+    book.upsert(note)
     saveNow()
   }
 

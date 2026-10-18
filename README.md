@@ -21,7 +21,9 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
   day's classes and deadlines, and a list grouped by how soon each is due. Import a calendar file (`.ics`) after a
   preview, export deadlines or a term's classes as `.ics`, and subscribe to a Canvas or Google calendar by its address:
   its events show beside yours and on Today (the address stays in the keychain).
-- Notes: free text with search, an optional course, and a pin that shows the note on the Today screen.
+- Notes: Markdown that is styled as you type (headings, bold, italic, strike, code, links, checklists you can tick,
+  numbered and bulleted lists, quotes) with a format bar above the keyboard, photos and files kept with the note,
+  search, an optional course, and a pin that shows the note on the Today screen.
 - Weather: everything on one screen, with no scrolling: now, a strip of days from a week back to ten ahead, a chart and
   an hourly table (temperature, feels like, rain chance and amount, wind and gusts, humidity, cloud, UV, pressure) for
   the day you pick, and the day's totals; for Madison, a place you search for, or your location. Data by
