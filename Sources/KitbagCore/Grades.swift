@@ -72,7 +72,11 @@ public struct GradeScale: Hashable, Identifiable, Codable, Sendable {
   public static let japan = scale(
     "japan", [("S", 4.0), ("A", 3.0), ("B", 2.0), ("C", 1.0), ("D", 0.0)], passes: ["P"], others: ["I"])
 
-  public static let all: [GradeScale] = [uwMadison, usPlusMinus, japan]
+  /// Tohoku University: AA, A, B, C and D (秀, 優, 良, 可, 不可) as 4, 3, 2, 1 and 0; check yours.
+  public static let tohoku = scale(
+    "tohoku", [("AA", 4.0), ("A", 3.0), ("B", 2.0), ("C", 1.0), ("D", 0.0)], passes: ["P"], others: ["F", "I"])
+
+  public static let all: [GradeScale] = [uwMadison, usPlusMinus, japan, tohoku]
 
   /// The scale with this id among the built-in ones and the person's own, or UW–Madison's when there is none.
   public static func scale(id: String, custom: [GradeScale] = []) -> GradeScale {

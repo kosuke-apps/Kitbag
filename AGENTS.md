@@ -78,7 +78,7 @@ adds what is specific to this project.
     events, VTODO, daily, weekly, monthly and yearly rules with count, until and exceptions; a rule it cannot read
     becomes a single event), `ICSWriter` (deadlines with an alarm, a term's classes as weekly events with an end date)
     and `DeadlineImport` (what an imported file adds or updates, matched by `Deadline.sourceUID`). Every user file has a
-    `version`. `Tests/KitbagCoreTests/` uses invented data only (184 tests).
+    `version`. `Tests/KitbagCoreTests/` uses invented data only (190 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
     `NoteStore`, `WeatherStore`, `SubscriptionStore`) at launch, and refreshes the weather and the stale subscriptions when
     the app becomes active.
@@ -125,6 +125,13 @@ adds what is specific to this project.
     but writes in each block only what fits), `TimetableView` (term header, the page, course cards, menu, a zoomable
     viewer), `TermViews` (term name and dates, header, editor), `CourseViews` (card, detail with grade, deadlines and
     notes of the course, editor with credits), `CourseColor+Style` (pastel, dark and strong tones).
+  - Grade list import (`Sources/KitbagCore/GradeReport.swift`, `App/GPA/GradeReportImport.swift`): GPA > + > Import grades from
+    a PDF reads Tohoku University's English "Grade list" with PDFKit, `GradeReportParser` turns its wrapped text into courses
+    (checked on a real report: the credits it finds equal the report's own totals), `ReportedTerm.group` makes terms, and the
+    preview sheet shows them before anything is added. Terms are titled `Tohoku <year> First|Second semester`, graded on the
+    built-in `tohoku` scale (AA 4, A 3, B 2, C 1, D 0), kept as grades-only terms, and matched by title so that a newer
+    report updates instead of duplicating. The student's name and number are never kept. Tests use an invented report in the
+    same layout; the real report is never committed.
   - `App/GPA/`: `GPAView` (the cumulative GPA over the terms that count, each term's on its own grade scale, credits
     earned, a what-if card that imagines grades for open courses, imagined courses and courses left out, and the target),
     `GPACourseEditor` (a course for its credits, grade and how it counts: in the GPA, left out, or pass/fail),

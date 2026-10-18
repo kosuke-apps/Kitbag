@@ -12,6 +12,17 @@
         }
       }
     },
+    "%lld courses in %lld terms. Nothing is added until you press Import.": {
+      "comment": "Summary at the top of the grade import preview.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 科目，%lld 学期．「取り込む」を押すまで何も追加されません．"
+          }
+        }
+      }
+    },
     "A course left out of the GPA, or taken pass/fail, adds nothing to it; if it is passed it still earns its credits.": {
       "comment": "Footer in the course editor.",
       "localizations": {
@@ -476,6 +487,39 @@
         }
       }
     },
+    "Import": {
+      "comment": "Button that adds the previewed grades.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取り込む"
+          }
+        }
+      }
+    },
+    "Import grades": {
+      "comment": "Title of the grade import preview.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成績を取り込む"
+          }
+        }
+      }
+    },
+    "Import grades from a PDF…": {
+      "comment": "Menu item that reads a grade list PDF.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成績表の PDF から取り込む…"
+          }
+        }
+      }
+    },
     "In the GPA": {
       "comment": "Picker label for a course's treatment.",
       "localizations": {
@@ -494,6 +538,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "時間割にこの科目の授業もあり，一緒に消えます．"
+          }
+        }
+      }
+    },
+    "It reads the English grade list of Tohoku University.": {
+      "comment": "Alert message under the unreadable PDF alert.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "東北大学の英語版の成績表（Grade list）に対応しています．"
           }
         }
       }
@@ -752,6 +807,28 @@
         }
       }
     },
+    "That PDF is not a grade list Kitbag can read.": {
+      "comment": "Alert title when a PDF cannot be parsed as a grade list.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "その PDF は Kitbag が読める成績表ではありません．"
+          }
+        }
+      }
+    },
+    "The terms are named after the school and graded on its scale (Tohoku: AA, A, B, C, D). The student's name and number in the report are not kept.": {
+      "comment": "Footer of the grade import preview.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学期は学校名で名づけられ，その評価方式（東北: AA, A, B, C, D）で採点されます．成績表にある氏名と学籍番号は保存されません．"
+          }
+        }
+      }
+    },
     "This term": {
       "localizations": {
         "ja": {
@@ -769,6 +846,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "科目名"
+          }
+        }
+      }
+    },
+    "Tohoku University (AA, A, B, C, D)": {
+      "comment": "Name of the built-in Tohoku grade scale.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "東北大学（AA, A, B, C, D）"
           }
         }
       }

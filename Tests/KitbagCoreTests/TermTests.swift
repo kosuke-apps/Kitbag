@@ -249,7 +249,7 @@ struct GradeTests {
   }
 
   @Test func listsTheScalesAndFallsBack() {
-    #expect(GradeScale.all.map(\.id) == ["uw-madison", "us-plus-minus", "japan"])
+    #expect(GradeScale.all.map(\.id) == ["uw-madison", "us-plus-minus", "japan", "tohoku"])
     #expect(GradeScale.scale(id: "japan").points(for: "S") == 4.0)
     #expect(GradeScale.scale(id: "unknown").id == "uw-madison")
     #expect(GradeScale.usPlusMinus.points(for: "A-") == 3.7)

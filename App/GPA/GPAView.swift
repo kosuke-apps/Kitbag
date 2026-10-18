@@ -1,5 +1,6 @@
 import KitbagCore
 import SwiftUI
+import UniformTypeIdentifiers
 
 extension GradeScale {
   var title: LocalizedStringResource {
@@ -7,6 +8,7 @@ extension GradeScale {
     case "uw-madison": LocalizedStringResource("UW–Madison (A, AB, B…)", table: "GPA")
     case "us-plus-minus": LocalizedStringResource("US with plus and minus", table: "GPA")
     case "japan": LocalizedStringResource("Japan (S, A, B, C, D)", table: "GPA")
+    case "tohoku": LocalizedStringResource("Tohoku University (AA, A, B, C, D)", table: "GPA")
     default: LocalizedStringResource("Grade scale", table: "GPA")
     }
   }
@@ -34,6 +36,9 @@ struct GPAView: View {
   @State private var target = 3.5
   @State private var plannedText = ""
   @State private var sheet: Sheet?
+  @State private var importingReport = false
+  @State private var reportCourses: [ReportedCourse]?
+  @State private var reportFailed = false
 
   private enum Sheet: Identifiable {
     case course(termID: UUID, course: Course, isNew: Bool)
@@ -118,6 +123,15 @@ struct GPAView: View {
                 Image(systemName: "calendar.badge.plus")
               }
             }
+            Button {
+              importingReport = true
+            } label: {
+              Label {
+                Text("Import grades from a PDF…", tableName: "GPA")
+              } icon: {
+                Image(systemName: "doc.text.magnifyingglass")
+              }
+            }
             if let current = terms.first {
               Button {
                 sheet = .course(termID: current.id, course: Course(code: ""), isNew: true)
@@ -134,6 +148,26 @@ struct GPAView: View {
           }
           .accessibilityLabel(Text("Add", tableName: "GPA"))
         }
+      }
+      .fileImporter(isPresented: $importingReport, allowedContentTypes: [.pdf]) { result in
+        guard case .success(let url) = result, let courses = GradeReportImport.read(url) else {
+          reportFailed = true
+          return
+        }
+        reportCourses = courses
+      }
+      .sheet(
+        isPresented: Binding(get: { reportCourses != nil }, set: { if !$0 { reportCourses = nil } })
+      ) {
+        if let reportCourses { GradeReportPreview(courses: reportCourses) }
+      }
+      .alert(Text("That PDF is not a grade list Kitbag can read.", tableName: "GPA"), isPresented: $reportFailed) {
+        Button {
+        } label: {
+          Text("OK", tableName: "Notes")
+        }
+      } message: {
+        Text("It reads the English grade list of Tohoku University.", tableName: "GPA")
       }
       .sheet(item: $sheet) { sheet in
         switch sheet {
@@ -317,7 +351,7 @@ struct GPAView: View {
       } label: {
         HStack(spacing: 8) {
           Circle().fill(course.color.strongColor).frame(width: 10, height: 10)
-          Text(course.code).font(.subheadline.weight(.medium))
+          Text(course.code).font(.subheadline.weight(.medium)).lineLimit(2).multilineTextAlignment(.leading)
           if let credits = course.credits {
             Text(creditsText(credits)).font(.caption).foregroundStyle(.secondary)
           } else {

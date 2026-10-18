@@ -34,6 +34,8 @@ extension Season {
 extension Timetable {
   /// `2026 Fall`, or the heading when there is no year and season, or a plain word.
   var termName: String {
+    // A term made from a grade report keeps the title it was given (it says which school's semester it is).
+    if gradesOnly, !title.isEmpty { return title }
     if let year, let season { return "\(year) \(L10n.string(season.title))" }
     return title.isEmpty ? L10n.string("Untitled term", table: "Timetable") : title
   }

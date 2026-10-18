@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Builds Kitbag signed for your iPhone and installs it over Wi-Fi, so that the seven-day signature of a free Apple ID is
+# Builds Kitbag (optimised, Release) signed for your iPhone and installs it over Wi-Fi, so that the seven-day signature of a free Apple ID is
 # renewed without touching Xcode. Run it by hand, or let a launchd agent run it (tools/install_refresh_agent.sh).
 #
 #   tools/refresh_device.sh            renew when the last install is older than 4 days (what the agent runs)
@@ -24,7 +24,7 @@ ASIDE_DIR="$STATE_DIR/old-profiles"
 LOG="$HOME/Library/Logs/KitbagRefresh.log"
 PROFILES="$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"
 DERIVED="$ROOT/build/DerivedDevice"
-APP="$DERIVED/Build/Products/Debug-iphoneos/Kitbag.app"
+APP="$DERIVED/Build/Products/Release-iphoneos/Kitbag.app"
 
 mkdir -p "$STATE_DIR" "$ASIDE_DIR" "${LOG:h}"
 
@@ -129,7 +129,7 @@ log "Building for $DEVICE..."
 # that finds no destination is tried again after asking the phone something.
 built=0
 for attempt in 1 2 3; do
-  if xcodebuild -project Kitbag.xcodeproj -scheme Kitbag -destination "id=$UDID" \
+  if xcodebuild -project Kitbag.xcodeproj -scheme Kitbag -configuration Release -destination "id=$UDID" \
       -derivedDataPath "$DERIVED" -allowProvisioningUpdates build >"$STATE_DIR/build.log" 2>&1; then
     built=1
     break
