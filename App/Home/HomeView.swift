@@ -24,6 +24,11 @@ struct HomeView: View {
       .padding(.bottom, 40)
     }
     .themedScreen()
+    .onOpenURL { url in
+      // kitbag://timetable, kitbag://calendar: the widgets open a tool this way.
+      guard url.scheme == "kitbag", let host = url.host, let module = ModuleID(rawValue: host) else { return }
+      route = ModuleRoute(module)
+    }
     .fullScreenCover(item: $route) { route in
       ModuleScreen(placement: route.module.homeButtonPlacement, close: { self.route = nil }) {
         route.module.content(guests: guests, route: route)

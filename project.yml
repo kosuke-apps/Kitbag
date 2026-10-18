@@ -71,11 +71,50 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         ENABLE_TESTABILITY: YES
         DEFINES_MODULE: YES
+  # The widgets (home screen and lock screen). They read a copy of the data that the app keeps in the App Group folder
+  # (App/Support/WidgetBridge.swift), so they share no code with the app except the few files listed here.
+  KitbagWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Widgets
+      - path: Shared
+      - path: App/Theme/Theme.swift
+      - path: App/Timetable/CourseColor+Style.swift
+      - path: App/Calendar/DeadlineStyle.swift
+    dependencies:
+      - package: Kitbag
+        product: KitbagCore
+    entitlements:
+      path: Widgets/KitbagWidgets.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.dev.kosuke.kitbag
+    info:
+      path: Widgets/Info.plist
+      properties:
+        CFBundleDisplayName: Kitbag
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleLocalizations:
+          - en
+          - ja
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.kosuke.kitbag.widgets
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_EMIT_LOC_STRINGS: YES
+        SKIP_INSTALL: YES
   Kitbag:
     type: application
     platform: iOS
     sources:
       - path: App
+      - path: Shared
       # Headway's resources. Not its Assets.xcassets (only an app icon, which would clash with Kitbag's), not its
       # InfoPlist.strings (they would rename Kitbag to Headway; App/Resources/*.lproj carries the equivalents) and not its
       # Localizable.xcstrings: every guest's strings are merged into Guests/Merged (tools/merge_guest_strings.py).
@@ -105,6 +144,7 @@ targets:
         product: KitbagCore
       - target: HeadwayGuest
       - target: MantissaGuest
+      - target: KitbagWidgets
       - package: MapLibre
         product: MapLibre
     info:
@@ -115,6 +155,11 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSHumanReadableCopyright: Copyright © 2026 Kosuke Satake. MIT License.
         UILaunchScreen: {}
+        # kitbag://timetable and kitbag://calendar open a tool; the widgets use them.
+        CFBundleURLTypes:
+          - CFBundleURLName: dev.kosuke.kitbag
+            CFBundleURLSchemes:
+              - kitbag
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         CFBundleLocalizations:
@@ -126,6 +171,11 @@ targets:
           - fetch
         BGTaskSchedulerPermittedIdentifiers:
           - dev.kosuke.headway.watch
+    entitlements:
+      path: App/Kitbag.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.dev.kosuke.kitbag
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.kosuke.kitbag

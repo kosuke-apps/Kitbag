@@ -45,6 +45,29 @@ last=0
 now="$(date +%s)"
 age_days=$(( (now - last) / 86400 ))
 
+# The UDID of the paired phone, found by name. The build addresses it by UDID, which works while the phone is only paired;
+# a destination by name needs the phone to be connected at that moment.
+udid() {
+  local json="$(mktemp)"
+  xcrun devicectl list devices --json-output "$json" >/dev/null 2>&1
+  /usr/bin/python3 - "$json" "$DEVICE" <<'PY'
+import json, sys
+path, name = sys.argv[1], sys.argv[2]
+try:
+    devices = json.load(open(path))["result"]["devices"]
+except Exception:
+    sys.exit(1)
+for device in devices:
+    if device.get("deviceProperties", {}).get("name") == name:
+        print(device["hardwareProperties"]["udid"])
+        sys.exit(0)
+sys.exit(1)
+PY
+  local code=$?
+  rm -f "$json"
+  return $code
+}
+
 # Does the phone answer? A paired phone is listed even when it is asleep or on another network, so ask it something.
 reachable() {
   xcrun devicectl device info details --device "$DEVICE" --timeout 20 >/dev/null 2>&1
@@ -65,6 +88,8 @@ if ! reachable; then
   exit 1
 fi
 
+UDID="$(udid)" || { log "No paired device is called \"$DEVICE\"."; exit 1; }
+
 # Move this app's provisioning profile aside so that the build fetches a new one (seven fresh days).
 if [[ -d "$PROFILES" ]]; then
   for file in "$PROFILES"/*.mobileprovision(N); do
@@ -78,7 +103,7 @@ fi
 
 cd "$ROOT" || exit 1
 log "Building for $DEVICE..."
-if ! xcodebuild -project Kitbag.xcodeproj -scheme Kitbag -destination "platform=iOS,name=$DEVICE" \
+if ! xcodebuild -project Kitbag.xcodeproj -scheme Kitbag -destination "id=$UDID" \
     -derivedDataPath "$DERIVED" -allowProvisioningUpdates build >"$STATE_DIR/build.log" 2>&1; then
   log "The build failed; see $STATE_DIR/build.log"
   notify "The build for your iPhone failed. See $STATE_DIR/build.log"
@@ -86,7 +111,7 @@ if ! xcodebuild -project Kitbag.xcodeproj -scheme Kitbag -destination "platform=
 fi
 
 log "Installing..."
-if ! xcrun devicectl device install app --device "$DEVICE" "$APP" --timeout 120 >"$STATE_DIR/install.log" 2>&1; then
+if ! xcrun devicectl device install app --device "$UDID" "$APP" --timeout 120 >"$STATE_DIR/install.log" 2>&1; then
   log "The install failed; see $STATE_DIR/install.log"
   notify "Kitbag could not be installed on your iPhone. Is it awake and on the same Wi-Fi?"
   exit 1

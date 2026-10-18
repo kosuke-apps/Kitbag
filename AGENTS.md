@@ -123,6 +123,15 @@ adds what is specific to this project.
     viewer), `TermViews` (term name and dates, header, editor), `CourseViews` (card, detail with grade, deadlines and
     notes of the course, editor with credits), `CourseColor+Style` (pastel, dark and strong tones).
   - `App/GPA/GPAView.swift`: the cumulative and per-term GPA, grade menus, the what-if calculator and the target.
+  - `Widgets/` and `Shared/`: the WidgetKit extension (`dev.kosuke.kitbag.widgets`) with a Timetable widget (small,
+    medium, and lock screen rectangular and inline: the class on or next, and the day's list, which moves on to the next
+    class day once today is over) and a Deadlines widget (small, medium, lock screen). A widget cannot read the app's
+    files, so `App/Support/WidgetBridge.swift` copies `timetables.json`, `deadlines.json` and the theme into the App
+    Group folder (`group.dev.kosuke.kitbag`, see `Shared/AppGroup.swift`) whenever the app is entered or left, and asks
+    the widgets to redraw. The widgets compile `Theme.swift`, `CourseColor+Style.swift` and `DeadlineStyle.swift` from
+    the app so that they look the same; their strings are in `Widgets/Localizable.xcstrings`. A widget opens a tool
+    through the `kitbag://<tool>` URL scheme. A free Apple ID can sign an App Group and an extension (checked on the
+    phone); the extension gets its own App ID and provisioning profile.
   - `App/Resources/`: String Catalogs `Shell`, `Today`, `Timetable`, `Calendar`, `Notes` and `Weather` (add strings
     with `tools/add_strings.py <table>`; Kitbag's own strings, always
     `Text("…", tableName: "…")`; the default table "Localizable" belongs to Headway's catalog, which is copied into the

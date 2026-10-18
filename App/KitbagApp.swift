@@ -39,8 +39,12 @@ struct KitbagApp: App {
       #if DEBUG
         .task { exportPDFIfAsked() }
       #endif
+      .task { WidgetBridge.sync(theme: themes.themeID) }
+      .onChange(of: themes.themeID) { _, id in WidgetBridge.sync(theme: id) }
       .onChange(of: timetable.timetable.courses.map(\.code)) { _, _ in deadlines.syncReminders() }
       .onChange(of: scenePhase) { _, phase in
+        // The widgets read a copy of the data; bring it up to date when the app is left as well as when it is entered.
+        WidgetBridge.sync(theme: themes.themeID)
         if phase == .active {
           deadlines.syncReminders()
           Task { await weather.refresh() }

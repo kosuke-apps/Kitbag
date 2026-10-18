@@ -28,6 +28,7 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
   an hourly table (temperature, feels like, rain chance and amount, wind and gusts, humidity, cloud, UV, pressure) for
   the day you pick, and the day's totals; for Madison, a place you search for, or your location. Data by
   [Open-Meteo](https://open-meteo.com/) (CC BY 4.0).
+- Widgets: the class on now or next and the day's list, and what is due next, on the home screen and the lock screen.
 - Settings: five themes, light or dark, five app icons, and which tools and which parts of Today are shown and in what
   order.
 - Headway (live Madison bus map) and Mantissa (offline exact calculator) run inside it as guests, from their own
