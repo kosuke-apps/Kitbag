@@ -78,7 +78,7 @@ adds what is specific to this project.
     events, VTODO, daily, weekly, monthly and yearly rules with count, until and exceptions; a rule it cannot read
     becomes a single event), `ICSWriter` (deadlines with an alarm, a term's classes as weekly events with an end date)
     and `DeadlineImport` (what an imported file adds or updates, matched by `Deadline.sourceUID`). Every user file has a
-    `version`. `Tests/KitbagCoreTests/` uses invented data only (190 tests).
+    `version`. `Tests/KitbagCoreTests/` uses invented data only (191 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
     `NoteStore`, `WeatherStore`, `SubscriptionStore`) at launch, and refreshes the weather and the stale subscriptions when
     the app becomes active.
@@ -114,7 +114,14 @@ adds what is specific to this project.
     it does not restyle while the keyboard is composing, so Japanese input is not interrupted), `AttachmentViews` (the
     row of thumbnails under the text, Quick Look, share and remove), `NoteStyle` (the sticky-note colour). Photos come
     from the system picker, which needs no permission; files come from the file importer.
-  - `App/Weather/`: `WeatherStore` (fetch, cache in `weather-v2.json`, chosen place or the phone's location),
+  - Weather detail (`App/Weather/WeatherDetail.swift`): the day's figures are tiles (temperature, sun, UV, rain and snow, wind,
+    humidity, pressure, cloud and visibility); a tile opens that measure over every day the forecast has (bars or a line, a
+    calendar tinted by the value, the chosen day's hours, and all its figures). `MetricReader` is the one place that turns a
+    forecast into a measure's number and text. The hour chart is draggable (the readout stays until tapped), the present time
+    is a dot and a faint dashed line in the theme's accent (no red), the dashed line is the "feels like" temperature and
+    the legend says so. The forecast now asks Open-Meteo also for daylight and sunshine time, hours and snowfall, "feels like"
+    highs and lows, the dominant wind direction and the dew point, so the cache file is `weather-v3.json`.
+  - `App/Weather/`: `WeatherStore` (fetch, cache in `weather-v3.json`, chosen place or the phone's location),
     `WeatherView` (header and now figures, `DayStrip`, `HourChart` with Swift Charts, `HourlyTable` with the measures as
     rows and hours as columns, day totals, credit), `PlacePicker` and `WeatherCard` (the Today card), `WeatherFormat`
     (units for text and for numbers, condition names, symbol colours).

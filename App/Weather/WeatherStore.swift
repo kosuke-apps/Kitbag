@@ -21,7 +21,7 @@ final class WeatherStore {
   /// Set when the phone's location could not be used (access off, or no fix).
   private(set) var locationFailed = false
 
-  private let cacheURL = AppFiles.url("weather-v2.json")
+  private let cacheURL = AppFiles.url("weather-v3.json")
   private let defaults: UserDefaults
   private let location = LocationProvider()
   private let session: URLSession

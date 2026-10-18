@@ -205,4 +205,33 @@ struct WeatherTests {
     let data = try JSONEncoder().encode(forecast)
     #expect(try JSONDecoder().decode(Forecast.self, from: data) == forecast)
   }
+
+  @Test func averagesTheHoursOfADay() throws {
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+    let start = calendar.date(from: DateComponents(year: 2026, month: 10, day: 18)) ?? Date()
+    func hour(_ offset: Int, humidity: Double?, pressure: Double?, visibility: Double?) -> Forecast.Hour {
+      Forecast.Hour(
+        time: start.addingTimeInterval(Double(offset) * 3600), temperature: 10, apparentTemperature: 10,
+        precipitationProbability: nil, code: 0, isDay: true, windSpeed: 5, uvIndex: nil, visibility: visibility,
+        humidity: humidity, precipitation: nil, cloudCover: nil, windGusts: nil, windDirection: nil, pressure: pressure)
+    }
+    let forecast = Forecast(
+      place: Place(name: "X", latitude: 0, longitude: 0), fetchedAt: start, timeZoneID: "UTC",
+      current: Forecast.Current(
+        time: start, temperature: 10, apparentTemperature: 10, humidity: 50, windSpeed: 5, windGusts: nil,
+        windDirection: 0, pressure: 1000, isDay: true, code: 0),
+      hourly: [
+        hour(0, humidity: 40, pressure: 1000, visibility: 20000),
+        hour(1, humidity: 60, pressure: 1010, visibility: 8000),
+        hour(2, humidity: nil, pressure: nil, visibility: nil),
+        hour(30, humidity: 99, pressure: 900, visibility: 1),  // the next day
+      ], daily: [])
+    let averages = forecast.averages(on: LocalDate(year: 2026, month: 10, day: 18))
+    #expect(averages.humidity == 50)
+    #expect(averages.pressure == 1005)
+    #expect(averages.minVisibility == 8000)
+    #expect(averages.cloudCover == nil)
+    #expect(forecast.averages(on: LocalDate(year: 2026, month: 1, day: 1)).humidity == nil)
+  }
 }

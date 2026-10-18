@@ -130,6 +130,8 @@ public struct Forecast: Codable, Hashable, Sendable {
     /// Degrees the wind comes from, 0 = north.
     public var windDirection: Double?
     public var pressure: Double?
+    /// The temperature at which the air would be saturated, in °C.
+    public var dewPoint: Double?
 
     public var id: Date { time }
     public var kind: WeatherKind { WeatherKind(code: code) }
@@ -148,6 +150,18 @@ public struct Forecast: Codable, Hashable, Sendable {
     public var sunset: Date?
     public var windSpeedMax: Double?
     public var windGustsMax: Double?
+    /// The highest and lowest "feels like" temperature of the day, in °C.
+    public var apparentMax: Double?
+    public var apparentMin: Double?
+    /// Seconds between sunrise and sunset, and seconds of direct sunshine.
+    public var daylightDuration: Double?
+    public var sunshineDuration: Double?
+    /// Hours of the day with rain or snow.
+    public var precipitationHours: Double?
+    /// Snowfall in cm.
+    public var snowfallSum: Double?
+    /// Degrees the wind mostly comes from, 0 = north.
+    public var windDirectionDominant: Double?
 
     public var id: LocalDate { date }
     public var kind: WeatherKind { WeatherKind(code: code) }
@@ -178,6 +192,25 @@ public struct Forecast: Codable, Hashable, Sendable {
   public func hours(on day: LocalDate) -> [Hour] {
     let calendar = self.calendar
     return hourly.filter { LocalDate($0.time, calendar: calendar) == day }
+  }
+
+  /// What the hours of a day come to on average (or at worst, for visibility): the figures a day's summary lacks.
+  public struct DayAverages: Hashable, Sendable {
+    public var humidity: Double?
+    public var pressure: Double?
+    public var cloudCover: Double?
+    public var dewPoint: Double?
+    /// The shortest visibility of the day, in metres.
+    public var minVisibility: Double?
+  }
+
+  public func averages(on day: LocalDate) -> DayAverages {
+    let hours = hours(on: day)
+    func mean(_ values: [Double]) -> Double? { values.isEmpty ? nil : values.reduce(0, +) / Double(values.count) }
+    return DayAverages(
+      humidity: mean(hours.compactMap(\.humidity)), pressure: mean(hours.compactMap(\.pressure)),
+      cloudCover: mean(hours.compactMap(\.cloudCover)), dewPoint: mean(hours.compactMap(\.dewPoint)),
+      minVisibility: hours.compactMap(\.visibility).min())
   }
 
   /// The summary of a day at the place.
@@ -215,12 +248,12 @@ public enum OpenMeteo {
       URLQueryItem(
         name: "hourly",
         value:
-          "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weather_code,cloud_cover,pressure_msl,visibility,wind_speed_10m,wind_gusts_10m,wind_direction_10m,uv_index,is_day"
+          "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weather_code,cloud_cover,pressure_msl,visibility,wind_speed_10m,wind_gusts_10m,wind_direction_10m,uv_index,is_day,dew_point_2m"
       ),
       URLQueryItem(
         name: "daily",
         value:
-          "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,uv_index_max,sunrise,sunset,wind_speed_10m_max,wind_gusts_10m_max"
+          "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,uv_index_max,sunrise,sunset,wind_speed_10m_max,wind_gusts_10m_max,apparent_temperature_max,apparent_temperature_min,daylight_duration,sunshine_duration,precipitation_hours,snowfall_sum,wind_direction_10m_dominant"
       ),
       URLQueryItem(name: "timezone", value: "auto"),
       URLQueryItem(name: "past_days", value: "7"),
@@ -289,6 +322,7 @@ public enum OpenMeteo {
       let pressureMsl: [Double?]?
       let windGusts10m: [Double?]?
       let windDirection10m: [Double?]?
+      let dewPoint2m: [Double?]?
 
       enum CodingKeys: String, CodingKey {
         case time
@@ -306,6 +340,7 @@ public enum OpenMeteo {
         case pressureMsl = "pressure_msl"
         case windGusts10m = "wind_gusts_10m"
         case windDirection10m = "wind_direction_10m"
+        case dewPoint2m = "dew_point_2m"
       }
     }
     struct Daily: Decodable {
@@ -320,6 +355,13 @@ public enum OpenMeteo {
       let sunset: [String?]?
       let windSpeed10mMax: [Double?]?
       let windGusts10mMax: [Double?]?
+      let apparentTemperatureMax: [Double?]?
+      let apparentTemperatureMin: [Double?]?
+      let daylightDuration: [Double?]?
+      let sunshineDuration: [Double?]?
+      let precipitationHours: [Double?]?
+      let snowfallSum: [Double?]?
+      let windDirection10mDominant: [Double?]?
 
       enum CodingKeys: String, CodingKey {
         case time
@@ -333,6 +375,13 @@ public enum OpenMeteo {
         case sunset
         case windSpeed10mMax = "wind_speed_10m_max"
         case windGusts10mMax = "wind_gusts_10m_max"
+        case apparentTemperatureMax = "apparent_temperature_max"
+        case apparentTemperatureMin = "apparent_temperature_min"
+        case daylightDuration = "daylight_duration"
+        case sunshineDuration = "sunshine_duration"
+        case precipitationHours = "precipitation_hours"
+        case snowfallSum = "snowfall_sum"
+        case windDirection10mDominant = "wind_direction_10m_dominant"
       }
     }
     let timezone: String
@@ -374,7 +423,8 @@ public enum OpenMeteo {
         humidity: hourly.relativeHumidity2m?[safe: index] ?? nil,
         precipitation: hourly.precipitation?[safe: index] ?? nil,
         cloudCover: hourly.cloudCover?[safe: index] ?? nil, windGusts: hourly.windGusts10m?[safe: index] ?? nil,
-        windDirection: hourly.windDirection10m?[safe: index] ?? nil, pressure: hourly.pressureMsl?[safe: index] ?? nil)
+        windDirection: hourly.windDirection10m?[safe: index] ?? nil, pressure: hourly.pressureMsl?[safe: index] ?? nil,
+        dewPoint: hourly.dewPoint2m?[safe: index] ?? nil)
     }
 
     let daily = answer.daily
@@ -390,7 +440,14 @@ public enum OpenMeteo {
         sunrise: (daily.sunrise?[safe: index] ?? nil).flatMap { parse($0) },
         sunset: (daily.sunset?[safe: index] ?? nil).flatMap { parse($0) },
         windSpeedMax: daily.windSpeed10mMax?[safe: index] ?? nil,
-        windGustsMax: daily.windGusts10mMax?[safe: index] ?? nil)
+        windGustsMax: daily.windGusts10mMax?[safe: index] ?? nil,
+        apparentMax: daily.apparentTemperatureMax?[safe: index] ?? nil,
+        apparentMin: daily.apparentTemperatureMin?[safe: index] ?? nil,
+        daylightDuration: daily.daylightDuration?[safe: index] ?? nil,
+        sunshineDuration: daily.sunshineDuration?[safe: index] ?? nil,
+        precipitationHours: daily.precipitationHours?[safe: index] ?? nil,
+        snowfallSum: daily.snowfallSum?[safe: index] ?? nil,
+        windDirectionDominant: daily.windDirection10mDominant?[safe: index] ?? nil)
     }
     guard !hours.isEmpty, !days.isEmpty else { throw OpenMeteoError.missingData }
     return Forecast(

@@ -103,9 +103,6 @@ struct SettingsView: View {
           } label: {
             Text("Licences", tableName: "Licenses")
           }
-          Link(destination: URL(string: "https://open-meteo.com/")!) {
-            Text("Weather data by Open-Meteo.com", tableName: "Weather")
-          }
         } header: {
           Text("About", tableName: "Settings")
         }

@@ -12,6 +12,7 @@ struct WeatherView: View {
 
   @State private var selectedDay: LocalDate?
   @State private var showingPlaces = false
+  @State private var metric: WeatherMetric?
 
   private var units: UnitPreference { UnitPreference(rawValue: unitsRaw) ?? .automatic }
   private var format: WeatherFormat { WeatherFormat(usesUSUnits: units.usesUSUnits) }
@@ -49,6 +50,14 @@ struct WeatherView: View {
       }
     }
     .sheet(isPresented: $showingPlaces) { PlacePicker() }
+    .sheet(item: $metric) { metric in
+      if let forecast = store.forecast {
+        let calendar = forecast.calendar
+        WeatherMetricDetail(
+          metric: metric, forecast: forecast, format: format, today: LocalDate(Date(), calendar: calendar),
+          day: selectedDay ?? LocalDate(Date(), calendar: calendar))
+      }
+    }
     .task { await store.refresh() }
   }
 
@@ -60,7 +69,6 @@ struct WeatherView: View {
     let today = LocalDate(now, calendar: calendar)
     let day = selectedDay ?? today
     let hours = forecast.hours(on: day)
-    let summary = forecast.day(day)
     return ScrollView {
       VStack(spacing: 8) {
         banners
@@ -68,13 +76,13 @@ struct WeatherView: View {
         nowStats(forecast, today: forecast.day(today))
         DayStrip(forecast: forecast, selected: day, today: today, format: format) { selectedDay = $0 }
         VStack(alignment: .leading, spacing: 4) {
-          dayHeading(day, today: today, calendar: calendar)
+          dayHeading(day, today: today, calendar: calendar, isToday: day == today)
           HourChart(hours: hours, forecast: forecast, now: now, isToday: day == today, format: format)
         }
         .themedCard(padding: 10, radius: 16)
         HourlyTable(hours: hours, forecast: forecast, now: now, isToday: day == today, format: format)
           .themedCard(padding: 8, radius: 16)
-        daySummary(summary)
+        daySummary(day, forecast: forecast, today: today)
         footer(forecast)
       }
       .padding(.horizontal, 12)
@@ -172,7 +180,7 @@ struct WeatherView: View {
 
   // MARK: Day
 
-  private func dayHeading(_ day: LocalDate, today: LocalDate, calendar: Calendar) -> some View {
+  private func dayHeading(_ day: LocalDate, today: LocalDate, calendar: Calendar, isToday: Bool) -> some View {
     HStack {
       Text(day.date(calendar: .current), format: .dateTime.weekday(.wide).month(.abbreviated).day())
         .font(.footnote.weight(.semibold))
@@ -184,16 +192,29 @@ struct WeatherView: View {
           .background(Color.secondary.opacity(0.2), in: Capsule())
       }
       Spacer()
-      HStack(spacing: 10) {
+      HStack(spacing: 8) {
         Label {
-          Text("Temperature", tableName: "Weather")
+          Text("Temp", tableName: "Weather")
         } icon: {
           Capsule().fill(palette.accent).frame(width: 12, height: 3)
         }
         Label {
-          Text("Rain chance", tableName: "Weather")
+          Text("Feels like", tableName: "Weather")
+        } icon: {
+          Capsule().fill(Color.secondary).frame(width: 12, height: 1.5).mask(
+            HStack(spacing: 2) { ForEach(0..<3, id: \.self) { _ in Rectangle().frame(width: 3) } })
+        }
+        Label {
+          Text("Rain %", tableName: "Weather")
         } icon: {
           RoundedRectangle(cornerRadius: 1).fill(Color.cyan.opacity(0.5)).frame(width: 8, height: 8)
+        }
+        if isToday {
+          Label {
+            Text("Now", tableName: "Weather")
+          } icon: {
+            Circle().fill(palette.accent).frame(width: 7, height: 7)
+          }
         }
       }
       .font(.caption2)
@@ -201,34 +222,48 @@ struct WeatherView: View {
     }
   }
 
-  /// The day's totals in one row: sun, UV, rain and wind.
-  private func daySummary(_ day: Forecast.Day?) -> some View {
-    let zone = TimeZone(identifier: store.forecast?.timeZoneID ?? "") ?? .current
-    let timeStyle = Date.FormatStyle(timeZone: zone).hour().minute()
-    return HStack(spacing: 6) {
-      chip("sunrise", day?.sunrise.map { $0.formatted(timeStyle) } ?? "–", day?.sunset.map { $0.formatted(timeStyle) })
-      chip("sun.max", day?.uvIndexMax.map { "UV \(Int($0.rounded()))" } ?? "–", nil)
-      chip(
-        "drop", day?.precipitationSum.map { "\(rain($0)) \(format.rainUnit)" } ?? "–",
-        day?.precipitationProbability.map { format.percent($0) })
-      chip(
-        "wind", day?.windSpeedMax.map { "\(Int(format.windValue($0).rounded())) \(format.windUnit)" } ?? "–",
-        day?.windGustsMax.map { "↑ \(Int(format.windValue($0).rounded()))" })
+  /// The chosen day's figures, one tile for each measure; a tile opens that measure across all the days.
+  private func daySummary(_ day: LocalDate, forecast: Forecast, today: LocalDate) -> some View {
+    let reader = MetricReader(forecast: forecast, format: format)
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 4)
+    let name =
+      day == today
+      ? L10n.string("Today", table: "Weather")
+      : day.date(calendar: forecast.calendar).formatted(
+        .dateTime.weekday(.wide).month(.abbreviated).day().locale(LanguageStore.shared.locale))
+    return VStack(alignment: .leading, spacing: 4) {
+      HStack(spacing: 6) {
+        Text(name).font(.caption.weight(.semibold))
+        Text("Tap a figure for every day", tableName: "Weather").font(.caption2).foregroundStyle(.secondary)
+      }
+      .padding(.horizontal, 2)
+      LazyVGrid(columns: columns, spacing: 6) {
+        ForEach(WeatherMetric.allCases) { metric in
+          tile(metric, reader.reading(metric, on: day), unit: reader.unit(metric))
+        }
+      }
     }
   }
 
-  private func rain(_ millimetres: Double) -> String {
-    String(format: "%.1f", format.rainValue(millimetres))
-  }
-
-  private func chip(_ symbol: String, _ main: String, _ sub: String?) -> some View {
-    VStack(spacing: 1) {
-      Image(systemName: symbol).font(.caption).foregroundStyle(palette.heading)
-      Text(main).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.7)
-      Text(sub ?? " ").font(.caption2).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.7)
+  private func tile(_ metric: WeatherMetric, _ reading: MetricReading, unit: String) -> some View {
+    Button {
+      self.metric = metric
+    } label: {
+      VStack(spacing: 1) {
+        Image(systemName: metric.symbol).font(.caption).foregroundStyle(metric.tint)
+        HStack(alignment: .firstTextBaseline, spacing: 1) {
+          Text(reading.text).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.6)
+          if !unit.isEmpty, reading.value != nil { Text(unit).font(.system(size: 8)).foregroundStyle(.secondary) }
+        }
+        Text(reading.detail ?? " ").font(.system(size: 9)).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(
+          0.6)
+      }
+      .frame(maxWidth: .infinity)
+      .themedCard(padding: 6, radius: 12)
     }
-    .frame(maxWidth: .infinity)
-    .themedCard(padding: 6, radius: 12)
+    .buttonStyle(.plain)
+    .accessibilityElement(children: .combine)
+    .accessibilityHint(Text("Shows this figure for every day", tableName: "Weather"))
   }
 
   private func footer(_ forecast: Forecast) -> some View {
@@ -354,7 +389,8 @@ extension Forecast.Day {
 
 // MARK: - Chart
 
-/// The day's temperature and feels-like lines over bars for the chance of rain, with a mark at the present time.
+/// The day's temperature and feels-like lines over bars for the chance of rain. Touch and drag across it to read the hour under
+/// the finger; the present time is a dot on the temperature line and a faint dashed line.
 private struct HourChart: View {
   @Environment(\.palette) private var palette
   let hours: [Forecast.Hour]
@@ -363,60 +399,124 @@ private struct HourChart: View {
   let isToday: Bool
   let format: WeatherFormat
 
+  @State private var picked: Date?
+  /// The last moment that was touched. It stays after the finger lifts, so that the figures can be read; tap them to clear.
+  @State private var held: Date?
+
+  private var zone: TimeZone { TimeZone(identifier: forecast.timeZoneID) ?? .current }
+
+  /// The hour nearest to where the finger is.
+  private var selected: Forecast.Hour? {
+    guard let held else { return nil }
+    return hours.min { abs($0.time.timeIntervalSince(held)) < abs($1.time.timeIntervalSince(held)) }
+  }
+
   var body: some View {
-    let zone = TimeZone(identifier: forecast.timeZoneID) ?? .current
     let temps =
       hours.map { format.temperatureValue($0.temperature) }
       + hours.map { format.temperatureValue($0.apparentTemperature) }
     let low = (temps.min() ?? 0).rounded(.down) - 1
     let high = (temps.max() ?? 1).rounded(.up) + 1
     let rainTop = low + (high - low) * 0.38
-    Chart {
-      ForEach(hours) { hour in
-        if let chance = hour.precipitationProbability {
-          BarMark(
-            x: .value("Hour", hour.time, unit: .hour), yStart: .value("Base", low),
-            yEnd: .value("Rain", low + (rainTop - low) * chance / 100), width: .ratio(0.8)
+    let current = isToday ? hours.first { $0.time <= now && now < $0.time.addingTimeInterval(3600) } : nil
+    VStack(alignment: .leading, spacing: 2) {
+      readout
+      Chart {
+        ForEach(hours) { hour in
+          if let chance = hour.precipitationProbability {
+            BarMark(
+              x: .value("Hour", hour.time, unit: .hour), yStart: .value("Base", low),
+              yEnd: .value("Rain", low + (rainTop - low) * chance / 100), width: .ratio(0.8)
+            )
+            .foregroundStyle(Color.cyan.opacity(0.4))
+          }
+          LineMark(
+            x: .value("Hour", hour.time), y: .value("Feels like", format.temperatureValue(hour.apparentTemperature)),
+            series: .value("Series", "feels")
           )
-          .foregroundStyle(Color.cyan.opacity(0.4))
+          .foregroundStyle(Color.secondary)
+          .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+          .interpolationMethod(.catmullRom)
+          LineMark(
+            x: .value("Hour", hour.time), y: .value("Temperature", format.temperatureValue(hour.temperature)),
+            series: .value("Series", "temp")
+          )
+          .foregroundStyle(palette.accent)
+          .lineStyle(StrokeStyle(lineWidth: 2))
+          .interpolationMethod(.catmullRom)
         }
-        LineMark(
-          x: .value("Hour", hour.time), y: .value("Feels like", format.temperatureValue(hour.apparentTemperature)),
-          series: .value("Series", "feels")
-        )
-        .foregroundStyle(Color.secondary)
-        .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
-        .interpolationMethod(.catmullRom)
-        LineMark(
-          x: .value("Hour", hour.time), y: .value("Temperature", format.temperatureValue(hour.temperature)),
-          series: .value("Series", "temp")
-        )
-        .foregroundStyle(palette.accent)
-        .lineStyle(StrokeStyle(lineWidth: 2))
-        .interpolationMethod(.catmullRom)
+        if let current {
+          RuleMark(x: .value("Now", current.time))
+            .foregroundStyle(palette.accent.opacity(0.35))
+            .lineStyle(StrokeStyle(lineWidth: 1, dash: [2, 3]))
+          PointMark(
+            x: .value("Now", current.time), y: .value("Temperature", format.temperatureValue(current.temperature))
+          )
+          .symbolSize(46)
+          .foregroundStyle(palette.accent)
+        }
+        if let selected {
+          RuleMark(x: .value("Selected", selected.time))
+            .foregroundStyle(Color.primary.opacity(0.5))
+            .lineStyle(StrokeStyle(lineWidth: 1))
+          PointMark(
+            x: .value("Selected", selected.time),
+            y: .value("Temperature", format.temperatureValue(selected.temperature))
+          )
+          .symbolSize(60)
+          .foregroundStyle(Color.primary)
+        }
       }
-      if isToday {
-        RuleMark(x: .value("Now", now))
-          .foregroundStyle(Color.red.opacity(0.75))
-          .lineStyle(StrokeStyle(lineWidth: 1))
+      .chartYScale(domain: low...high)
+      .chartXSelection(value: $picked)
+      .onChange(of: picked) { _, new in if let new { held = new } }
+      .onChange(of: hours.first?.time) { _, _ in held = nil }
+      .chartXAxis {
+        AxisMarks(values: .stride(by: .hour, count: 3)) { _ in
+          AxisGridLine().foregroundStyle(Color.primary.opacity(0.08))
+          AxisValueLabel(format: Date.FormatStyle(timeZone: zone).hour(), centered: false)
+        }
       }
+      .chartYAxis {
+        AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { _ in
+          AxisGridLine().foregroundStyle(Color.primary.opacity(0.08))
+          AxisValueLabel()
+        }
+      }
+      .font(.caption2)
+      .frame(height: 104)
+      .accessibilityLabel(Text("Chart of the day's temperature and chance of rain", tableName: "Weather"))
     }
-    .chartYScale(domain: low...high)
-    .chartXAxis {
-      AxisMarks(values: .stride(by: .hour, count: 3)) { _ in
-        AxisGridLine().foregroundStyle(Color.primary.opacity(0.08))
-        AxisValueLabel(format: Date.FormatStyle(timeZone: zone).hour(), centered: false)
+  }
+
+  /// What the hour under the finger says, or a hint to touch the chart.
+  @ViewBuilder private var readout: some View {
+    if let hour = selected {
+      HStack(spacing: 8) {
+        Text(hour.time, format: Date.FormatStyle(timeZone: zone).hour().minute().locale(LanguageStore.shared.locale))
+          .font(.caption.weight(.bold))
+        Text(format.temperature(hour.temperature)).font(.caption.weight(.semibold))
+        Text("Feels \(format.temperature(hour.apparentTemperature))", tableName: "Weather").font(.caption2)
+          .foregroundStyle(
+            .secondary)
+        if let chance = hour.precipitationProbability {
+          Text("Rain \(format.percent(chance))", tableName: "Weather").font(.caption2).foregroundStyle(.secondary)
+        }
+        Text(format.wind(hour.windSpeed)).font(.caption2).foregroundStyle(.secondary)
+        Spacer(minLength: 0)
+        Image(systemName: "xmark.circle.fill").font(.caption2).foregroundStyle(.tertiary)
       }
+      .lineLimit(1)
+      .minimumScaleFactor(0.7)
+      .frame(height: 16)
+      .contentShape(Rectangle())
+      .onTapGesture { held = nil }
+    } else {
+      Text("Touch the chart to read an hour", tableName: "Weather")
+        .font(.caption2)
+        .foregroundStyle(.tertiary)
+        .frame(height: 16, alignment: .leading)
     }
-    .chartYAxis {
-      AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { _ in
-        AxisGridLine().foregroundStyle(Color.primary.opacity(0.08))
-        AxisValueLabel()
-      }
-    }
-    .font(.caption2)
-    .frame(height: 104)
-    .accessibilityLabel(Text("Chart of the day's temperature and chance of rain", tableName: "Weather"))
   }
 }
 
@@ -532,8 +632,11 @@ private struct HourlyTable: View {
       }
     }
     .opacity(isPast ? 0.6 : 1)
+    .background {
+      if isNow { RoundedRectangle(cornerRadius: 5).fill(palette.accent.opacity(0.16)) }
+    }
     .overlay {
-      if isNow { RoundedRectangle(cornerRadius: 4).strokeBorder(Color.red.opacity(0.8), lineWidth: 1.2) }
+      if isNow { RoundedRectangle(cornerRadius: 5).strokeBorder(palette.accent.opacity(0.55), lineWidth: 1) }
     }
     .accessibilityElement(children: .combine)
   }

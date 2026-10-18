@@ -12,6 +12,61 @@
         }
       }
     },
+    "Average cloud cover": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "平均雲量"
+          }
+        }
+      }
+    },
+    "Average humidity": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "平均湿度"
+          }
+        }
+      }
+    },
+    "Average pressure": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "平均気圧"
+          }
+        }
+      }
+    },
+    "Calendar": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カレンダー"
+          }
+        }
+      }
+    },
+    "Chance": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "降水確率"
+          }
+        }
+      }
+    },
     "Change location…": {
       "localizations": {
         "ja": {
@@ -62,6 +117,17 @@
         }
       }
     },
+    "Cloud and visibility": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雲量・視程"
+          }
+        }
+      }
+    },
     "Could not load the weather": {
       "localizations": {
         "ja": {
@@ -103,6 +169,61 @@
         }
       }
     },
+    "Daily high": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最高気温"
+          }
+        }
+      }
+    },
+    "Daily low": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最低気温"
+          }
+        }
+      }
+    },
+    "Daylight": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日照時間（昼の長さ）"
+          }
+        }
+      }
+    },
+    "Dew point": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "露点"
+          }
+        }
+      }
+    },
+    "Direct sunshine": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直射日光の時間"
+          }
+        }
+      }
+    },
     "Done": {
       "localizations": {
         "ja": {
@@ -123,17 +244,51 @@
         }
       }
     },
-    "Extreme": {
+    "Every day": {
+      "comment": "Weather screen.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "極めて強い"
+            "value": "毎日の推移"
+          }
+        }
+      }
+    },
+    "Extreme": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "極端に強い"
           }
         }
       }
     },
     "Feels": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "体感"
+          }
+        }
+      }
+    },
+    "Feels %@": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "体感 %@"
+          }
+        }
+      }
+    },
+    "Feels like": {
+      "comment": "Weather screen.",
       "localizations": {
         "ja": {
           "stringUnit": {
@@ -149,6 +304,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "体感 %@"
+          }
+        }
+      }
+    },
+    "Feels like, high": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "体感の最高"
+          }
+        }
+      }
+    },
+    "Feels like, low": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "体感の最低"
           }
         }
       }
@@ -256,11 +433,23 @@
       }
     },
     "High": {
+      "comment": "Weather screen.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "強い"
+          }
+        }
+      }
+    },
+    "Highest UV index": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大 UV 指数"
           }
         }
       }
@@ -271,6 +460,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "1時間ごとの予報"
+          }
+        }
+      }
+    },
+    "Hours with rain or snow": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雨・雪の時間数"
           }
         }
       }
@@ -296,6 +496,17 @@
         }
       }
     },
+    "Level": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "強さ"
+          }
+        }
+      }
+    },
     "Location": {
       "localizations": {
         "ja": {
@@ -307,6 +518,7 @@
       }
     },
     "Low": {
+      "comment": "Weather screen.",
       "localizations": {
         "ja": {
           "stringUnit": {
@@ -347,11 +559,34 @@
       }
     },
     "Moderate": {
+      "comment": "Weather screen.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "中程度"
+          }
+        }
+      }
+    },
+    "Mostly from": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主な風向き"
+          }
+        }
+      }
+    },
+    "No hourly figures for this day.": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この日の時間ごとのデータはありません．"
           }
         }
       }
@@ -366,12 +601,24 @@
         }
       }
     },
-    "Now": {
+    "No sunrise or sunset on this day.": {
+      "comment": "Weather screen.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "今"
+            "value": "この日の日の出・日の入りはありません．"
+          }
+        }
+      }
+    },
+    "Now": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いま"
           }
         }
       }
@@ -458,6 +705,28 @@
         }
       }
     },
+    "Rain %@": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雨 %@"
+          }
+        }
+      }
+    },
+    "Rain and snow": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雨・雪"
+          }
+        }
+      }
+    },
     "Rain chance": {
       "localizations": {
         "ja": {
@@ -484,6 +753,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "都市を検索"
+          }
+        }
+      }
+    },
+    "Shortest visibility": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最小視程"
+          }
+        }
+      }
+    },
+    "Shows this figure for every day": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この数字を毎日分表示します"
           }
         }
       }
@@ -528,12 +819,68 @@
         }
       }
     },
+    "Snowfall": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "降雪量"
+          }
+        }
+      }
+    },
+    "Strongest gust": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大瞬間風速"
+          }
+        }
+      }
+    },
+    "Strongest wind": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大風速"
+          }
+        }
+      }
+    },
     "Sun": {
+      "comment": "Weather screen.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "日の出・日の入り"
+          }
+        }
+      }
+    },
+    "Sunrise": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日の出"
+          }
+        }
+      }
+    },
+    "Sunset": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日の入り"
           }
         }
       }
@@ -548,8 +895,19 @@
         }
       }
     },
+    "Tap a figure for every day": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数字をタップすると毎日の推移を表示"
+          }
+        }
+      }
+    },
     "Temp": {
-      "comment": "Row name in the hourly table (short).",
+      "comment": "Weather screen.",
       "localizations": {
         "ja": {
           "stringUnit": {
@@ -560,11 +918,23 @@
       }
     },
     "Temperature": {
+      "comment": "Weather screen.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "気温"
+          }
+        }
+      }
+    },
+    "Through the day": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1日の流れ"
           }
         }
       }
@@ -616,6 +986,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "今日 %@"
+          }
+        }
+      }
+    },
+    "Total": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合計"
+          }
+        }
+      }
+    },
+    "Touch the chart to read an hour": {
+      "comment": "Weather screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "グラフをなぞると，その時間の値を表示します"
           }
         }
       }
@@ -691,16 +1083,18 @@
       }
     },
     "UV index": {
+      "comment": "Weather screen.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "紫外線指数"
+            "value": "UV 指数"
           }
         }
       }
     },
     "Very high": {
+      "comment": "Weather screen.",
       "localizations": {
         "ja": {
           "stringUnit": {
