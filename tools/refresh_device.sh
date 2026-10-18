@@ -103,8 +103,21 @@ fi
 
 cd "$ROOT" || exit 1
 log "Building for $DEVICE..."
-if ! xcodebuild -project Kitbag.xcodeproj -scheme Kitbag -destination "id=$UDID" \
-    -derivedDataPath "$DERIVED" -allowProvisioningUpdates build >"$STATE_DIR/build.log" 2>&1; then
+# Xcode only sees the phone while its connection is up, which can lapse between the check above and the build, so a build
+# that finds no destination is tried again after asking the phone something.
+built=0
+for attempt in 1 2 3; do
+  if xcodebuild -project Kitbag.xcodeproj -scheme Kitbag -destination "id=$UDID" \
+      -derivedDataPath "$DERIVED" -allowProvisioningUpdates build >"$STATE_DIR/build.log" 2>&1; then
+    built=1
+    break
+  fi
+  grep -q "Unable to find a destination" "$STATE_DIR/build.log" || break
+  log "The build did not see the phone (attempt $attempt); trying again."
+  sleep 15
+  reachable
+done
+if (( ! built )); then
   log "The build failed; see $STATE_DIR/build.log"
   notify "The build for your iPhone failed. See $STATE_DIR/build.log"
   exit 1
