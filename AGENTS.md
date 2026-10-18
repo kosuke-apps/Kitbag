@@ -40,6 +40,12 @@ adds what is specific to this project.
   the logic package `KitbagCore` in Swift 6, as in Mantissa and Headway. Kitbag itself has no third-party dependency;
   the guests bring theirs (Headway: MapLibre, SwiftProtobuf, ZIPFoundation).
 - Bundle identifier `dev.kosuke.kitbag`. Free Apple ID: `Config/Local.xcconfig` holds the team (not committed).
+- A free Apple ID's signature lasts seven days. The app reads the expiry from `embedded.mobileprovision`
+  (`ProvisioningProfile` in KitbagCore, `SigningStatus` in the app), shows it quietly at the bottom of the home screen
+  and warns by notification. `tools/refresh_device.sh` renews it over Wi-Fi from the Mac (it moves the app's provisioning
+  profile aside, because Xcode only asks Apple for a new one when the old one is gone), and
+  `tools/install_refresh_agent.sh` runs that from launchd. Checked: a rebuilt app gets a new profile with seven fresh days
+  and installs over Wi-Fi in about a minute. Not checked: the agent over several days, and a locked phone.
 - How a guest runs inside Kitbag (details and the upgrade steps are in `docs/guests.md`):
   - `tools/guests.txt` pins each guest to a release tag of its own repository (a sibling folder).
     `tools/sync_guests.sh` copies that tagged snapshot (`git archive`, so the guest's repository is only read) into

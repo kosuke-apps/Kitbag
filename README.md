@@ -49,6 +49,19 @@ Requires Xcode 27 and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 To run on an iPhone with a free Apple ID, copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig` and put your team
 in it.
 
+## Keeping it installed (free Apple ID)
+
+A build signed with a free Apple ID stops opening after seven days, and the signature only gets a new seven days when
+Xcode asks Apple for a new provisioning profile. Kitbag shows what is left at the bottom of the home screen (and in
+Settings) and warns with a notification two days before, the evening before and on the day.
+
+`tools/refresh_device.sh` renews it from the Mac without opening Xcode: it moves this app's provisioning profile aside so
+that the build fetches a new one, builds for the phone and installs over Wi-Fi with `devicectl`. The phone has to be
+paired for network use (Xcode > Window > Devices and Simulators > "Connect via network"), awake and on the same Wi-Fi.
+`tools/refresh_device.sh --check` says when it last ran and whether the phone answers. `tools/install_refresh_agent.sh`
+installs a launchd agent that runs it every hour and does something only once the last install is four days old
+(`--remove` takes it away). Installing over a running app closes it.
+
 ## Architecture
 
 Guests are pinned release tags of other repositories, built as separate modules inside Kitbag without changing them.
