@@ -39,6 +39,9 @@ adds what is specific to this project.
 - Stack: SwiftUI, iOS 17+, XcodeGen (`project.yml`; the `.xcodeproj` is not committed). The app is in Swift 5 mode and
   the logic package `KitbagCore` in Swift 6, as in Mantissa and Headway. Kitbag itself has no third-party dependency;
   the guests bring theirs (Headway: MapLibre, SwiftProtobuf, ZIPFoundation).
+- Versions: SemVer `0.MINOR.PATCH`. After a batch of commits raise `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml`
+  (a feature or visible change: the next minor; fixes only: the next patch), commit that, and make an annotated `vX.Y.Z` tag
+  that says what changed. Tags stay local until the repository is pushed to `kosuke-apps`. 1.0.0 is the author's to decide.
 - Bundle identifier `dev.kosuke.kitbag`. Free Apple ID: `Config/Local.xcconfig` holds the team (not committed).
 - A free Apple ID's signature lasts seven days. The app reads the expiry from `embedded.mobileprovision`
   (`ProvisioningProfile` in KitbagCore, `SigningStatus` in the app), shows it quietly at the bottom of the home screen
