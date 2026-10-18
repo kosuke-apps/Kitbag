@@ -16,10 +16,11 @@ adds what is specific to this project.
 - Status: a trial prototype. Working: the home screen with a Today section (date that opens the calendar, weather,
   the class that is on or comes next, today's classes, what is due soon, pinned notes), Settings (theme and appearance, app
   icon, which tools and which parts of Today are shown and in what order), the tools Timetable (grid in the
-  look of a printed UW–Madison timetable, course editor, JSON import and export), Calendar (deadlines with reminders,
+  look of a printed UW–Madison timetable as an A4 page, a PDF export, terms with dates, credits and course details), GPA
+  (grades, term and cumulative GPA, what-if and target calculators), Calendar (deadlines with reminders,
   month page and list), Notes (search, course, pin) and Weather (one screen, Open-Meteo), and Headway and Mantissa as
-  guests. Next: redo the timetable (A4 page, PDF, terms, credits, grades and GPA), a denser weather screen, calendar
-  import, export and subscription, richer notes, a Kitbag-wide language setting. Nothing in it is a placeholder for an
+  guests. Next: a denser weather screen with past data, calendar import, export and subscription, richer notes
+  (formatting, photos, files), a Kitbag-wide language setting. Nothing in it is a placeholder for an
   unbuilt feature.
 - Out of scope for now: features that cross tools (for example bus times for the next class), accounts, the App Store
   (it needs the paid Developer Program), anything that needs a paid account (WeatherKit, remote push, iCloud: the weather comes from the free Open-Meteo service instead).
@@ -52,10 +53,13 @@ adds what is specific to this project.
     (hand-writable JSON; id, location and instructor may be left out), `Timetable` (slots of a day, `upcoming(after:)`
     for the class on now or next, `hourRange` and `visibleDays` for the grid, the file format with a `version`),
     `LocalDate` (a day as `"2026-10-22"`, independent of time zone) and `MonthGrid` (the rows of a month page),
-    `HomeLayout` (a saved order and hidden items, merged with what exists), `Deadline` and `DeadlineBook` (reminder dates, grouping by how soon), `Note` and `NoteBook` (title from the first
+    `Season` and the term fields of `Timetable` (dates, week numbers, no classes outside the term), `TimetableLibrary`
+    (all the terms; which one is in force today), `GradeScale` and `GPA` (UW–Madison, US plus/minus and Japanese scales;
+    averages by credits; the average a target needs), `HomeLayout` (a saved order and hidden items, merged with what
+    exists), `Deadline` and `DeadlineBook` (reminder dates, grouping by how soon), `Note` and `NoteBook` (title from the first
     line, pinned first, search), `Weather` (`Place`, `WeatherKind` from WMO codes, `Forecast`, and `OpenMeteo`: the
     request URLs and the decoding of the service's answers). Every user file has a `version`.
-    `Tests/KitbagCoreTests/` uses invented data only (64 tests).
+    `Tests/KitbagCoreTests/` uses invented data only (96 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
     `NoteStore`, `WeatherStore`) at launch, and refreshes the weather when the app becomes active.
   - `App/Theme/`: `Theme` (five themes: Ivory, Slate, Midnight, Forest, System; each has a light and a dark palette,
@@ -83,10 +87,14 @@ adds what is specific to this project.
   - `App/Weather/`: `WeatherStore` (fetch, cache in `weather.json`, chosen place or the phone's location),
     `WeatherView` (now, hours, days, details, credit), `PlacePicker` and `WeatherCard` (the Today card),
     `WeatherFormat` (units, condition names, symbol colours).
-  - `App/Timetable/`: `TimetableStore` (the timetable as `timetable.json` in Application Support; an unreadable file
-    is moved aside, never overwritten), `TimetableView` (screen, menu, import and export), `TimetableGrid` (the grid
-    and legend: blocks as tall as the class, details dropped level by level when a block is small), `CourseEditing`
-    (detail sheet, course list, course form), `CourseColor+Style` (pastel and dark variants).
+  - `App/Timetable/`: `TimetableStore` (all terms in `timetables.json`; the first version's `timetable.json` becomes the
+    first term and is left in place; an unreadable file is moved aside, never overwritten; `store.timetable` is the term
+    in force today, which Today, the calendar and the notes use), `TimetablePage` (the A4 page: `.paper` is the printed
+    original's look with every detail and a legend, and is what `TimetablePDF` renders; `.screen` keeps the proportions
+    but writes in each block only what fits), `TimetableView` (term header, the page, course cards, menu, a zoomable
+    viewer), `TermViews` (term name and dates, header, editor), `CourseViews` (card, detail with grade, deadlines and
+    notes of the course, editor with credits), `CourseColor+Style` (pastel, dark and strong tones).
+  - `App/GPA/GPAView.swift`: the cumulative and per-term GPA, grade menus, the what-if calculator and the target.
   - `App/Resources/`: String Catalogs `Shell`, `Today`, `Timetable`, `Calendar`, `Notes` and `Weather` (add strings
     with `tools/add_strings.py <table>`; Kitbag's own strings, always
     `Text("…", tableName: "…")`; the default table "Localizable" belongs to Headway's catalog, which is copied into the
@@ -110,6 +118,8 @@ adds what is specific to this project.
 - Test the logic: `swift test`.
 - Format: `xcrun swift-format format -i -r App Sources Tests Package.swift`; lint:
   `xcrun swift-format lint --strict -r App Sources Tests Package.swift` (config in `.swift-format`).
+- Check the PDF without the UI: a debug build launched with `-kitbagExportPDF <path>` writes the current term's page there
+  (`sips -s format png file.pdf --out file.png` turns it into an image).
 - Load the author's timetable into a simulator: terminate the app, then
   `C=$(xcrun simctl get_app_container <udid> dev.kosuke.kitbag data); mkdir -p "$C/Library/Application Support/Kitbag"; cp Local/timetable-2026-fall.json "$C/Library/Application Support/Kitbag/timetable.json"`
   and launch it again.

@@ -26,9 +26,26 @@ struct KitbagApp: App {
       .environment(themes)
       .environment(layout)
       .task { await weather.refresh() }
+      #if DEBUG
+        .task { exportPDFIfAsked() }
+      #endif
       .onChange(of: scenePhase) { _, phase in
         if phase == .active { Task { await weather.refresh() } }
       }
     }
   }
 }
+
+#if DEBUG
+  extension KitbagApp {
+    /// For checking the PDF from the command line: launch with `-kitbagExportPDF <path>` and the current term's page is
+    /// written there. Only in debug builds.
+    @MainActor fileprivate func exportPDFIfAsked() {
+      guard let path = UserDefaults.standard.string(forKey: "kitbagExportPDF") else { return }
+      let term = timetable.timetable
+      if let data = TimetablePDF.data(for: term, heading: term.pageHeading) {
+        try? data.write(to: URL(fileURLWithPath: path))
+      }
+    }
+  }
+#endif

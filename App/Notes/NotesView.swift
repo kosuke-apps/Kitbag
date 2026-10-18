@@ -139,7 +139,7 @@ struct NoteRow: View {
   let note: Note
 
   var body: some View {
-    let course = note.courseID.flatMap { timetable.timetable.course(id: $0) }
+    let course = note.courseID.flatMap { timetable.course(id: $0) }
     VStack(alignment: .leading, spacing: 3) {
       HStack {
         Text(note.title.isEmpty ? String(localized: "New note", table: "Notes") : note.title)

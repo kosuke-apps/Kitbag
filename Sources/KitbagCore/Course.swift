@@ -69,19 +69,26 @@ public struct Course: Hashable, Codable, Identifiable, Sendable {
   public var title: String
   public var color: CourseColor
   public var meetings: [Meeting]
+  /// The credits (units) the course is worth, if known.
+  public var credits: Double?
+  /// The grade received, as the grade scale writes it (`"AB"`); nil until there is one.
+  public var grade: String?
 
   public init(
-    id: UUID = UUID(), code: String, title: String = "", color: CourseColor = .lavender, meetings: [Meeting] = []
+    id: UUID = UUID(), code: String, title: String = "", color: CourseColor = .lavender, meetings: [Meeting] = [],
+    credits: Double? = nil, grade: String? = nil
   ) {
     self.id = id
     self.code = code
     self.title = title
     self.color = color
     self.meetings = meetings
+    self.credits = credits
+    self.grade = grade
   }
 
   private enum CodingKeys: String, CodingKey {
-    case id, code, title, color, meetings
+    case id, code, title, color, meetings, credits, grade
   }
 
   public init(from decoder: any Decoder) throws {
@@ -91,7 +98,15 @@ public struct Course: Hashable, Codable, Identifiable, Sendable {
       code: try container.decode(String.self, forKey: .code),
       title: try container.decodeIfPresent(String.self, forKey: .title) ?? "",
       color: try container.decodeIfPresent(CourseColor.self, forKey: .color) ?? .lavender,
-      meetings: try container.decodeIfPresent([Meeting].self, forKey: .meetings) ?? [])
+      meetings: try container.decodeIfPresent([Meeting].self, forKey: .meetings) ?? [],
+      credits: try container.decodeIfPresent(Double.self, forKey: .credits),
+      grade: try container.decodeIfPresent(String.self, forKey: .grade))
+  }
+
+  /// The instructors of the course's classes, each once, in the order they appear.
+  public var instructors: [String] {
+    var seen = Set<String>()
+    return meetings.map(\.instructor).filter { !$0.isEmpty && seen.insert($0).inserted }
   }
 
   /// The sections this course is taken in, as a printed timetable's legend writes them: `"LEC 001 + LAB 309"`.

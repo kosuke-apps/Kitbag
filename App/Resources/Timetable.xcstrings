@@ -1,6 +1,28 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ cr": {
+      "comment": "Credits of a course, as in '3 cr'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@単位"
+          }
+        }
+      }
+    },
+    "%@ Timetable": {
+      "comment": "The heading of a printed timetable; %@ is a term such as '2026 Fall'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@の時間割"
+          }
+        }
+      }
+    },
     "001": {
       "comment": "Example section number shown in the empty field.",
       "localizations": {
@@ -23,6 +45,28 @@
         }
       }
     },
+    "3": {
+      "comment": "Example number of credits shown in the empty field.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3"
+          }
+        }
+      }
+    },
+    "A B 123": {
+      "comment": "Example course code shown in the empty field.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A B 123"
+          }
+        }
+      }
+    },
     "Add a class": {
       "localizations": {
         "ja": {
@@ -39,6 +83,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "科目を追加"
+          }
+        }
+      }
+    },
+    "Add a term": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学期を追加"
+          }
+        }
+      }
+    },
+    "Add a term and its courses, or import a timetable file.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学期と科目を追加するか，時間割ファイルを読み込んでください．"
           }
         }
       }
@@ -135,6 +199,47 @@
         }
       }
     },
+    "Courses: %lld": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "科目: %lld"
+          }
+        }
+      }
+    },
+    "Courses: %lld · Credits: %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "科目: %lld ・ 単位: %@"
+          }
+        }
+      }
+    },
+    "Credits": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "単位"
+          }
+        }
+      }
+    },
+    "Current": {
+      "comment": "Marks the term that is in force today.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在"
+          }
+        }
+      }
+    },
     "Day": {
       "localizations": {
         "ja": {
@@ -145,12 +250,62 @@
         }
       }
     },
+    "Deadlines": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切り"
+          }
+        }
+      }
+    },
     "Delete this class": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "この授業を削除"
+          }
+        }
+      }
+    },
+    "Delete this course": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この科目を削除"
+          }
+        }
+      }
+    },
+    "Delete this course?": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この科目を削除しますか？"
+          }
+        }
+      }
+    },
+    "Delete this term": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この学期を削除"
+          }
+        }
+      }
+    },
+    "Delete this term and its courses?": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この学期と科目を削除しますか？"
           }
         }
       }
@@ -196,6 +351,26 @@
         }
       }
     },
+    "Edit term": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学期を編集"
+          }
+        }
+      }
+    },
+    "Edit this term…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この学期を編集…"
+          }
+        }
+      }
+    },
     "Ends": {
       "localizations": {
         "ja": {
@@ -212,6 +387,66 @@
           "stringUnit": {
             "state": "translated",
             "value": "ファイルに書き出す…"
+          }
+        }
+      }
+    },
+    "Export PDF…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDFを書き出す…"
+          }
+        }
+      }
+    },
+    "Fall": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "秋"
+          }
+        }
+      }
+    },
+    "First day of classes": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "授業開始日"
+          }
+        }
+      }
+    },
+    "Grade": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成績"
+          }
+        }
+      }
+    },
+    "Grades feed the GPA tool.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成績はGPAツールで使われます．"
+          }
+        }
+      }
+    },
+    "Heading of the page": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページの見出し"
           }
         }
       }
@@ -236,12 +471,32 @@
         }
       }
     },
+    "Instructors": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "教員"
+          }
+        }
+      }
+    },
     "Kind": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "種別"
+          }
+        }
+      }
+    },
+    "Last day of classes": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "授業最終日"
           }
         }
       }
@@ -267,23 +522,52 @@
         }
       }
     },
-    "A B 123": {
-      "comment": "Example course code shown in the empty field.",
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A B 123"
-          }
-        }
-      }
-    },
     "New course": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "新しい科目"
+          }
+        }
+      }
+    },
+    "New note for this course": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この科目の新しいメモ"
+          }
+        }
+      }
+    },
+    "New term": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい学期"
+          }
+        }
+      }
+    },
+    "New term…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい学期…"
+          }
+        }
+      }
+    },
+    "No courses in this term yet.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この学期にはまだ科目がありません．"
           }
         }
       }
@@ -298,12 +582,53 @@
         }
       }
     },
+    "Not graded yet": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未評価"
+          }
+        }
+      }
+    },
+    "Notes:": {
+      "comment": "The label above the legend on the printed page.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "備考:"
+          }
+        }
+      }
+    },
+    "Nothing": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "なし"
+          }
+        }
+      }
+    },
     "OK": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "OK"
+          }
+        }
+      }
+    },
+    "Open the page large": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページを大きく表示"
           }
         }
       }
@@ -318,12 +643,73 @@
         }
       }
     },
+    "Schedule": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時間割"
+          }
+        }
+      }
+    },
+    "Season": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "季節"
+          }
+        }
+      }
+    },
     "Section": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "セクション"
+          }
+        }
+      }
+    },
+    "See all in the calendar": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カレンダーですべて見る"
+          }
+        }
+      }
+    },
+    "Set the dates of the term": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学期の期間を設定"
+          }
+        }
+      }
+    },
+    "Spring": {
+      "comment": "A season of the academic year.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "春"
+          }
+        }
+      }
+    },
+    "Start with the courses of": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "科目のコピー元"
           }
         }
       }
@@ -338,12 +724,62 @@
         }
       }
     },
+    "Summer": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "夏"
+          }
+        }
+      }
+    },
+    "Term": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学期"
+          }
+        }
+      }
+    },
+    "The courses are copied without grades; change what differs.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "科目は成績なしでコピーされます．違う部分は編集してください．"
+          }
+        }
+      }
+    },
+    "The dates decide which term is current, the week number, and when classes stop showing.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "期間によって，現在の学期，週番号，授業の表示終了が決まります．"
+          }
+        }
+      }
+    },
     "The end must be after the start.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "終了は開始より後にしてください．"
+          }
+        }
+      }
+    },
+    "The last day must not be before the first.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最終日は開始日より前にできません．"
           }
         }
       }
@@ -364,6 +800,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "時間割を保存できませんでした．"
+          }
+        }
+      }
+    },
+    "This course no longer exists.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この科目はもう存在しません．"
           }
         }
       }
@@ -416,6 +862,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "名称"
+          }
+        }
+      }
+    },
+    "Untitled term": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名称未設定の学期"
+          }
+        }
+      }
+    },
+    "Week %lld of %lld": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第%lld週 / 全%lld週"
+          }
+        }
+      }
+    },
+    "Winter": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "冬"
+          }
+        }
+      }
+    },
+    "Year": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "年"
           }
         }
       }

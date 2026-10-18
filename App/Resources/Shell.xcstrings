@@ -12,6 +12,17 @@
         }
       }
     },
+    "GPA": {
+      "comment": "Name of the GPA tool on the home screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GPA"
+          }
+        }
+      }
+    },
     "Headway": {
       "comment": "Name of the bus app on the home screen. A proper noun, the same in every language.",
       "localizations": {

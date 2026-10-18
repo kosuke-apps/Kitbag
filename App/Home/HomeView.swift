@@ -27,6 +27,7 @@ struct HomeView: View {
       ModuleScreen(placement: route.module.homeButtonPlacement, close: { self.route = nil }) {
         route.module.content(guests: guests, route: route)
       }
+      .environment(\.openModule) { self.route = $0 }
     }
   }
 }

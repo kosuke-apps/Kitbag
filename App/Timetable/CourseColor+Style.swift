@@ -10,6 +10,20 @@ extension CourseColor {
       uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(hex: hexes.dark) : UIColor(hex: hexes.light) })
   }
 
+  /// A deeper tone of the colour, for a bar or a dot beside a course on a card.
+  var strongColor: Color {
+    switch self {
+    case .lavender: Color(hex: 0x8A74C9)
+    case .periwinkle: Color(hex: 0x6B83C8)
+    case .mint: Color(hex: 0x5BA36B)
+    case .rose: Color(hex: 0xD06B6B)
+    case .peach: Color(hex: 0xE09A5C)
+    case .butter: Color(hex: 0xC9B24A)
+    case .sky: Color(hex: 0x4C9BCB)
+    case .sage: Color(hex: 0x4FA394)
+    }
+  }
+
   private var hexes: (light: UInt32, dark: UInt32) {
     switch self {
     case .lavender: (0xE0D6F0, 0x4A3F63)

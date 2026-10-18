@@ -12,8 +12,11 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
 
 - A home screen with today's date, the class that is on or comes next, and the day's classes, above a grid of app icons;
   each tool opens inside Kitbag.
-- Timetable: the week as a grid in the look of a printed school timetable (pastel blocks as tall as the class, a legend
-  of courses), a course editor, and import and export as a readable JSON file.
+- Timetable: terms (semesters) with their dates, the week as an A4 page in the look of a printed school timetable (pastel
+  blocks as tall as the class), a PDF export of that page, course cards with credits, course details with grade, deadlines
+  and notes, and import and export as a readable JSON file.
+- GPA: grades per course, term and cumulative GPA (UW–Madison, US plus/minus or Japanese scale), a what-if calculator and
+  the average a target GPA needs.
 - Calendar: deadlines (assignments, exams, quizzes, projects) with local-notification reminders, a month page with the
   day's classes and deadlines, and a list grouped by how soon each is due.
 - Notes: free text with search, an optional course, and a pin that shows the note on the Today screen.
@@ -24,8 +27,7 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
 - Headway (live Madison bus map) and Mantissa (offline exact calculator) run inside it as guests, from their own
   repositories, unchanged.
 
-Next: a redone timetable (A4 page, PDF, terms, grades and GPA), a denser weather screen, calendar import and
-subscription, richer notes.
+Next: a denser weather screen with past data, calendar import, export and subscription, richer notes.
 
 ## Getting started
 

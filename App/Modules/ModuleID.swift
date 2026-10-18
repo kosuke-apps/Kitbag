@@ -30,6 +30,7 @@ enum ModuleID: String, CaseIterable, Identifiable {
   case calendar
   case notes
   case weather
+  case gpa
   case mantissa
   case headway
   case settings
@@ -42,6 +43,7 @@ enum ModuleID: String, CaseIterable, Identifiable {
     case .calendar: LocalizedStringResource("Calendar", table: "Shell")
     case .notes: LocalizedStringResource("Notes", table: "Shell")
     case .weather: LocalizedStringResource("Weather", table: "Shell")
+    case .gpa: LocalizedStringResource("GPA", table: "Shell")
     case .mantissa: LocalizedStringResource("Mantissa", table: "Shell")
     case .headway: LocalizedStringResource("Headway", table: "Shell")
     case .settings: LocalizedStringResource("Settings", table: "Shell")
@@ -67,6 +69,7 @@ enum ModuleID: String, CaseIterable, Identifiable {
     case .calendar: .symbol("calendar", Color(red: 0.93, green: 0.31, blue: 0.30))
     case .notes: .symbol("note.text", Color(red: 0.96, green: 0.68, blue: 0.10))
     case .weather: .symbol("cloud.sun.fill", Color(red: 0.22, green: 0.52, blue: 0.95))
+    case .gpa: .symbol("graduationcap.fill", Color(red: 0.16, green: 0.62, blue: 0.45))
     case .mantissa: .guest("Mantissa")
     case .headway: .guest("Headway")
     case .settings: .symbol("gearshape.fill", Color(red: 0.45, green: 0.47, blue: 0.53))
@@ -81,6 +84,7 @@ enum ModuleID: String, CaseIterable, Identifiable {
     case .calendar: CalendarView(initialDay: route.day)
     case .notes: NotesView(initialNoteID: route.noteID)
     case .weather: WeatherView()
+    case .gpa: GPAView()
     case .mantissa: MantissaGuestView(runtime: guests.mantissa)
     case .headway: HeadwayGuestView(runtime: guests.headway)
     case .settings: SettingsView()

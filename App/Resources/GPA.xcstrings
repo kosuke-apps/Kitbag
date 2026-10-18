@@ -1,0 +1,269 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Add a term and its courses in the timetable first.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まず時間割で学期と科目を追加してください．"
+          }
+        }
+      }
+    },
+    "Already safe: any grade keeps you at or above the target.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すでに安全: どの成績でも目標以上を保てます．"
+          }
+        }
+      }
+    },
+    "Credits counted: %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GPA対象の単位: %@"
+          }
+        }
+      }
+    },
+    "Credits still to earn": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残りの取得予定単位"
+          }
+        }
+      }
+    },
+    "Cumulative GPA": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通算GPA"
+          }
+        }
+      }
+    },
+    "Enter grades and credits to see your GPA.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成績と単位を入力するとGPAが表示されます．"
+          }
+        }
+      }
+    },
+    "Enter the credits you still have to earn.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残りの単位数を入力してください．"
+          }
+        }
+      }
+    },
+    "Every course of this term has a grade.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この学期の全科目に成績があります．"
+          }
+        }
+      }
+    },
+    "GPA": {
+      "comment": "Title of the GPA tool.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GPA"
+          }
+        }
+      }
+    },
+    "Grade of %@": {
+      "comment": "Accessibility label of a grade menu; %@ is a course code.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@の成績"
+          }
+        }
+      }
+    },
+    "Grade scale": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "評価基準"
+          }
+        }
+      }
+    },
+    "Imagine grades for %@.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@の成績を仮定します．"
+          }
+        }
+      }
+    },
+    "Japan (S, A, B, C, D)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日本（S, A, B, C, D）"
+          }
+        }
+      }
+    },
+    "Needs an average of %@ on those credits.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "それらの単位で平均%@が必要です．"
+          }
+        }
+      }
+    },
+    "No courses in this term.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この学期には科目がありません．"
+          }
+        }
+      }
+    },
+    "No grade": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成績なし"
+          }
+        }
+      }
+    },
+    "Not graded yet": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未評価"
+          }
+        }
+      }
+    },
+    "Out of reach: it would need more than the top grade.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "達成不可能: 最高の成績を超える必要があります．"
+          }
+        }
+      }
+    },
+    "Overall": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通算"
+          }
+        }
+      }
+    },
+    "Target": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目標"
+          }
+        }
+      }
+    },
+    "Target GPA": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目標GPA"
+          }
+        }
+      }
+    },
+    "That is %@ or better on average.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "平均で%@以上に相当します．"
+          }
+        }
+      }
+    },
+    "This term": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この学期"
+          }
+        }
+      }
+    },
+    "US with plus and minus": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "米国式（プラス・マイナスあり）"
+          }
+        }
+      }
+    },
+    "UW–Madison (A, AB, B…)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UW–Madison（A, AB, B…）"
+          }
+        }
+      }
+    },
+    "What if": {
+      "comment": "Heading of the calculator that imagines grades.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もしも"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

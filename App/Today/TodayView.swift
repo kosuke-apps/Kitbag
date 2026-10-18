@@ -96,7 +96,7 @@ struct TodayView: View {
 
   @ViewBuilder private func todaysClasses(now: Date) -> some View {
     let calendar = Calendar.current
-    let today = timetable.timetable.slots(on: Weekday(date: now, calendar: calendar))
+    let today = timetable.timetable.slots(on: LocalDate(now, calendar: calendar), calendar: calendar)
     if !today.isEmpty {
       VStack(alignment: .leading, spacing: 10) {
         SectionHeading(Text("Today", tableName: "Today"))
@@ -260,7 +260,7 @@ private struct DueSoonRow: View {
   let deadline: Deadline
 
   var body: some View {
-    let course = deadline.courseID.flatMap { timetable.timetable.course(id: $0) }
+    let course = deadline.courseID.flatMap { timetable.course(id: $0) }
     HStack(spacing: 10) {
       Image(systemName: deadline.kind.symbol)
         .foregroundStyle(deadline.kind.color)

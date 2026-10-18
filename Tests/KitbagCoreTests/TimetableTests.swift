@@ -203,7 +203,7 @@ struct TimetableFileTests {
 
   @Test func recordsTheFileVersion() throws {
     let text = String(decoding: try timetable.fileData(), as: UTF8.self)
-    #expect(text.contains(#""version" : 1"#))
+    #expect(text.contains(#""version" : 2"#))
   }
 
   @Test func readsAHandWrittenFile() throws {

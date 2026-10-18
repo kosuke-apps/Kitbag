@@ -13,7 +13,7 @@ struct DeadlineRow: View {
 
   var body: some View {
     let calendar = Calendar.current
-    let course = deadline.courseID.flatMap { timetable.timetable.course(id: $0) }
+    let course = deadline.courseID.flatMap { timetable.course(id: $0) }
     let overdue = deadline.isOverdue(at: Date(), calendar: calendar)
     HStack(alignment: .top, spacing: 10) {
       Button {
@@ -109,7 +109,7 @@ struct DeadlineEditor: View {
           }
           Picker(selection: $deadline.courseID) {
             Text("None", tableName: "Calendar").tag(UUID?.none)
-            ForEach(timetable.timetable.courses) { course in
+            ForEach(courseChoices) { course in
               Text(course.code).tag(Optional(course.id))
             }
           } label: {
@@ -192,8 +192,17 @@ struct DeadlineEditor: View {
     var saved = deadline
     saved.title = saved.title.trimmingCharacters(in: .whitespaces)
     if !hasTime { saved.time = nil }
-    deadlines.upsert(saved, courseCode: saved.courseID.flatMap { timetable.timetable.course(id: $0)?.code })
+    deadlines.upsert(saved, courseCode: saved.courseID.flatMap { timetable.course(id: $0)?.code })
     dismiss()
+  }
+
+  /// The courses of the current term, and the one this deadline already belongs to if it is from another term.
+  private var courseChoices: [Course] {
+    var choices = timetable.timetable.courses
+    if let id = deadline.courseID, !choices.contains(where: { $0.id == id }), let linked = timetable.course(id: id) {
+      choices.append(linked)
+    }
+    return choices
   }
 
   /// A `DatePicker` works with dates; a deadline's day is a `LocalDate`.

@@ -114,12 +114,27 @@ struct DayAgenda: View {
 
   var body: some View {
     let calendar = Calendar.current
-    let slots = timetable.timetable.slots(on: day.weekday(calendar: calendar))
+    let slots = timetable.timetable.slots(on: day, calendar: calendar)
     let items = deadlines.book.on(day, calendar: calendar)
+    let termEvents = timetable.terms.flatMap { term -> [(name: String, begins: Bool)] in
+      var events: [(name: String, begins: Bool)] = []
+      if term.startDate == day { events.append((term.termName, true)) }
+      if term.endDate == day { events.append((term.termName, false)) }
+      return events
+    }
     VStack(alignment: .leading, spacing: 12) {
       Text(day.date(calendar: calendar), format: .dateTime.weekday(.wide).month(.wide).day())
         .font(.headline)
         .frame(maxWidth: .infinity, alignment: .leading)
+      ForEach(Array(termEvents.enumerated()), id: \.offset) { _, event in
+        Label {
+          event.begins
+            ? Text("\(event.name) begins", tableName: "Calendar") : Text("\(event.name) ends", tableName: "Calendar")
+        } icon: {
+          Image(systemName: event.begins ? "flag" : "flag.checkered")
+        }
+        .font(.subheadline.weight(.medium))
+      }
       if !slots.isEmpty {
         VStack(alignment: .leading, spacing: 8) {
           ForEach(slots) { ClassLine(slot: $0) }
@@ -132,7 +147,7 @@ struct DayAgenda: View {
           }
         }
       }
-      if slots.isEmpty && items.isEmpty {
+      if slots.isEmpty && items.isEmpty && termEvents.isEmpty {
         Text("Nothing on this day.", tableName: "Calendar")
           .font(.subheadline)
           .foregroundStyle(.secondary)

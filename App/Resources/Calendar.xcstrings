@@ -1,6 +1,28 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ begins": {
+      "comment": "A term's first day of classes, shown on that day in the calendar.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 開始"
+          }
+        }
+      }
+    },
+    "%@ ends": {
+      "comment": "A term's last day of classes.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 終了"
+          }
+        }
+      }
+    },
     "1 day before": {
       "localizations": {
         "ja": {
