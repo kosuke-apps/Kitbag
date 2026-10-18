@@ -6,10 +6,11 @@
 #   tools/refresh_device.sh --force    renew now
 #   tools/refresh_device.sh --check    say when it last ran and whether the phone answers; change nothing
 #
-# What it needs: the phone paired with this Mac for network use (Xcode > Window > Devices and Simulators > "Connect via
-# network"), on the same Wi-Fi and awake, and your team in Config/Local.xcconfig. A signature only gets a new seven days
-# when Xcode asks Apple for a new provisioning profile, and it only does that when the old one is gone, so the profile of
-# this app is moved aside first (to the folder below, never deleted).
+# It makes no sound and shows nothing: the result goes to ~/Library/Logs/KitbagRefresh.log (set KITBAG_NOTIFY=1 for a
+# macOS notification as well). What it needs: the phone paired with this Mac for network use (Xcode > Window > Devices
+# and Simulators > "Connect via network"), on the same Wi-Fi and awake, and your team in Config/Local.xcconfig. A
+# signature only gets a new seven days when Xcode asks Apple for a new provisioning profile, and it only does that when
+# the old one is gone, so the profile of this app is moved aside first (to the folder below, never deleted).
 set -u
 
 DEVICE="${KITBAG_DEVICE:-iPhone 12 Pro}"
@@ -28,7 +29,9 @@ APP="$DERIVED/Build/Products/Debug-iphoneos/Kitbag.app"
 mkdir -p "$STATE_DIR" "$ASIDE_DIR" "${LOG:h}"
 
 log() { print -r -- "$(date '+%Y-%m-%d %H:%M:%S') $*" | tee -a "$LOG"; }
+# Silent by default: everything goes to the log. KITBAG_NOTIFY=1 also shows a macOS notification for each result.
 notify() {
+  [[ "${KITBAG_NOTIFY:-0}" == 1 ]] || return 0
   /usr/bin/osascript -e "display notification \"$1\" with title \"Kitbag\"" >/dev/null 2>&1 || true
 }
 
