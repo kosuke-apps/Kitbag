@@ -46,8 +46,10 @@ struct TimetableWidget: Widget {
       TimetableWidgetView(entry: entry)
     }
     .configurationDisplayName(Text("Timetable"))
-    .description(Text("The class that is on now or comes next, and the rest of today."))
-    .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline])
+    .description(Text("The class that is on now or comes next, the rest of today, and the whole week as a timetable."))
+    .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryRectangular, .accessoryInline])
+    // The large widget draws the week edge to edge; the others add their own space.
+    .contentMarginsDisabled()
   }
 }
 
@@ -58,6 +60,7 @@ struct TimetableWidgetView: View {
   var body: some View {
     switch family {
     case .systemSmall: small.widgetURL(URL(string: "kitbag://timetable"))
+    case .systemLarge: large.widgetURL(URL(string: "kitbag://timetable"))
     case .accessoryRectangular: rectangular.widgetURL(URL(string: "kitbag://timetable"))
     case .accessoryInline: inline.widgetURL(URL(string: "kitbag://timetable"))
     default: medium.widgetURL(URL(string: "kitbag://timetable"))
@@ -89,6 +92,18 @@ struct TimetableWidgetView: View {
       }
     }
     .themedWidget(entry.snapshot.theme)
+  }
+
+  /// The week as a printed timetable: days across, hours down, a block for every class.
+  @ViewBuilder private var large: some View {
+    if let term = entry.term, term.courses.contains(where: { !$0.meetings.isEmpty }) {
+      GeometryReader { proxy in
+        TimetablePage(timetable: term, heading: term.widgetHeading, style: .screen, size: proxy.size)
+      }
+      .themedWidget(entry.snapshot.theme, padding: 6)
+    } else {
+      EmptyClasses().themedWidget(entry.snapshot.theme)
+    }
   }
 
   // MARK: Lock screen
@@ -224,5 +239,20 @@ private struct EmptyClasses: View {
       Text("No more classes").font(.subheadline.weight(.medium))
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+  }
+}
+
+extension Timetable {
+  /// `2026 Fall`, or the term's own title.
+  var widgetHeading: String {
+    guard let year, let season else { return title }
+    let name: String
+    switch season {
+    case .spring: name = String(localized: "Spring")
+    case .summer: name = String(localized: "Summer")
+    case .fall: name = String(localized: "Fall")
+    case .winter: name = String(localized: "Winter")
+    }
+    return "\(year) \(name)"
   }
 }

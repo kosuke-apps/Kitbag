@@ -13,17 +13,6 @@
         }
       }
     },
-    "The class that is on now or comes next, and the rest of today.": {
-      "extractionState": "manual",
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "いま進行中または次の授業と，今日の残りの授業．"
-          }
-        }
-      }
-    },
     "Deadlines": {
       "extractionState": "manual",
       "localizations": {
@@ -31,17 +20,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "締め切り"
-          }
-        }
-      }
-    },
-    "What is due next: assignments, quizzes and exams.": {
-      "extractionState": "manual",
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "次に迫る課題，小テスト，試験．"
           }
         }
       }
@@ -119,6 +97,105 @@
           "stringUnit": {
             "state": "translated",
             "value": "締め切りはありません"
+          }
+        }
+      }
+    },
+    "Spring": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "春"
+          }
+        }
+      }
+    },
+    "Summer": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "夏"
+          }
+        }
+      }
+    },
+    "Fall": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "秋"
+          }
+        }
+      }
+    },
+    "Winter": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "冬"
+          }
+        }
+      }
+    },
+    "Mark as done": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了にする"
+          }
+        }
+      }
+    },
+    "The class that is on now or comes next, the rest of today, and the whole week as a timetable.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いま進行中または次の授業，今日の残りの授業，そして1週間の時間割．"
+          }
+        }
+      }
+    },
+    "What is due next: assignments, quizzes and exams. Tap a circle to mark one done.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次に迫る課題，小テスト，試験．丸をタップすると完了にできます．"
+          }
+        }
+      }
+    },
+    "Complete deadline": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切りを完了にする"
+          }
+        }
+      }
+    },
+    "Deadline": {
+      "extractionState": "manual",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切り"
           }
         }
       }

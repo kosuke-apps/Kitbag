@@ -56,6 +56,20 @@ final class DeadlineStore {
     syncReminders()
   }
 
+  /// Applies what widgets queued since the app last ran (a tap on a deadline's circle), then forgets it.
+  func applyWidgetActions() {
+    let actions = WidgetActions.take()
+    guard !actions.isEmpty else { return }
+    for action in actions {
+      guard let id = UUID(uuidString: action.deadlineID), var deadline = book.deadlines.first(where: { $0.id == id })
+      else { continue }
+      deadline.isDone = action.done
+      book.upsert(deadline)
+    }
+    save()
+    syncReminders()
+  }
+
   func setDone(id: UUID, _ done: Bool, courseCode: String?) {
     guard var deadline = book.deadlines.first(where: { $0.id == id }) else { return }
     deadline.isDone = done

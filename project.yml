@@ -82,6 +82,7 @@ targets:
       - path: App/Theme/Theme.swift
       - path: App/Timetable/CourseColor+Style.swift
       - path: App/Calendar/DeadlineStyle.swift
+      - path: App/Timetable/TimetablePage.swift
     dependencies:
       - package: Kitbag
         product: KitbagCore

@@ -41,11 +41,16 @@ struct KitbagApp: App {
         .task { backupIfAsked() }
         .task { importTimetableIfAsked() }
       #endif
-      .task { WidgetBridge.sync(theme: themes.themeID) }
+      .task {
+        deadlines.applyWidgetActions()
+        WidgetBridge.sync(theme: themes.themeID)
+      }
       .onChange(of: themes.themeID) { _, id in WidgetBridge.sync(theme: id) }
       .onChange(of: timetable.timetable.courses.map(\.code)) { _, _ in deadlines.syncReminders() }
       .onChange(of: scenePhase) { _, phase in
         // The widgets read a copy of the data; bring it up to date when the app is left as well as when it is entered.
+        // What a widget queued (a deadline ticked off) is applied first, so that the copy does not undo it.
+        deadlines.applyWidgetActions()
         WidgetBridge.sync(theme: themes.themeID)
         if phase == .active {
           deadlines.syncReminders()

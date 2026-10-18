@@ -16,11 +16,15 @@ struct ThemedWidgetModifier: ViewModifier {
   let theme: KitbagTheme
   /// Replaces the theme's gradient (the small timetable widget takes the colour of its course).
   var background: AnyShapeStyle?
+  /// Space around the content. The widgets turn the system's own margins off, so that the large timetable can use the
+  /// whole widget.
+  var padding: CGFloat = 16
 
   func body(content: Content) -> some View {
     let scheme = theme.forcedScheme ?? systemScheme
     let palette = theme.palette(for: scheme)
     content
+      .padding(padding)
       .environment(\.palette, palette)
       .environment(\.titleDesign, theme.design)
       .environment(\.colorScheme, scheme)
@@ -36,7 +40,7 @@ struct ThemedWidgetModifier: ViewModifier {
 }
 
 extension View {
-  func themedWidget(_ id: ThemeID, background: AnyShapeStyle? = nil) -> some View {
-    modifier(ThemedWidgetModifier(theme: .theme(id), background: background))
+  func themedWidget(_ id: ThemeID, background: AnyShapeStyle? = nil, padding: CGFloat = 16) -> some View {
+    modifier(ThemedWidgetModifier(theme: .theme(id), background: background, padding: padding))
   }
 }

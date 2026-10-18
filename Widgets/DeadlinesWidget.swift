@@ -40,8 +40,9 @@ struct DeadlinesWidget: Widget {
       DeadlinesWidgetView(entry: entry)
     }
     .configurationDisplayName(Text("Deadlines"))
-    .description(Text("What is due next: assignments, quizzes and exams."))
-    .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
+    .description(Text("What is due next: assignments, quizzes and exams. Tap a circle to mark one done."))
+    .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryRectangular])
+    .contentMarginsDisabled()
   }
 }
 
@@ -59,6 +60,8 @@ struct DeadlinesWidgetView: View {
           .containerBackground(for: .widget) { Color.clear }
       case .systemSmall:
         small(open).themedWidget(entry.snapshot.theme)
+      case .systemLarge:
+        list(open, limit: 8).themedWidget(entry.snapshot.theme)
       default:
         list(open, limit: 3).themedWidget(entry.snapshot.theme)
       }
@@ -76,7 +79,11 @@ struct DeadlinesWidgetView: View {
           Text(code).font(.caption).foregroundStyle(.secondary)
         }
         Spacer(minLength: 2)
-        DueText(deadline: first, calendar: entry.calendar).font(.caption.weight(.medium))
+        HStack {
+          DueText(deadline: first, calendar: entry.calendar).font(.caption.weight(.medium))
+          Spacer(minLength: 4)
+          DoneButton(deadline: first)
+        }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     } else {
@@ -88,10 +95,11 @@ struct DeadlinesWidgetView: View {
     if open.isEmpty {
       Nothing()
     } else {
-      VStack(alignment: .leading, spacing: 7) {
+      VStack(alignment: .leading, spacing: limit > 3 ? 10 : 7) {
         SectionLabel()
         ForEach(Array(open.prefix(limit))) { deadline in
           HStack(spacing: 8) {
+            DoneButton(deadline: deadline)
             Image(systemName: deadline.kind.symbol).foregroundStyle(deadline.kind.color).frame(width: 18)
             VStack(alignment: .leading, spacing: 0) {
               Text(deadline.title).font(.subheadline.weight(.medium)).lineLimit(1)
@@ -124,6 +132,23 @@ struct DeadlinesWidgetView: View {
       }
       .frame(maxWidth: .infinity, alignment: .leading)
     }
+  }
+}
+
+/// The circle that marks a deadline done without opening Kitbag (an interactive widget, iOS 17).
+private struct DoneButton: View {
+  let deadline: Deadline
+
+  var body: some View {
+    Button(intent: CompleteDeadlineIntent(deadlineID: deadline.id.uuidString)) {
+      Image(systemName: "circle")
+        .font(.title3)
+        .foregroundStyle(.secondary)
+        .frame(width: 28, height: 28)
+        .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel(Text("Mark as done"))
   }
 }
 

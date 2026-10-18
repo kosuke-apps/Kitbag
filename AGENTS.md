@@ -132,8 +132,12 @@ adds what is specific to this project.
     a backup sent by AirDrop opens in Kitbag and asks before restoring (`HomeView.onOpenURL`). The share sheet is
     presented from the top view controller: inside a SwiftUI sheet it closed again at once.
   - `Widgets/` and `Shared/`: the WidgetKit extension (`dev.kosuke.kitbag.widgets`) with a Timetable widget (small,
-    medium, and lock screen rectangular and inline: the class on or next, and the day's list, which moves on to the next
-    class day once today is over) and a Deadlines widget (small, medium, lock screen). A widget cannot read the app's
+    medium, large and lock screen rectangular and inline: the class on or next; the day's list, which moves on to the next
+    class day once today is over; and the large one is the week drawn by the app's own `TimetablePage`, `.screen` style,
+    compiled into the extension) and a Deadlines widget (small, medium, large, lock screen) whose circles mark a deadline
+    done without opening Kitbag: `CompleteDeadlineIntent` updates the widget's copy and queues the change
+    (`Shared/WidgetActions.swift`), and `DeadlineStore.applyWidgetActions()` applies it when the app runs. A reminder for a
+    deadline ticked off that way can still arrive until then, because a widget cannot cancel the app's notifications. A widget cannot read the app's
     files, so `App/Support/WidgetBridge.swift` copies `timetables.json`, `deadlines.json` and the theme into the App
     Group folder (`group.dev.kosuke.kitbag`, see `Shared/AppGroup.swift`) whenever the app is entered or left, and asks
     the widgets to redraw. The widgets compile `Theme.swift`, `CourseColor+Style.swift` and `DeadlineStyle.swift` from
