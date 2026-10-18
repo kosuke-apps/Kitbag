@@ -29,6 +29,10 @@ public struct Timetable: Hashable, Codable, Sendable {
     public func isInProgress(at date: Date) -> Bool { start <= date && date < end }
   }
 
+  public func course(id: UUID) -> Course? {
+    courses.first { $0.id == id }
+  }
+
   /// Every class on a weekday, earliest first.
   public func slots(on day: Weekday) -> [Slot] {
     courses

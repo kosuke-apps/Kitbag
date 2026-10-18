@@ -6,12 +6,16 @@ struct KitbagApp: App {
   /// accepts that before the app has finished launching.
   @State private var guests = GuestRuntimes()
   @State private var timetable = TimetableStore()
+  @State private var deadlines = DeadlineStore()
+  @State private var notes = NoteStore()
 
   var body: some Scene {
     WindowGroup {
       HomeView()
         .environment(guests)
         .environment(timetable)
+        .environment(deadlines)
+        .environment(notes)
     }
   }
 }

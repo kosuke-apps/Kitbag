@@ -1,6 +1,27 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%lld overdue": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "期限切れ: %lld件"
+          }
+        }
+      }
+    },
+    "Due soon": {
+      "comment": "Heading above the deadlines that are due within two weeks.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もうすぐ期限"
+          }
+        }
+      }
+    },
     "in %@": {
       "comment": "Time until a class starts; %@ is a duration such as '2 hr, 10 min'.",
       "localizations": {
@@ -40,6 +61,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "今"
+          }
+        }
+      }
+    },
+    "Opens the calendar": {
+      "comment": "Accessibility hint of the date at the top of the home screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カレンダーを開きます"
+          }
+        }
+      }
+    },
+    "Pinned": {
+      "comment": "Heading above the pinned notes on the home screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピン留め"
           }
         }
       }

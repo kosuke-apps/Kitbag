@@ -19,19 +19,17 @@ final class TimetableStore {
     if let data = try? Data(contentsOf: url) {
       do {
         loaded = try Timetable(fileData: data)
+        // A hand-written file has no ids; writing it back once keeps every course's id the same from now on.
+        if let normalized = try? loaded.fileData(), normalized != data { try? AppFiles.write(normalized, to: url) }
       } catch {
-        let stamp = Int(Date().timeIntervalSince1970)
-        let aside = url.deletingLastPathComponent().appending(path: "timetable.unreadable-\(stamp).json")
-        try? FileManager.default.moveItem(at: url, to: aside)
+        AppFiles.setAside(url)
         setAsideUnreadableFile = true
       }
     }
     timetable = loaded
   }
 
-  nonisolated static var defaultURL: URL {
-    URL.applicationSupportDirectory.appending(path: "Kitbag/timetable.json")
-  }
+  nonisolated static var defaultURL: URL { AppFiles.url("timetable.json") }
 
   // MARK: Changes
 
@@ -74,8 +72,7 @@ final class TimetableStore {
 
   private func save() {
     do {
-      try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-      try timetable.fileData().write(to: url, options: .atomic)
+      try AppFiles.write(try timetable.fileData(), to: url)
       saveFailed = false
     } catch {
       saveFailed = true

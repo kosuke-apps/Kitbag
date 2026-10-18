@@ -1,0 +1,149 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Course": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "科目"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除"
+          }
+        }
+      }
+    },
+    "Delete this note?": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このメモを削除しますか？"
+          }
+        }
+      }
+    },
+    "New note": {
+      "comment": "Title of a note that has no text yet, and the accessibility label of the button that makes one.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいメモ"
+          }
+        }
+      }
+    },
+    "No course": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "科目なし"
+          }
+        }
+      }
+    },
+    "No notes yet": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモがありません"
+          }
+        }
+      }
+    },
+    "Notes": {
+      "comment": "Title of the notes tool, and the heading of the unpinned notes.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモ"
+          }
+        }
+      }
+    },
+    "Pin": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピン留め"
+          }
+        }
+      }
+    },
+    "Pinned": {
+      "comment": "Heading of the pinned notes.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピン留め"
+          }
+        }
+      }
+    },
+    "Search notes": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモを検索"
+          }
+        }
+      }
+    },
+    "The notes could not be saved.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモを保存できませんでした．"
+          }
+        }
+      }
+    },
+    "The saved notes could not be read. They were kept as a separate file and a new list was started.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存されていたメモを読み込めませんでした．別のファイルとして残し，新しい一覧を始めました．"
+          }
+        }
+      }
+    },
+    "Unpin": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピンを外す"
+          }
+        }
+      }
+    },
+    "Write down what you want to keep. Pin a note to show it on the home screen.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残したいことを書き留めましょう．ピン留めすると，ホーム画面に表示されます．"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

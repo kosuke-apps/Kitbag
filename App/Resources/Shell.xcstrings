@@ -1,6 +1,17 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Calendar": {
+      "comment": "Name of the calendar tool on the home screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カレンダー"
+          }
+        }
+      }
+    },
     "Headway": {
       "comment": "Name of the bus app on the home screen. A proper noun, the same in every language.",
       "localizations": {
@@ -19,6 +30,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "ホーム"
+          }
+        }
+      }
+    },
+    "Notes": {
+      "comment": "Name of the notes tool on the home screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモ"
           }
         }
       }

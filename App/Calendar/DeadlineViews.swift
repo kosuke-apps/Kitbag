@@ -1,0 +1,217 @@
+import KitbagCore
+import SwiftUI
+
+/// One deadline in a list: a check circle to mark it done, the title, and what kind and when.
+struct DeadlineRow: View {
+  @Environment(TimetableStore.self) private var timetable
+  @Environment(DeadlineStore.self) private var deadlines
+
+  let deadline: Deadline
+  /// Whether to write the date, as in a list across days; a day's agenda shows only the time.
+  let showsDate: Bool
+  let edit: () -> Void
+
+  var body: some View {
+    let calendar = Calendar.current
+    let course = deadline.courseID.flatMap { timetable.timetable.course(id: $0) }
+    let overdue = deadline.isOverdue(at: Date(), calendar: calendar)
+    HStack(alignment: .top, spacing: 10) {
+      Button {
+        deadlines.setDone(id: deadline.id, !deadline.isDone, courseCode: course?.code)
+      } label: {
+        Image(systemName: deadline.isDone ? "checkmark.circle.fill" : "circle")
+          .font(.title3)
+          .foregroundStyle(deadline.isDone ? Color.green : Color.secondary)
+      }
+      .buttonStyle(.plain)
+      .accessibilityLabel(
+        deadline.isDone ? Text("Mark as not done", tableName: "Calendar") : Text("Mark as done", tableName: "Calendar"))
+
+      Button(action: edit) {
+        VStack(alignment: .leading, spacing: 3) {
+          Text(deadline.title)
+            .font(.subheadline.weight(.medium))
+            .strikethrough(deadline.isDone)
+            .foregroundStyle(deadline.isDone ? Color.secondary : Color.primary)
+            .multilineTextAlignment(.leading)
+          HStack(spacing: 6) {
+            Image(systemName: deadline.kind.symbol).foregroundStyle(deadline.kind.color)
+            if let course {
+              Circle().fill(course.color.blockColor).frame(width: 9, height: 9)
+                .overlay(Circle().stroke(Color.primary.opacity(0.25), lineWidth: 0.5))
+              Text(course.code)
+            }
+            dueText
+              .foregroundStyle(overdue ? Color.red : Color.secondary)
+          }
+          .font(.caption)
+          .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
+      }
+      .buttonStyle(.plain)
+    }
+    .accessibilityElement(children: .contain)
+  }
+
+  @ViewBuilder private var dueText: some View {
+    let due = deadline.dueInstant(calendar: .current)
+    if showsDate {
+      if deadline.time != nil {
+        Text(due, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day().hour().minute())
+      } else {
+        Text(due, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
+      }
+    } else if deadline.time != nil {
+      Text(due, format: .dateTime.hour().minute())
+    } else {
+      Text("Due any time", tableName: "Calendar")
+    }
+  }
+}
+
+/// The form for a deadline: what, when, which course, and when to be reminded.
+struct DeadlineEditor: View {
+  @Environment(DeadlineStore.self) private var deadlines
+  @Environment(TimetableStore.self) private var timetable
+  @Environment(\.dismiss) private var dismiss
+
+  @State private var deadline: Deadline
+  @State private var hasTime: Bool
+  @State private var confirmingDelete = false
+  private let isNew: Bool
+
+  init(deadline: Deadline, isNew: Bool) {
+    _deadline = State(initialValue: deadline)
+    _hasTime = State(initialValue: deadline.time != nil)
+    self.isNew = isNew
+  }
+
+  var body: some View {
+    NavigationStack {
+      Form {
+        Section {
+          TextField(text: $deadline.title, prompt: Text("Problem set 3", tableName: "Calendar")) {
+            Text("Title", tableName: "Calendar")
+          }
+          Picker(selection: $deadline.kind) {
+            ForEach(DeadlineKind.allCases, id: \.self) { kind in
+              Label {
+                Text(kind.title)
+              } icon: {
+                Image(systemName: kind.symbol)
+              }
+              .tag(kind)
+            }
+          } label: {
+            Text("Kind", tableName: "Calendar")
+          }
+          Picker(selection: $deadline.courseID) {
+            Text("None", tableName: "Calendar").tag(UUID?.none)
+            ForEach(timetable.timetable.courses) { course in
+              Text(course.code).tag(Optional(course.id))
+            }
+          } label: {
+            Text("Course", tableName: "Calendar")
+          }
+        }
+        Section {
+          DatePicker(selection: dayBinding, displayedComponents: .date) {
+            Text("Date", tableName: "Calendar")
+          }
+          Toggle(isOn: $hasTime) {
+            Text("Set a time", tableName: "Calendar")
+          }
+          if hasTime {
+            DatePicker(selection: timeBinding, displayedComponents: .hourAndMinute) {
+              Text("Time", tableName: "Calendar")
+            }
+          }
+          Picker(selection: $deadline.reminder) {
+            ForEach(ReminderLead.allCases, id: \.self) { lead in
+              Text(lead.title).tag(lead)
+            }
+          } label: {
+            Text("Remind me", tableName: "Calendar")
+          }
+        }
+        Section {
+          TextField(text: $deadline.note, axis: .vertical) {
+            Text("Notes", tableName: "Calendar")
+          }
+          .lineLimit(2...6)
+        }
+        if !isNew {
+          Section {
+            Toggle(isOn: $deadline.isDone) {
+              Text("Done", tableName: "Calendar")
+            }
+            Button(role: .destructive) {
+              confirmingDelete = true
+            } label: {
+              Text("Delete this deadline", tableName: "Calendar")
+            }
+          }
+        }
+      }
+      .navigationTitle(
+        isNew ? Text("New deadline", tableName: "Calendar") : Text("Edit deadline", tableName: "Calendar")
+      )
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+          Button {
+            dismiss()
+          } label: {
+            Text("Cancel", tableName: "Calendar")
+          }
+        }
+        ToolbarItem(placement: .confirmationAction) {
+          Button(action: save) { Text("Save", tableName: "Calendar") }
+            .disabled(deadline.title.trimmingCharacters(in: .whitespaces).isEmpty)
+        }
+      }
+      .confirmationDialog(
+        Text("Delete this deadline?", tableName: "Calendar"), isPresented: $confirmingDelete, titleVisibility: .visible
+      ) {
+        Button(role: .destructive) {
+          deadlines.remove(id: deadline.id)
+          dismiss()
+        } label: {
+          Text("Delete", tableName: "Calendar")
+        }
+      }
+      .onChange(of: hasTime) { _, isOn in
+        deadline.time = isOn ? (deadline.time ?? TimeOfDay(hour: 23, minute: 59)) : nil
+      }
+    }
+  }
+
+  private func save() {
+    var saved = deadline
+    saved.title = saved.title.trimmingCharacters(in: .whitespaces)
+    if !hasTime { saved.time = nil }
+    deadlines.upsert(saved, courseCode: saved.courseID.flatMap { timetable.timetable.course(id: $0)?.code })
+    dismiss()
+  }
+
+  /// A `DatePicker` works with dates; a deadline's day is a `LocalDate`.
+  private var dayBinding: Binding<Date> {
+    Binding(
+      get: { deadline.date.date(calendar: .current) },
+      set: { deadline.date = LocalDate($0, calendar: .current) })
+  }
+
+  private var timeBinding: Binding<Date> {
+    Binding(
+      get: {
+        let time = deadline.time ?? TimeOfDay(hour: 23, minute: 59)
+        return Calendar.current.date(bySettingHour: time.hour, minute: time.minute, second: 0, of: Date()) ?? Date()
+      },
+      set: {
+        let parts = Calendar.current.dateComponents([.hour, .minute], from: $0)
+        deadline.time = TimeOfDay(hour: parts.hour ?? 0, minute: parts.minute ?? 0)
+      })
+  }
+}
