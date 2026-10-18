@@ -75,7 +75,7 @@ adds what is specific to this project.
     events, VTODO, daily, weekly, monthly and yearly rules with count, until and exceptions; a rule it cannot read
     becomes a single event), `ICSWriter` (deadlines with an alarm, a term's classes as weekly events with an end date)
     and `DeadlineImport` (what an imported file adds or updates, matched by `Deadline.sourceUID`). Every user file has a
-    `version`. `Tests/KitbagCoreTests/` uses invented data only (172 tests).
+    `version`. `Tests/KitbagCoreTests/` uses invented data only (178 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
     `NoteStore`, `WeatherStore`, `SubscriptionStore`) at launch, and refreshes the weather and the stale subscriptions when
     the app becomes active.
@@ -122,7 +122,13 @@ adds what is specific to this project.
     but writes in each block only what fits), `TimetableView` (term header, the page, course cards, menu, a zoomable
     viewer), `TermViews` (term name and dates, header, editor), `CourseViews` (card, detail with grade, deadlines and
     notes of the course, editor with credits), `CourseColor+Style` (pastel, dark and strong tones).
-  - `App/GPA/GPAView.swift`: the cumulative and per-term GPA, grade menus, the what-if calculator and the target.
+  - `App/GPA/`: `GPAView` (the cumulative GPA over the terms that count, each term's on its own grade scale, credits
+    earned, a what-if card that imagines grades for open courses, imagined courses and courses left out, and the target),
+    `GPACourseEditor` (a course for its credits, grade and how it counts: in the GPA, left out, or pass/fail),
+    `GradeScaleStore` and `GradeScalesView` (the person's own grading systems, saved in UserDefaults). A term can be
+    entered only for its grades (`Timetable.gradesOnly`: no grid, never the term in force), use its own scale (study abroad)
+    or stay out of the cumulative GPA. All of it is KitbagCore: `GradeScale` (Codable, with which grades earn credit),
+    `GPAMode`, `GPA.cumulative`, `GPA.earnedCredits`.
   - Reminders: `NotificationPreferences` and `NotificationPlanner` (KitbagCore) decide what is scheduled; `ReminderScheduler`
     makes the requests and keeps to a budget, because iOS holds at most 64 per app and the guests' own count too (the
     signature's three, up to 28 class reminders for the next week, the rest of 54 for deadlines, soonest first). Deadline

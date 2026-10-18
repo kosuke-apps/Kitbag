@@ -19,10 +19,17 @@ public struct Timetable: Hashable, Codable, Identifiable, Sendable {
   public var startDate: LocalDate?
   public var endDate: LocalDate?
   public var courses: [Course]
+  /// The id of the grade scale this term is graded on, when it is not the one chosen for everything (a term abroad).
+  public var gradeScaleID: String?
+  /// Whether the term counts in the cumulative GPA.
+  public var countsInCumulativeGPA: Bool
+  /// A term entered only for its grades (an old one): it has no classes to draw, and is never the term in force.
+  public var gradesOnly: Bool
 
   public init(
     id: UUID = UUID(), title: String = "", year: Int? = nil, season: Season? = nil, startDate: LocalDate? = nil,
-    endDate: LocalDate? = nil, courses: [Course] = []
+    endDate: LocalDate? = nil, courses: [Course] = [], gradeScaleID: String? = nil, countsInCumulativeGPA: Bool = true,
+    gradesOnly: Bool = false
   ) {
     self.id = id
     self.title = title
@@ -31,7 +38,13 @@ public struct Timetable: Hashable, Codable, Identifiable, Sendable {
     self.startDate = startDate
     self.endDate = endDate
     self.courses = courses
+    self.gradeScaleID = gradeScaleID
+    self.countsInCumulativeGPA = countsInCumulativeGPA
+    self.gradesOnly = gradesOnly
   }
+
+  /// A term kept for its grades whose courses have no classes: there is nothing to draw.
+  public var isGradesOnly: Bool { gradesOnly && courses.allSatisfy { $0.meetings.isEmpty } }
 
   /// Whether classes are held on this day: it lies within the term's dates (when they are set).
   public func contains(_ day: LocalDate) -> Bool {
@@ -137,7 +150,7 @@ public struct Timetable: Hashable, Codable, Identifiable, Sendable {
   // MARK: Files
 
   private enum CodingKeys: String, CodingKey {
-    case version, id, title, year, season, startDate, endDate, courses
+    case version, id, title, year, season, startDate, endDate, courses, gradeScaleID, countsInCumulativeGPA, gradesOnly
   }
 
   /// Older files have no id, year, season or dates; those are left empty.
@@ -150,7 +163,10 @@ public struct Timetable: Hashable, Codable, Identifiable, Sendable {
       season: try container.decodeIfPresent(Season.self, forKey: .season),
       startDate: try container.decodeIfPresent(LocalDate.self, forKey: .startDate),
       endDate: try container.decodeIfPresent(LocalDate.self, forKey: .endDate),
-      courses: try container.decodeIfPresent([Course].self, forKey: .courses) ?? [])
+      courses: try container.decodeIfPresent([Course].self, forKey: .courses) ?? [],
+      gradeScaleID: try container.decodeIfPresent(String.self, forKey: .gradeScaleID),
+      countsInCumulativeGPA: try container.decodeIfPresent(Bool.self, forKey: .countsInCumulativeGPA) ?? true,
+      gradesOnly: try container.decodeIfPresent(Bool.self, forKey: .gradesOnly) ?? false)
   }
 
   public func encode(to encoder: any Encoder) throws {
@@ -163,6 +179,9 @@ public struct Timetable: Hashable, Codable, Identifiable, Sendable {
     try container.encodeIfPresent(startDate, forKey: .startDate)
     try container.encodeIfPresent(endDate, forKey: .endDate)
     try container.encode(courses, forKey: .courses)
+    try container.encodeIfPresent(gradeScaleID, forKey: .gradeScaleID)
+    if !countsInCumulativeGPA { try container.encode(false, forKey: .countsInCumulativeGPA) }
+    if gradesOnly { try container.encode(true, forKey: .gradesOnly) }
   }
 
   /// The version written into files, for readers of a future format.

@@ -15,8 +15,10 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
 - Timetable: terms (semesters) with their dates, the week as an A4 page in the look of a printed school timetable (pastel
   blocks as tall as the class), a PDF export of that page, course cards with credits, course details with grade, deadlines
   and notes, and import and export as a readable JSON file.
-- GPA: grades per course, term and cumulative GPA (UW–Madison, US plus/minus or Japanese scale), a what-if calculator and
-  the average a target GPA needs.
+- GPA: grades per course for any term (an old term can be entered with just its courses, credits and grades, no timetable
+  needed), the cumulative GPA over the terms that count, a term graded on its own scale (study abroad) or left out of the
+  cumulative GPA, courses left out or taken pass/fail, your own grading systems, credits earned, and a what-if
+  calculator (imagined grades, imagined courses, courses left out) and the average a target GPA needs.
 - Calendar: deadlines (assignments, exams, quizzes, projects) with local-notification reminders, a month page with the
   day's classes and deadlines, and a list grouped by how soon each is due. Import a calendar file (`.ics`) after a
   preview, export deadlines or a term's classes as `.ics`, and subscribe to a Canvas or Google calendar by its address:

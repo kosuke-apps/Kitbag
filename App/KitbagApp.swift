@@ -14,6 +14,7 @@ struct KitbagApp: App {
   @State private var themes = ThemeStore()
   @State private var layout = LayoutStore()
   @State private var notificationPreferences = NotificationPreferencesStore()
+  @State private var gradeScales = GradeScaleStore()
   @Environment(\.scenePhase) private var scenePhase
 
   var body: some Scene {
@@ -30,6 +31,7 @@ struct KitbagApp: App {
       .environment(themes)
       .environment(layout)
       .environment(notificationPreferences)
+      .environment(gradeScales)
       .task {
         // Kitbag's own handler comes after the guests', which set theirs when they start.
         UNUserNotificationCenter.current().delegate = KitbagNotificationDelegate.shared
@@ -95,6 +97,7 @@ struct KitbagApp: App {
         themes.reload()
         layout.reload()
         notificationPreferences.reload()
+        gradeScales.reload()
         WidgetBridge.sync(theme: themes.themeID)
       }
     }

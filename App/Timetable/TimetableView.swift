@@ -115,7 +115,8 @@ struct TimetableView: View {
           term: term, select: { viewedID = $0 },
           newTerm: { sheet = .term(newTerm(), isNew: true) },
           editTerm: { sheet = .term(term, isNew: false) })
-        pageCard(term)
+        // A term entered only for its grades has no classes to draw.
+        if !term.isGradesOnly { pageCard(term) }
         coursesSection(term)
       }
       .padding(.horizontal, 16)

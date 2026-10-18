@@ -35,13 +35,15 @@ public struct TimetableLibrary: Hashable, Codable, Sendable {
     func startedLatest(_ terms: [Timetable]) -> Timetable? {
       terms.max { ($0.startDate ?? longAgo) < ($1.startDate ?? longAgo) }
     }
-    let dated = timetables.filter(\.hasDates)
+    // A term kept only for its grades is never the term in force, unless it is all there is.
+    let pool = timetables.contains { !$0.isGradesOnly } ? timetables.filter { !$0.isGradesOnly } : timetables
+    let dated = pool.filter(\.hasDates)
     if let current = startedLatest(dated.filter { $0.contains(today) }) { return current }
     if let begun = startedLatest(dated.filter { ($0.startDate ?? today) < today || $0.startDate == today }) {
       return begun
     }
-    if let preferredID, let preferred = timetable(id: preferredID) { return preferred }
-    return timetables.first
+    if let preferredID, let preferred = pool.first(where: { $0.id == preferredID }) { return preferred }
+    return pool.first
   }
 
   public mutating func upsert(_ timetable: Timetable) {

@@ -73,10 +73,12 @@ public struct Course: Hashable, Codable, Identifiable, Sendable {
   public var credits: Double?
   /// The grade received, as the grade scale writes it (`"AB"`); nil until there is one.
   public var grade: String?
+  /// How the course is treated in the GPA.
+  public var gpaMode: GPAMode
 
   public init(
     id: UUID = UUID(), code: String, title: String = "", color: CourseColor = .lavender, meetings: [Meeting] = [],
-    credits: Double? = nil, grade: String? = nil
+    credits: Double? = nil, grade: String? = nil, gpaMode: GPAMode = .counted
   ) {
     self.id = id
     self.code = code
@@ -85,10 +87,11 @@ public struct Course: Hashable, Codable, Identifiable, Sendable {
     self.meetings = meetings
     self.credits = credits
     self.grade = grade
+    self.gpaMode = gpaMode
   }
 
   private enum CodingKeys: String, CodingKey {
-    case id, code, title, color, meetings, credits, grade
+    case id, code, title, color, meetings, credits, grade, gpaMode
   }
 
   public init(from decoder: any Decoder) throws {
@@ -100,7 +103,20 @@ public struct Course: Hashable, Codable, Identifiable, Sendable {
       color: try container.decodeIfPresent(CourseColor.self, forKey: .color) ?? .lavender,
       meetings: try container.decodeIfPresent([Meeting].self, forKey: .meetings) ?? [],
       credits: try container.decodeIfPresent(Double.self, forKey: .credits),
-      grade: try container.decodeIfPresent(String.self, forKey: .grade))
+      grade: try container.decodeIfPresent(String.self, forKey: .grade),
+      gpaMode: try container.decodeIfPresent(GPAMode.self, forKey: .gpaMode) ?? .counted)
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(id, forKey: .id)
+    try container.encode(code, forKey: .code)
+    try container.encode(title, forKey: .title)
+    try container.encode(color, forKey: .color)
+    try container.encode(meetings, forKey: .meetings)
+    try container.encodeIfPresent(credits, forKey: .credits)
+    try container.encodeIfPresent(grade, forKey: .grade)
+    if gpaMode != .counted { try container.encode(gpaMode, forKey: .gpaMode) }
   }
 
   /// The instructors of the course's classes, each once, in the order they appear.
