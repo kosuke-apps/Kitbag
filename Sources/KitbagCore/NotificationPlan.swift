@@ -7,6 +7,13 @@ public struct NotificationPreferences: Codable, Equatable, Sendable {
   public var deadlinesEnabled = true
   /// Which kinds of deadline to remind about.
   public var deadlineKinds: Set<DeadlineKind> = Set(DeadlineKind.allCases)
+  /// When a reminder for a deadline with no time is shown, unless the reminder names a time of its own.
+  public var allDayTime = TimeOfDay.usualReminder
+  /// What a new deadline of each kind gets (keyed by the kind's raw value). A kind that is missing gets the built-in set.
+  public var defaultAlerts: [String: [DeadlineAlert]] = [:]
+  /// Remind again on the mornings after a deadline that is still not done: 0 for never, up to `maxFollowUps`.
+  public var followUpDays = 0
+  public static let maxFollowUps = 3
   /// Remind before a class starts. Off until it is turned on.
   public var classesEnabled = false
   public var classLeadMinutes = 10
@@ -23,7 +30,7 @@ public struct NotificationPreferences: Codable, Equatable, Sendable {
 
   private enum CodingKeys: String, CodingKey {
     case deadlinesEnabled, deadlineKinds, classesEnabled, classLeadMinutes, mutedCourseIDs, signatureEnabled
-    case quietHoursEnabled, quietStart, quietEnd
+    case quietHoursEnabled, quietStart, quietEnd, allDayTime, defaultAlerts, followUpDays
   }
 
   /// A file from an older version lacks the newer choices; each falls back to its default.
@@ -41,6 +48,26 @@ public struct NotificationPreferences: Codable, Equatable, Sendable {
       try container.decodeIfPresent(Bool.self, forKey: .quietHoursEnabled) ?? defaults.quietHoursEnabled
     quietStart = try container.decodeIfPresent(TimeOfDay.self, forKey: .quietStart) ?? defaults.quietStart
     quietEnd = try container.decodeIfPresent(TimeOfDay.self, forKey: .quietEnd) ?? defaults.quietEnd
+    allDayTime = try container.decodeIfPresent(TimeOfDay.self, forKey: .allDayTime) ?? defaults.allDayTime
+    defaultAlerts =
+      try container.decodeIfPresent([String: [DeadlineAlert]].self, forKey: .defaultAlerts) ?? defaults.defaultAlerts
+    followUpDays = min(
+      max(try container.decodeIfPresent(Int.self, forKey: .followUpDays) ?? defaults.followUpDays, 0), Self.maxFollowUps)
+  }
+
+  /// The alerts a new deadline of `kind` starts with.
+  public func alerts(for kind: DeadlineKind) -> [DeadlineAlert] {
+    defaultAlerts[kind.rawValue] ?? DeadlineAlert.standard(for: kind)
+  }
+
+  /// Chooses the alerts that new deadlines of `kind` start with (an empty list means none).
+  public mutating func setAlerts(_ alerts: [DeadlineAlert], for kind: DeadlineKind) {
+    defaultAlerts[kind.rawValue] = alerts
+  }
+
+  /// Whether `kind` has been given alerts of its own, which is what lets the person put it back to the built-in set.
+  public func hasCustomAlerts(for kind: DeadlineKind) -> Bool {
+    defaultAlerts[kind.rawValue] != nil
   }
 
   /// Whether `minutes` after midnight falls within the quiet hours (which may run past midnight).
@@ -75,24 +102,59 @@ public struct ClassReminder: Equatable, Sendable {
   public var location: String
 }
 
+/// A reminder that a deadline is near, or that it has passed without being done.
+public struct DeadlineReminder: Equatable, Sendable {
+  public enum Kind: Equatable, Sendable {
+    /// One of the deadline's alerts.
+    case alert(DeadlineAlert)
+    /// The nth morning after the deadline (1 for the morning after), when it is still not done.
+    case followUp(Int)
+  }
+
+  /// Stable for one alert of one deadline, so that scheduling it again replaces it.
+  public var id: String
+  public var deadline: Deadline
+  public var fireDate: Date
+  public var kind: Kind
+
+  /// The part of the identifiers that every reminder of a deadline shares (`kitbag.deadline.<id>.`).
+  public static func idPrefix(for deadline: UUID) -> String { "kitbag.deadline.\(deadline.uuidString)." }
+}
+
 public enum NotificationPlanner {
-  /// The deadline reminders to have scheduled: the ones the preferences allow, not done, still to come, soonest first and
-  /// no more than `limit`, moved out of the quiet hours.
+  /// The deadline reminders to have scheduled: those the preferences allow, for deadlines not done, still to come, soonest
+  /// first and no more than `limit`, moved out of the quiet hours. Two reminders of one deadline that would come at the
+  /// same minute are one. A deadline with no alerts is silent, follow-ups included.
   public static func deadlineReminders(
     _ book: DeadlineBook, preferences: NotificationPreferences, now: Date, calendar: Calendar, limit: Int
-  ) -> [(deadline: Deadline, fireDate: Date)] {
-    guard preferences.deadlinesEnabled else { return [] }
-    return book.deadlines
-      .compactMap { deadline -> (deadline: Deadline, fireDate: Date)? in
-        guard !deadline.isDone, preferences.deadlineKinds.contains(deadline.kind),
-          let fire = deadline.reminderDate(calendar: calendar)
-        else { return nil }
-        let adjusted = preferences.adjusted(fire, notAfter: deadline.dueInstant(calendar: calendar), calendar: calendar)
-        return adjusted > now ? (deadline, adjusted) : nil
+  ) -> [DeadlineReminder] {
+    guard preferences.deadlinesEnabled, limit > 0 else { return [] }
+    var list: [DeadlineReminder] = []
+    for deadline in book.deadlines where !deadline.isDone && preferences.deadlineKinds.contains(deadline.kind) {
+      guard !deadline.alerts.isEmpty else { continue }
+      let due = deadline.dueInstant(calendar: calendar)
+      var taken = Set<Date>()
+      func add(_ planned: Date, notAfter: Date, id: String, kind: DeadlineReminder.Kind) {
+        let fire = preferences.adjusted(planned, notAfter: notAfter, calendar: calendar)
+        guard fire > now, taken.insert(fire).inserted else { return }
+        list.append(
+          DeadlineReminder(
+            id: DeadlineReminder.idPrefix(for: deadline.id) + id, deadline: deadline, fireDate: fire, kind: kind))
       }
-      .sorted { $0.fireDate < $1.fireDate }
-      .prefix(limit)
-      .map { $0 }
+      for (alert, planned) in deadline.alertDates(defaultTime: preferences.allDayTime, calendar: calendar) {
+        add(planned, notAfter: due, id: alert.id.uuidString, kind: .alert(alert))
+      }
+      let day = deadline.date.date(calendar: calendar)
+      for index in stride(from: 1, through: preferences.followUpDays, by: 1) {
+        guard let morning = calendar.date(byAdding: .day, value: index, to: day),
+          let planned = calendar.date(
+            bySettingHour: min(preferences.allDayTime.hour, 23), minute: preferences.allDayTime.minute, second: 0,
+            of: morning)
+        else { continue }
+        add(planned, notAfter: .distantFuture, id: "after\(index)", kind: .followUp(index))
+      }
+    }
+    return list.sorted { ($0.fireDate, $0.id) < ($1.fireDate, $1.id) }.prefix(limit).map { $0 }
   }
 
   /// A reminder for every class in the next `horizonDays` days (not for muted courses, and none outside a term's dates),

@@ -67,7 +67,7 @@ adds what is specific to this project.
     `Season` and the term fields of `Timetable` (dates, week numbers, no classes outside the term), `TimetableLibrary`
     (all the terms; which one is in force today), `GradeScale` and `GPA` (UW–Madison, US plus/minus and Japanese scales;
     averages by credits; the average a target needs), `HomeLayout` (a saved order and hidden items, merged with what
-    exists), `Deadline` and `DeadlineBook` (reminder dates, grouping by how soon), `Note` and `NoteBook` (title from the first
+    exists), `Deadline` and `DeadlineBook` (grouping by how soon), `DeadlineAlert` (one reminder of a deadline as a distance from when it is due: minutes, hours, days or weeks before, with a time of day for a deadline with no time), `Note` and `NoteBook` (title from the first
     line without its marks, pinned first, search over text and attachment names), `NoteAttachment` (a photo or file kept
     with a note: its name, where it is stored, its size), `Markdown` (`MarkdownBlock` reads what a line is: heading,
     bullet, checkbox, number, quote; `plain` strips the marks for titles and previews) and `MarkdownEditing` (what the
@@ -148,11 +148,32 @@ adds what is specific to this project.
     `GPAMode`, `GPA.cumulative`, `GPA.earnedCredits`.
   - Reminders: `NotificationPreferences` and `NotificationPlanner` (KitbagCore) decide what is scheduled; `ReminderScheduler`
     makes the requests and keeps to a budget, because iOS holds at most 64 per app and the guests' own count too (the
-    signature's three, up to 28 class reminders for the next week, the rest of 54 for deadlines, soonest first). Deadline
-    reminders (by kind), class reminders (off until turned on; lead time; per course), quiet hours and the signature
-    warning are set in Settings > Notifications > Choose what to be reminded of (`NotificationPreferencesView`, stored in
-    UserDefaults so that a backup carries it). Class reminders are dated for the coming days, not a weekly repeat, so they
-    stop at the end of a term.
+    signature's three, up to 28 class reminders for the next week, the rest of 54 for deadlines, soonest first). A deadline
+    has any number of alerts (`Deadline.alerts`, edited in `DeadlineEditor` through `AlertList` and `AlertEditor` in
+    `AlertViews.swift`; each row shows when it will fire, whether it has passed, whether quiet hours move it). A deadline
+    with no time is reminded on the day it counts back to at the morning time (`allDayTime`, 9:00 unless changed) or the
+    alert's own time. A new deadline starts with the alerts of its kind (`NotificationPreferences.alerts(for:)`, set in
+    Settings > Reminders > What new deadlines start with; built-in `DeadlineAlert.standard(for:)`), and an imported one too. A
+    file from before alerts has one `reminder` choice, which `Deadline` reads as the alerts it stood for and never writes
+    again. "Remind again if not done" (`followUpDays`, up to 3) adds a notification on each of the mornings after the due day.
+    Alerts that fall at the same minute are one; a deadline with no alerts is silent. Class reminders (off until turned on;
+    lead time; per course), quiet hours and the signature warning are set in Settings > Notifications > Choose what to be
+    reminded of (`NotificationPreferencesView`, stored in UserDefaults so that a backup carries it); its "Scheduled on this
+    iPhone" page lists what iOS really has pending, read from the phone. Class reminders are dated for the coming days, not
+    a weekly repeat, so they stop at the end of a term. Identifiers: `kitbag.deadline.<deadline id>.<alert id>` (or
+    `.after<n>`), `kitbag.snooze.<deadline id>`, `kitbag.class.…`, `kitbag.signing.…`; a bare UUID is from before alerts and
+    is cleaned up.
+  - Notification buttons: a deadline's notification has Done, Snooze 10 min, Snooze 1 hour and Remind me tomorrow
+    (category `kitbag.deadline`, registered on each `ReminderScheduler.sync`; the user info carries the deadline's id and the
+    morning time). `KitbagNotificationDelegate.didReceive` hands them to `DeadlineStore.perform`, which marks done and cancels
+    that deadline's pending notifications, or schedules `kitbag.snooze.<id>` from the same content. iOS starts Kitbag in the
+    background just for a button, with no screen, so `KitbagApp.init` (not a `.task`) makes the stores, wires the deadlines
+    to the terms and the preferences, and sets the delegate. It makes `GuestRuntimes` first because Headway installs its own
+    delegate when it starts and the last one wins: with `@State` the guests were made later and Headway's replaced Kitbag's,
+    so no button ever arrived. Test with `xcrun simctl push <udid> dev.kosuke.kitbag file.apns` (an `aps` alert with
+    `"category": "kitbag.deadline"` and top-level `deadlineID` and `morning`), long-press the banner, and read the app's
+    log (`log show --info --predicate 'subsystem == "dev.kosuke.kitbag"'`). An unsigned simulator build has no App Group, so
+    the widget copy is not written there.
   - Language: `LanguageChoice` (KitbagCore: system, English, 日本語) and `LanguageStore` (`App/Support/Language.swift`) hold
     the choice for the whole of Kitbag, set in Settings > Language. SwiftUI text follows it through the environment locale
     (`LanguageRoot`); text built in code goes through `L10n.string` and dates through `formattedInLanguage` or a style with

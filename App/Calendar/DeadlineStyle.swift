@@ -34,18 +34,6 @@ extension DeadlineKind {
   }
 }
 
-extension ReminderLead {
-  var title: LocalizedStringResource {
-    switch self {
-    case .none: LocalizedStringResource("No reminder", table: "Calendar")
-    case .atDue: LocalizedStringResource("When it is due", table: "Calendar")
-    case .hourBefore: LocalizedStringResource("1 hour before", table: "Calendar")
-    case .dayBefore: LocalizedStringResource("1 day before", table: "Calendar")
-    case .twoDaysBefore: LocalizedStringResource("2 days before", table: "Calendar")
-    }
-  }
-}
-
 extension DeadlineBucket {
   var title: LocalizedStringResource {
     switch self {

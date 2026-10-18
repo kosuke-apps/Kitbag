@@ -4,20 +4,23 @@ import Foundation
 public enum ICSWriter {
   // MARK: Deadlines
 
-  /// Every deadline as an event, with a reminder alarm where it has one. Kitbag's own fields (kind, course, done) are
+  /// Every deadline as an event, with a reminder alarm for each of its alerts. Kitbag's own fields (kind, course, done) are
   /// written as `X-KITBAG-…` lines, which other apps ignore and Kitbag reads back.
   public static func deadlines(
-    _ deadlines: [Deadline], courseCode: (UUID) -> String?, calendar: Calendar, now: Date = Date()
+    _ deadlines: [Deadline], courseCode: (UUID) -> String?, calendar: Calendar, now: Date = Date(),
+    allDayTime: TimeOfDay = .usualReminder
   ) -> String {
     var out = header()
     for deadline in deadlines {
       let code = deadline.courseID.flatMap(courseCode)
-      out += lines(for: deadline, code: code, calendar: calendar, now: now)
+      out += lines(for: deadline, code: code, calendar: calendar, now: now, allDayTime: allDayTime)
     }
     return out + "END:VCALENDAR\r\n"
   }
 
-  private static func lines(for deadline: Deadline, code: String?, calendar: Calendar, now: Date) -> String {
+  private static func lines(
+    for deadline: Deadline, code: String?, calendar: Calendar, now: Date, allDayTime: TimeOfDay
+  ) -> String {
     var event = ["BEGIN:VEVENT", "UID:\(deadline.id.uuidString)@kitbag", "DTSTAMP:\(utcStamp(now))"]
     event.append("SUMMARY:\(escape(deadline.title))")
     if let time = deadline.time {
@@ -36,11 +39,13 @@ public enum ICSWriter {
     event.append("X-KITBAG-KIND:\(deadline.kind.rawValue)")
     if let code { event.append("X-KITBAG-COURSE:\(escape(code))") }
     if deadline.isDone { event.append("X-KITBAG-DONE:TRUE") }
-    if let fire = deadline.reminderDate(calendar: calendar), !deadline.isDone {
-      event += [
-        "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:\(escape(deadline.title))",
-        "TRIGGER;VALUE=DATE-TIME:\(utcStamp(fire))", "END:VALARM",
-      ]
+    if !deadline.isDone {
+      for (_, fire) in deadline.alertDates(defaultTime: allDayTime, calendar: calendar) {
+        event += [
+          "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:\(escape(deadline.title))",
+          "TRIGGER;VALUE=DATE-TIME:\(utcStamp(fire))", "END:VALARM",
+        ]
+      }
     }
     event.append("END:VEVENT")
     return event.map(fold).joined()

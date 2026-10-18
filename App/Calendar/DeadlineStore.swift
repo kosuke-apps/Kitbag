@@ -1,6 +1,7 @@
 import KitbagCore
 import Observation
 import SwiftUI
+import UserNotifications
 
 /// The deadlines, kept in a JSON file in the app's Application Support folder, with their reminders.
 @MainActor
@@ -12,6 +13,8 @@ final class DeadlineStore {
   private(set) var saveFailed = false
   private let url: URL
   private let reminders = ReminderScheduler()
+  /// The store the app is using, for a notification button that arrives while no screen is looking at it.
+  private(set) static weak var live: DeadlineStore?
   private var syncing: Task<Void, Never>?
   /// The code of a course (`ME 101`), for a reminder's text; set once the timetable is loaded.
   var courseCode: (UUID) -> String? = { _ in nil }
@@ -22,6 +25,7 @@ final class DeadlineStore {
   init(url: URL = AppFiles.url("deadlines.json")) {
     self.url = url
     (book, setAsideUnreadableFile) = Self.load(url: url)
+    Self.live = self
   }
 
   /// Reads the file again, after a backup was restored over it.
@@ -89,6 +93,16 @@ final class DeadlineStore {
   /// after every change and whenever Kitbag opens, so that a reinstall or a changed course code cannot leave them stale.
   /// One run follows another, so that two changes in a row do not interleave.
   func syncReminders() {
+    startSync()
+  }
+
+  /// The same, and waits until the phone's notifications have been brought up to date.
+  func syncRemindersAndWait() async {
+    await startSync().value
+  }
+
+  @discardableResult
+  private func startSync() -> Task<Void, Never> {
     let snapshot = book
     let lookup = courseCode
     let terms = library()
@@ -96,10 +110,30 @@ final class DeadlineStore {
     let expiry = SigningStatus.expiresAt
     let reminders = reminders
     let previous = syncing
-    syncing = Task {
+    let task = Task {
       await previous?.value
       await reminders.sync(
         deadlines: snapshot, library: terms, preferences: chosen, courseCode: lookup, signatureExpiry: expiry)
+    }
+    syncing = task
+    return task
+  }
+
+  // MARK: Buttons on a notification
+
+  /// Carries out a button of a deadline's notification. Kitbag may have been started just for this, with no screen yet, so
+  /// the stores are the ones the app made at launch, and the work is finished before iOS is told it is over.
+  static func perform(_ action: DeadlineAction, deadline id: UUID, content: UNNotificationContent, morning: TimeOfDay) async {
+    let store = live ?? DeadlineStore()
+    switch action {
+    case .done:
+      guard store.book.deadlines.contains(where: { $0.id == id }) else { return }
+      store.setDone(id: id, true, courseCode: nil)
+      await store.syncRemindersAndWait()
+      await store.reminders.cancelAll(for: id)
+      WidgetBridge.syncFromSavedTheme()
+    case .snoozeTenMinutes, .snoozeHour, .remindTomorrow:
+      await store.reminders.snooze(id, content: content, action: action, morning: morning)
     }
   }
 

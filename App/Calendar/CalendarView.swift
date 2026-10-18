@@ -7,6 +7,7 @@ struct CalendarView: View {
   @Environment(DeadlineStore.self) private var deadlines
   @Environment(TimetableStore.self) private var timetable
   @Environment(SubscriptionStore.self) private var subscriptions
+  @Environment(NotificationPreferencesStore.self) private var notificationPreferences
   @Environment(\.palette) private var palette
 
   private enum Mode: Hashable {
@@ -312,7 +313,7 @@ struct CalendarView: View {
     let window = DateInterval(start: now.addingTimeInterval(-60 * 86400), end: now.addingTimeInterval(400 * 86400))
     let candidates = DeadlineImport.deadlines(
       from: events, courses: timetable.timetable.courses, existing: deadlines.book.deadlines, calendar: .current,
-      window: window)
+      window: window, defaultAlerts: { notificationPreferences.preferences.alerts(for: $0) })
     if candidates.isEmpty {
       message = Text("There is nothing in that file within the coming year.", tableName: "Calendar")
     } else {
@@ -322,7 +323,8 @@ struct CalendarView: View {
 
   private func exportDeadlines() {
     let text = ICSWriter.deadlines(
-      deadlines.book.deadlines, courseCode: { timetable.course(id: $0)?.code }, calendar: .current)
+      deadlines.book.deadlines, courseCode: { timetable.course(id: $0)?.code }, calendar: .current,
+      allDayTime: notificationPreferences.preferences.allDayTime)
     present(Data(text.utf8), .calendarEvent, "Deadlines")
   }
 

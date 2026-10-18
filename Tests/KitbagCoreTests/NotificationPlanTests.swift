@@ -20,7 +20,7 @@ private func deadline(
 {
   Deadline(
     title: title, kind: kind, date: LocalDate(year: 2026, month: 10, day: day), time: TimeOfDay(hour: hour, minute: 0),
-    isDone: done, reminder: .hourBefore)
+    isDone: done, alerts: [.hours(1)])
 }
 
 @Suite("Notification preferences")
@@ -51,6 +51,30 @@ struct NotificationPreferencesTests {
     preferences.quietHoursEnabled = true
     let data = try JSONEncoder().encode(preferences)
     #expect(try JSONDecoder().decode(NotificationPreferences.self, from: data) == preferences)
+  }
+
+  @Test func givesEachKindItsOwnDefaultAlerts() throws {
+    var preferences = NotificationPreferences()
+    #expect(preferences.alerts(for: .exam).map(\.leadMinutes) == [7 * 1440, 1440, 60])
+    #expect(!preferences.hasCustomAlerts(for: .exam))
+    preferences.setAlerts([.hours(2)], for: .exam)
+    preferences.setAlerts([], for: .quiz)
+    #expect(preferences.alerts(for: .exam).map(\.leadMinutes) == [120])
+    #expect(preferences.alerts(for: .quiz).isEmpty)  // an empty list is a choice, not a missing one
+    #expect(preferences.alerts(for: .project).count == 2)
+    #expect(preferences.hasCustomAlerts(for: .quiz))
+    let data = try JSONEncoder().encode(preferences)
+    #expect(try JSONDecoder().decode(NotificationPreferences.self, from: data) == preferences)
+  }
+
+  @Test func readsAFileFromBeforeTheNewChoices() throws {
+    let old = #"{"deadlinesEnabled":true,"quietHoursEnabled":true,"quietStart":"22:00","quietEnd":"07:00"}"#
+    let preferences = try JSONDecoder().decode(NotificationPreferences.self, from: Data(old.utf8))
+    #expect(preferences.allDayTime == TimeOfDay(hour: 9, minute: 0))
+    #expect(preferences.followUpDays == 0)
+    #expect(preferences.defaultAlerts.isEmpty)
+    let clamped = try JSONDecoder().decode(NotificationPreferences.self, from: Data(#"{"followUpDays":40}"#.utf8))
+    #expect(clamped.followUpDays == NotificationPreferences.maxFollowUps)
   }
 
   @Test func holdsBackAReminderInQuietHours() {
@@ -104,6 +128,97 @@ struct NotificationPlannerTests {
         book, preferences: NotificationPreferences(), now: now, calendar: chicago, limit: 2
       )
       .count == 2)
+  }
+
+  private func multi(_ alerts: [DeadlineAlert], day: Int = 22, hour: Int? = 12, done: Bool = false) -> Deadline {
+    Deadline(
+      title: "multi", date: LocalDate(year: 2026, month: 10, day: day), time: hour.map { TimeOfDay(hour: $0, minute: 0) },
+      isDone: done, alerts: alerts)
+  }
+
+  @Test func makesOneReminderForEachAlert() {
+    let item = multi([.days(1), .hours(1), .minutes(0)])
+    let plan = NotificationPlanner.deadlineReminders(
+      DeadlineBook(deadlines: [item]), preferences: NotificationPreferences(), now: date(18, 12), calendar: chicago,
+      limit: 10)
+    #expect(plan.map(\.fireDate) == [date(21, 12), date(22, 11), date(22, 12)])
+    #expect(Set(plan.map(\.id)).count == 3)
+    #expect(plan.allSatisfy { $0.id.hasPrefix(DeadlineReminder.idPrefix(for: item.id)) })
+    #expect(plan.allSatisfy { $0.deadline == item })
+    // Past ones are left out.
+    let later = NotificationPlanner.deadlineReminders(
+      DeadlineBook(deadlines: [item]), preferences: NotificationPreferences(), now: date(21, 13), calendar: chicago,
+      limit: 10)
+    #expect(later.map(\.fireDate) == [date(22, 11), date(22, 12)])
+  }
+
+  @Test func idsStayTheSameWhenPlannedAgain() {
+    let book = DeadlineBook(deadlines: [multi([.days(1), .hours(1)])])
+    func ids() -> [String] {
+      NotificationPlanner.deadlineReminders(
+        book, preferences: NotificationPreferences(), now: date(18, 12), calendar: chicago, limit: 10
+      ).map(\.id)
+    }
+    #expect(ids() == ids())
+  }
+
+  @Test func staysSilentWithoutAlertsAndAfterBeingDone() {
+    var preferences = NotificationPreferences()
+    preferences.followUpDays = 2
+    let book = DeadlineBook(deadlines: [multi([]), multi([.days(1)], done: true)])
+    #expect(
+      NotificationPlanner.deadlineReminders(book, preferences: preferences, now: date(18, 12), calendar: chicago, limit: 10)
+        .isEmpty)
+  }
+
+  @Test func collapsesAlertsThatWouldComeAtTheSameMinute() {
+    // "1 hour before" and "60 minutes before" are one reminder; quiet hours can also make two alerts land together.
+    let book = DeadlineBook(deadlines: [multi([.hours(1), .minutes(60)])])
+    #expect(
+      NotificationPlanner.deadlineReminders(
+        book, preferences: NotificationPreferences(), now: date(18, 12), calendar: chicago, limit: 10
+      ).count == 1)
+    var quiet = NotificationPreferences()
+    quiet.quietHoursEnabled = true  // 22:00 to 07:00
+    // Due Thursday 12:00. "1 day before" is Wednesday 12:00 and "13 hours before" is Wednesday 23:00, held to 7:00 Thursday;
+    // "5 hours before" is Thursday 7:00 as well.
+    let crowded = DeadlineBook(deadlines: [multi([.days(1), .hours(13), .hours(5)])])
+    let plan = NotificationPlanner.deadlineReminders(
+      crowded, preferences: quiet, now: date(18, 12), calendar: chicago, limit: 10)
+    #expect(plan.map(\.fireDate) == [date(21, 12), date(22, 7)])
+  }
+
+  @Test func followsUpOnTheMorningsAfterADeadlineThatIsNotDone() {
+    var preferences = NotificationPreferences()
+    preferences.followUpDays = 2
+    let item = multi([.hours(1)])
+    let plan = NotificationPlanner.deadlineReminders(
+      DeadlineBook(deadlines: [item]), preferences: preferences, now: date(18, 12), calendar: chicago, limit: 10)
+    #expect(plan.map(\.fireDate) == [date(22, 11), date(23, 9), date(24, 9)])
+    #expect(plan.map(\.kind) == [.alert(item.alerts[0]), .followUp(1), .followUp(2)])
+    #expect(Set(plan.map(\.id)).count == 3)
+    preferences.allDayTime = TimeOfDay(hour: 8, minute: 30)
+    let early = NotificationPlanner.deadlineReminders(
+      DeadlineBook(deadlines: [item]), preferences: preferences, now: date(18, 12), calendar: chicago, limit: 10)
+    #expect(early.map(\.fireDate) == [date(22, 11), date(23, 8, 30), date(24, 8, 30)])
+  }
+
+  @Test func plansTheMorningTimeForADeadlineWithoutATime() {
+    var preferences = NotificationPreferences()
+    preferences.allDayTime = TimeOfDay(hour: 7, minute: 45)
+    let book = DeadlineBook(deadlines: [multi([.days(1), .days(0, at: TimeOfDay(hour: 20, minute: 0))], hour: nil)])
+    let plan = NotificationPlanner.deadlineReminders(
+      book, preferences: preferences, now: date(18, 12), calendar: chicago, limit: 10)
+    #expect(plan.map(\.fireDate) == [date(21, 7, 45), date(22, 20)])
+  }
+
+  @Test func keepsTheSoonestWhenThereAreMoreThanFit() {
+    let book = DeadlineBook(deadlines: [
+      multi([.days(1), .hours(1)], day: 22), multi([.hours(1)], day: 20), multi([.days(1)], day: 25),
+    ])
+    let plan = NotificationPlanner.deadlineReminders(
+      book, preferences: NotificationPreferences(), now: date(18, 12), calendar: chicago, limit: 3)
+    #expect(plan.map(\.fireDate) == [date(20, 11), date(21, 12), date(22, 11)])
   }
 
   private func library() -> (TimetableLibrary, Course, Course) {

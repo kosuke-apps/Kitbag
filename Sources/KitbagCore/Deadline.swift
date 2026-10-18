@@ -8,7 +8,8 @@ public enum DeadlineKind: String, CaseIterable, Codable, Sendable {
   case other
 }
 
-/// How long before the deadline a reminder is shown.
+/// The single reminder choice that deadlines had before they could have several (`DeadlineAlert`). Files written by an
+/// earlier version still say `"reminder": "dayBefore"`; it is read as the alerts it stood for and never written again.
 public enum ReminderLead: String, CaseIterable, Codable, Sendable {
   case none
   case atDue
@@ -29,13 +30,14 @@ public struct Deadline: Hashable, Codable, Identifiable, Sendable {
   public var time: TimeOfDay?
   public var isDone: Bool
   public var note: String
-  public var reminder: ReminderLead
+  /// When to remind, as many times as wanted; none means this deadline stays silent.
+  public var alerts: [DeadlineAlert]
   /// The id of the calendar event it was imported from, so that importing the same file again updates it.
   public var sourceUID: String?
 
   public init(
     id: UUID = UUID(), title: String, kind: DeadlineKind = .assignment, courseID: UUID? = nil, date: LocalDate,
-    time: TimeOfDay? = nil, isDone: Bool = false, note: String = "", reminder: ReminderLead = .dayBefore,
+    time: TimeOfDay? = nil, isDone: Bool = false, note: String = "", alerts: [DeadlineAlert]? = nil,
     sourceUID: String? = nil
   ) {
     self.id = id
@@ -46,28 +48,54 @@ public struct Deadline: Hashable, Codable, Identifiable, Sendable {
     self.time = time
     self.isDone = isDone
     self.note = note
-    self.reminder = reminder
+    self.alerts = alerts ?? DeadlineAlert.standard(for: kind)
     self.sourceUID = sourceUID
   }
 
   private enum CodingKeys: String, CodingKey {
-    case id, title, kind, courseID, date, time, isDone, note, reminder, sourceUID
+    case id, title, kind, courseID, date, time, isDone, note, alerts, sourceUID
+    /// Only read: what deadlines had before `alerts`.
+    case reminder
   }
 
-  /// A hand-written file may leave out everything except the title and the day.
+  /// A hand-written file may leave out everything except the title and the day. A file from before deadlines could have
+  /// several reminders has one choice, `reminder`, which becomes the alerts it stood for.
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
+    let kind = try container.decodeIfPresent(DeadlineKind.self, forKey: .kind) ?? .assignment
+    let alerts: [DeadlineAlert]
+    if let stored = try container.decodeIfPresent([DeadlineAlert].self, forKey: .alerts) {
+      alerts = stored
+    } else if let lead = try container.decodeIfPresent(ReminderLead.self, forKey: .reminder) {
+      alerts = lead.alerts
+    } else {
+      alerts = ReminderLead.dayBefore.alerts
+    }
     self.init(
       id: try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID(),
       title: try container.decode(String.self, forKey: .title),
-      kind: try container.decodeIfPresent(DeadlineKind.self, forKey: .kind) ?? .assignment,
+      kind: kind,
       courseID: try container.decodeIfPresent(UUID.self, forKey: .courseID),
       date: try container.decode(LocalDate.self, forKey: .date),
       time: try container.decodeIfPresent(TimeOfDay.self, forKey: .time),
       isDone: try container.decodeIfPresent(Bool.self, forKey: .isDone) ?? false,
       note: try container.decodeIfPresent(String.self, forKey: .note) ?? "",
-      reminder: try container.decodeIfPresent(ReminderLead.self, forKey: .reminder) ?? .dayBefore,
+      alerts: alerts,
       sourceUID: try container.decodeIfPresent(String.self, forKey: .sourceUID))
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(id, forKey: .id)
+    try container.encode(title, forKey: .title)
+    try container.encode(kind, forKey: .kind)
+    try container.encodeIfPresent(courseID, forKey: .courseID)
+    try container.encode(date, forKey: .date)
+    try container.encodeIfPresent(time, forKey: .time)
+    try container.encode(isDone, forKey: .isDone)
+    try container.encode(note, forKey: .note)
+    try container.encode(alerts, forKey: .alerts)
+    try container.encodeIfPresent(sourceUID, forKey: .sourceUID)
   }
 
   /// The moment it is due. With no time, the last minute of the day.
@@ -81,29 +109,22 @@ public struct Deadline: Hashable, Codable, Identifiable, Sendable {
     !isDone && dueInstant(calendar: calendar) < now
   }
 
-  /// When to remind, or nil for no reminder. A deadline with a time is reminded that long before it. One without a
-  /// time is reminded at 9:00 on the day it is due, or on the day (or two days) before it.
-  public func reminderDate(calendar: Calendar) -> Date? {
-    guard reminder != .none else { return nil }
-    if let time {
-      let start = date.date(calendar: calendar)
-      let due = calendar.date(byAdding: .minute, value: time.minutes, to: start) ?? start
-      switch reminder {
-      case .none, .atDue: return due
-      case .hourBefore: return calendar.date(byAdding: .hour, value: -1, to: due)
-      case .dayBefore: return calendar.date(byAdding: .day, value: -1, to: due)
-      case .twoDaysBefore: return calendar.date(byAdding: .day, value: -2, to: due)
+  /// The moment each alert fires, the earliest first. A deadline with a time is reminded that long before it. One with no
+  /// time is reminded on the day it counts back to, at the alert's own time or else `defaultTime`.
+  public func alertDates(defaultTime: TimeOfDay = .usualReminder, calendar: Calendar) -> [(alert: DeadlineAlert, fire: Date)] {
+    let start = date.date(calendar: calendar)
+    let due = time.flatMap { calendar.date(byAdding: .minute, value: $0.minutes, to: start) } ?? start
+    return alerts
+      .compactMap { alert in
+        alert.fireDate(due: due, hasTime: time != nil, defaultTime: defaultTime, calendar: calendar).map { (alert, $0) }
       }
-    }
-    let daysBefore: Int
-    switch reminder {
-    case .none, .atDue, .hourBefore: daysBefore = 0
-    case .dayBefore: daysBefore = 1
-    case .twoDaysBefore: daysBefore = 2
-    }
-    let day = date.adding(days: -daysBefore, calendar: calendar).date(calendar: calendar)
-    return calendar.date(byAdding: .hour, value: 9, to: day)
+      .sorted { $0.fire < $1.fire }
   }
+}
+
+extension TimeOfDay {
+  /// When a reminder for a deadline with no time is shown, until the person chooses another.
+  public static let usualReminder = TimeOfDay(hour: 9, minute: 0)
 }
 
 /// Where a deadline falls relative to today, for grouping a list.

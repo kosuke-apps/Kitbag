@@ -5,18 +5,39 @@ import UserNotifications
 struct KitbagApp: App {
   /// The guests start with Kitbag, not when their tile is tapped: some of them register background tasks, and iOS only
   /// accepts that before the app has finished launching.
-  @State private var guests = GuestRuntimes()
-  @State private var timetable = TimetableStore()
-  @State private var deadlines = DeadlineStore()
+  @State private var guests: GuestRuntimes
+  @State private var timetable: TimetableStore
+  @State private var deadlines: DeadlineStore
   @State private var notes = NoteStore()
   @State private var weather = WeatherStore()
   @State private var subscriptions = SubscriptionStore()
   @State private var themes = ThemeStore()
   @State private var layout = LayoutStore()
-  @State private var notificationPreferences = NotificationPreferencesStore()
+  @State private var notificationPreferences: NotificationPreferencesStore
   @State private var gradeScales = GradeScaleStore()
   @State private var backupFolder = BackupFolderStore()
   @Environment(\.scenePhase) private var scenePhase
+
+  /// Wires up what a notification button needs. iOS can start Kitbag in the background only to carry out a button of a
+  /// reminder (Done, Snooze), without any screen, so this cannot wait for a view to appear: the handler has to be in
+  /// place, and the deadlines must know the terms and the preferences, before the app has finished launching. The guests
+  /// are made here, before the handler is set, because Headway installs its own handler when it starts and the last one
+  /// wins; `@State` would make them later, when the first view is drawn, and Headway's would replace Kitbag's.
+  init() {
+    let guests = GuestRuntimes()
+    let timetable = TimetableStore()
+    let deadlines = DeadlineStore()
+    let preferences = NotificationPreferencesStore()
+    deadlines.courseCode = { [timetable] in timetable.course(id: $0)?.code }
+    deadlines.library = { [timetable] in timetable.library }
+    deadlines.preferences = { [preferences] in preferences.preferences }
+    _guests = State(initialValue: guests)
+    _timetable = State(initialValue: timetable)
+    _deadlines = State(initialValue: deadlines)
+    _notificationPreferences = State(initialValue: preferences)
+    // Kitbag's own handler comes after the guests', which set theirs when they start (just above).
+    UNUserNotificationCenter.current().delegate = KitbagNotificationDelegate.shared
+  }
 
   var body: some Scene {
     WindowGroup {
@@ -36,14 +57,7 @@ struct KitbagApp: App {
       .environment(notificationPreferences)
       .environment(gradeScales)
       .environment(backupFolder)
-      .task {
-        // Kitbag's own handler comes after the guests', which set theirs when they start.
-        UNUserNotificationCenter.current().delegate = KitbagNotificationDelegate.shared
-        deadlines.courseCode = { [timetable] in timetable.course(id: $0)?.code }
-        deadlines.library = { [timetable] in timetable.library }
-        deadlines.preferences = { [notificationPreferences] in notificationPreferences.preferences }
-        deadlines.syncReminders()
-      }
+      .task { deadlines.syncReminders() }
       .task { await weather.refresh() }
       .task { await subscriptions.refreshStale() }
       #if DEBUG

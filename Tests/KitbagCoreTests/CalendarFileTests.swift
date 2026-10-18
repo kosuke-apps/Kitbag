@@ -208,9 +208,9 @@ struct ICSWriterTests {
         title: "Lab 5 report, part A; draft", kind: .assignment, courseID: course.id,
         date: LocalDate(year: 2026, month: 10, day: 22), time: TimeOfDay(hour: 14, minute: 30),
         note: "Bring the data.\nUse tables.",
-        reminder: .dayBefore),
+        alerts: [.days(1), .hours(1)]),
       Deadline(
-        title: "Midterm", kind: .exam, date: LocalDate(year: 2026, month: 10, day: 27), isDone: true, reminder: .none),
+        title: "Midterm", kind: .exam, date: LocalDate(year: 2026, month: 10, day: 27), isDone: true, alerts: []),
     ]
   }
 
@@ -242,10 +242,15 @@ struct ICSWriterTests {
     #expect(back[1].time == nil)
   }
 
-  @Test func addsAnAlarmForTheReminderAndLeavesItOutWhenThereIsNone() {
+  @Test func addsAnAlarmForEachAlertAndLeavesThemOutWhenDone() {
     let text = ICSWriter.deadlines(sample(), courseCode: { _ in nil }, calendar: chicago, now: moment(10, 1))
-    #expect(text.components(separatedBy: "BEGIN:VALARM").count == 2)
-    #expect(text.contains("TRIGGER;VALUE=DATE-TIME:20261021T193000Z"))
+    #expect(text.components(separatedBy: "BEGIN:VALARM").count == 3)  // two alarms for the lab report, none for the exam
+    #expect(text.contains("TRIGGER;VALUE=DATE-TIME:20261021T193000Z"))  // one day before 14:30 Chicago
+    #expect(text.contains("TRIGGER;VALUE=DATE-TIME:20261022T183000Z"))  // one hour before
+    var done = sample()
+    done[0].isDone = true
+    let quiet = ICSWriter.deadlines(done, courseCode: { _ in nil }, calendar: chicago, now: moment(10, 1))
+    #expect(!quiet.contains("BEGIN:VALARM"))
   }
 
   @Test func foldsLongLinesWithoutBreakingText() throws {
@@ -323,6 +328,21 @@ struct DeadlineImportTests {
     #expect(deadlines.allSatisfy { $0.kind == .quiz && $0.time == nil })
   }
 
+  @Test func givesNewDeadlinesTheAlertsOfTheirKind() {
+    let text = ics(
+      "BEGIN:VEVENT", "UID:u1", "SUMMARY:Midterm exam", "DTSTART;VALUE=DATE:20261030", "END:VEVENT",
+      "BEGIN:VEVENT", "UID:u2", "SUMMARY:Essay", "DTSTART:20261030T150000Z", "END:VEVENT")
+    let events = ICalendar.parse(text, defaultTimeZone: chicago.timeZone)
+    let result = DeadlineImport.deadlines(
+      from: events, courses: [], calendar: chicago, window: wholeSeason,
+      defaultAlerts: { $0 == .exam ? [.weeks(1), .hours(2)] : [.hours(3)] })
+    let exam = result.first { $0.title == "Midterm exam" }
+    let essay = result.first { $0.title == "Essay" }
+    // An exam with no time cannot be reminded in hours: that becomes "on the day".
+    #expect(exam?.alerts.map(\.leadMinutes) == [7 * 1440, 0])
+    #expect(essay?.alerts.map(\.leadMinutes) == [180])
+  }
+
   @Test func keepsWhatThePersonChangedWhenImportingAgain() {
     let text = ics(
       "BEGIN:VEVENT", "UID:u1", "SUMMARY:Essay", "DTSTART;VALUE=DATE:20261030", "DESCRIPTION:New text", "END:VEVENT")
@@ -330,7 +350,7 @@ struct DeadlineImportTests {
     let course = Course(code: "X 1")
     var earlier = Deadline(
       title: "Essay", courseID: course.id, date: LocalDate(year: 2026, month: 10, day: 29), isDone: true,
-      reminder: .none, sourceUID: "u1")
+      alerts: [], sourceUID: "u1")
     earlier.note = "old"
     let result = DeadlineImport.deadlines(
       from: events, courses: [], existing: [earlier], calendar: chicago, window: wholeSeason)
@@ -338,7 +358,7 @@ struct DeadlineImportTests {
     #expect(result[0].id == earlier.id)
     #expect(result[0].isDone)
     #expect(result[0].courseID == course.id)
-    #expect(result[0].reminder == ReminderLead.none)
+    #expect(result[0].alerts.isEmpty)
     #expect(result[0].date == LocalDate(year: 2026, month: 10, day: 30))
     #expect(result[0].note == "New text")
   }

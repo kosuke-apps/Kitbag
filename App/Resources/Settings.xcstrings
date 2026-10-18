@@ -45,6 +45,16 @@
         }
       }
     },
+    "%lld of 64": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / 64 件"
+          }
+        }
+      }
+    },
     "A build signed with a free Apple ID stops opening when this runs out, and is renewed by installing it again from the Mac.": {
       "comment": "Footer under the signature details.",
       "localizations": {
@@ -52,6 +62,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "無料の Apple ID で署名したビルドは，これが切れると開けなくなります．Mac からもう一度インストールすると更新されます．"
+          }
+        }
+      }
+    },
+    "A new deadline starts with the reminders of its kind, and you can change them for that deadline. Deadlines you import from a calendar start with them too.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい締め切りは，その種類の通知で始まります．その締め切りだけ変更することもできます．カレンダーから取り込む締め切りも同じです．"
           }
         }
       }
@@ -324,13 +344,12 @@
         }
       }
     },
-    "Each deadline keeps its own lead time, which you set when you edit it.": {
-      "comment": "Footer under the deadline reminder switches.",
+    "Every deadline can have several reminders, set when you edit it. The morning time is used for deadlines with no time of day. Reminding again repeats at that time on the mornings after the day it was due, for deadlines you have not ticked off.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "リマインドの時間は締め切りごとに，編集画面で決めます．"
+            "value": "締め切りごとに複数の通知を，編集画面で設定できます．朝の通知時刻は，時刻のない締め切りに使われます．再通知は，期限の翌日からその時刻に，チェックしていない締め切りについて繰り返します．"
           }
         }
       }
@@ -357,6 +376,27 @@
         }
       }
     },
+    "For %lld mornings": {
+      "comment": "Remind again for this many mornings after the day a deadline was due.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 日間の朝"
+          }
+        }
+      }
+    },
+    "For a deadline with no time of day, a reminder counted in hours or minutes comes on the day itself, at the morning reminder time.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時刻のない締め切りでは，時間や分で数えた通知は当日の朝の通知時刻になります．"
+          }
+        }
+      }
+    },
     "Forest": {
       "comment": "A deep green theme.",
       "localizations": {
@@ -375,6 +415,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "開始"
+          }
+        }
+      }
+    },
+    "From Headway": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headway の通知"
           }
         }
       }
@@ -487,6 +537,17 @@
         }
       }
     },
+    "Kitbag's reminders": {
+      "comment": "Count of reminders Kitbag has waiting on the phone.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag の通知"
+          }
+        }
+      }
+    },
     "Language": {
       "comment": "Settings section title and row label for the app language.",
       "localizations": {
@@ -551,12 +612,43 @@
         }
       }
     },
+    "Morning reminder time": {
+      "comment": "Time of day at which reminders of deadlines with no time are shown.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朝の通知時刻"
+          }
+        }
+      }
+    },
     "Mortarboard": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "角帽"
+          }
+        }
+      }
+    },
+    "Never": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "しない"
+          }
+        }
+      }
+    },
+    "New deadlines": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい締め切り"
           }
         }
       }
@@ -571,6 +663,16 @@
         }
       }
     },
+    "None": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "なし"
+          }
+        }
+      }
+    },
     "Not set up yet": {
       "comment": "Notification permission has not been asked yet.",
       "localizations": {
@@ -578,6 +680,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "未設定"
+          }
+        }
+      }
+    },
+    "Nothing is scheduled right now.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "予約された通知はありません．"
           }
         }
       }
@@ -600,6 +712,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "通知"
+          }
+        }
+      }
+    },
+    "Notifications are turned off for Kitbag in iOS Settings, so none of these will be shown.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS の設定で Kitbag の通知がオフのため，どれも表示されません．"
           }
         }
       }
@@ -718,6 +840,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "おやすみ時間"
+          }
+        }
+      }
+    },
+    "Remind again if not done": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未完了なら再通知"
           }
         }
       }
@@ -843,6 +975,27 @@
         }
       }
     },
+    "Scheduled": {
+      "comment": "Title of the list of waiting reminders.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "予約済み"
+          }
+        }
+      }
+    },
+    "Scheduled on this iPhone": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone に予約された通知"
+          }
+        }
+      }
+    },
     "Send a test notification": {
       "comment": "Button that sends a notification to the phone after a few seconds.",
       "localizations": {
@@ -861,6 +1014,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "設定"
+          }
+        }
+      }
+    },
+    "Shows what iOS will actually deliver. iOS allows an app at most 64 waiting reminders, so Kitbag schedules the soonest ones and adds the rest each time it opens.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS が実際に届ける通知の一覧です．iOS は 1 つのアプリに最大 64 件までしか待機させないため，Kitbag は近いものから予約し，残りは開くたびに追加します．"
           }
         }
       }
@@ -1133,6 +1296,16 @@
         }
       }
     },
+    "Use Kitbag's suggestion": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag の初期設定に戻す"
+          }
+        }
+      }
+    },
     "Version": {
       "localizations": {
         "ja": {
@@ -1160,6 +1333,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "天気"
+          }
+        }
+      }
+    },
+    "What new deadlines start with": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい締め切りの初期設定"
           }
         }
       }

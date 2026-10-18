@@ -20,9 +20,11 @@ public enum DeadlineImport {
   }
 
   /// The deadlines in a set of events: each task or event as one (a repeating event once for each time it falls within
-  /// `window`). Deadlines that came from the same event in an earlier import keep their id, so importing again updates.
+  /// `window`). Deadlines that came from the same event in an earlier import keep their id and their alerts, so importing
+  /// again updates; a new one gets the alerts `defaultAlerts` gives for its kind (the person's own choice, in the app).
   public static func deadlines(
-    from events: [CalendarEvent], courses: [Course], existing: [Deadline] = [], calendar: Calendar, window: DateInterval
+    from events: [CalendarEvent], courses: [Course], existing: [Deadline] = [], calendar: Calendar, window: DateInterval,
+    defaultAlerts: (DeadlineKind) -> [DeadlineAlert] = { DeadlineAlert.standard(for: $0) }
   ) -> [Deadline] {
     var results: [Deadline] = []
     for event in events {
@@ -44,7 +46,8 @@ public enum DeadlineImport {
             id: previous?.id ?? UUID(), title: event.title.isEmpty ? "(untitled)" : event.title, kind: kind,
             courseID: previous?.courseID ?? course?.id, date: day, time: time,
             isDone: previous?.isDone ?? (event.isCompleted || event.kitbagDone), note: event.notes,
-            reminder: previous?.reminder ?? .dayBefore, sourceUID: uid))
+            alerts: previous?.alerts ?? DeadlineAlert.normalized(defaultAlerts(kind), hasTime: time != nil),
+            sourceUID: uid))
       }
     }
     return results.sorted { ($0.date, $0.time?.minutes ?? 0, $0.title) < ($1.date, $1.time?.minutes ?? 0, $1.title) }

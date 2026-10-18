@@ -1,6 +1,17 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ before": {
+      "comment": "How long before a deadline a reminder comes; %@ is a span such as '2 hours' or '1 day'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@前"
+          }
+        }
+      }
+    },
     "%@ begins": {
       "comment": "A term's first day of classes, shown on that day in the calendar.",
       "localizations": {
@@ -23,36 +34,6 @@
         }
       }
     },
-    "1 day before": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1日前"
-          }
-        }
-      }
-    },
-    "1 hour before": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1時間前"
-          }
-        }
-      }
-    },
-    "2 days before": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "2日前"
-          }
-        }
-      }
-    },
     "Add": {
       "localizations": {
         "ja": {
@@ -69,6 +50,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "締め切りを追加"
+          }
+        }
+      }
+    },
+    "Add a reminder": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知を追加"
           }
         }
       }
@@ -129,6 +120,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "課題"
+          }
+        }
+      }
+    },
+    "at %@": {
+      "comment": "The time of day of a reminder, such as '6:00 PM'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@"
           }
         }
       }
@@ -236,12 +238,34 @@
         }
       }
     },
+    "Custom…": {
+      "comment": "Menu item that opens a form for a reminder of any length.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "その他…"
+          }
+        }
+      }
+    },
     "Date": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "日付"
+          }
+        }
+      }
+    },
+    "Days": {
+      "comment": "Unit of a reminder's lead time.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日"
           }
         }
       }
@@ -389,12 +413,43 @@
         }
       }
     },
+    "For a deadline with no time, the reminder comes at this time of the day.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時刻のない締め切りでは，この時刻に通知します．"
+          }
+        }
+      }
+    },
     "Google Calendar: the calendar's settings, then Secret address in iCal format.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "Googleカレンダー: カレンダーの設定→「iCal形式の非公開URL」．"
+          }
+        }
+      }
+    },
+    "Hours": {
+      "comment": "Unit of a reminder's lead time.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時間"
+          }
+        }
+      }
+    },
+    "How long before": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "何分前・何日前か"
           }
         }
       }
@@ -439,6 +494,17 @@
         }
       }
     },
+    "It was due %@": {
+      "comment": "Body of that notification; %@ is a date or a date and time.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "期限は %@ でした"
+          }
+        }
+      }
+    },
     "Kind": {
       "localizations": {
         "ja": {
@@ -475,6 +541,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "未完了に戻す"
+          }
+        }
+      }
+    },
+    "Minutes": {
+      "comment": "Unit of a reminder's lead time.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分"
           }
         }
       }
@@ -540,12 +617,12 @@
         }
       }
     },
-    "No reminder": {
+    "No reminders: this deadline stays silent.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "通知しない"
+            "value": "通知はありません．この締め切りは知らせません．"
           }
         }
       }
@@ -556,6 +633,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "なし"
+          }
+        }
+      }
+    },
+    "Not done yet: %@": {
+      "comment": "Title of the notification that comes the morning after a deadline that was not ticked off; %@ is its title.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未完了: %@"
           }
         }
       }
@@ -580,12 +668,44 @@
         }
       }
     },
+    "Notifications are turned off for Kitbag in iOS Settings, so these cannot be shown.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS の設定で Kitbag の通知がオフのため，表示できません．"
+          }
+        }
+      }
+    },
+    "now": {
+      "comment": "As in 'Due Tue 11:59 PM · now'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今"
+          }
+        }
+      }
+    },
     "OK": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "OK"
+          }
+        }
+      }
+    },
+    "On the day": {
+      "comment": "A reminder on the day a deadline with no time is due.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当日"
           }
         }
       }
@@ -661,12 +781,65 @@
         }
       }
     },
-    "Remind me": {
+    "Remind me tomorrow": {
+      "comment": "Button on a deadline's notification.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明日の朝に再通知"
+          }
+        }
+      }
+    },
+    "Reminder": {
+      "comment": "Title of the form for one reminder.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "通知"
+          }
+        }
+      }
+    },
+    "Reminders": {
+      "comment": "Section of the deadline editor that lists its reminders.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        }
+      }
+    },
+    "Reminders about deadlines are turned off in Settings > Reminders.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切りの通知が，設定 > リマインダー でオフになっています．"
+          }
+        }
+      }
+    },
+    "Reminders for this kind of deadline are turned off in Settings > Reminders.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この種類の締め切りの通知が，設定 > リマインダー でオフになっています．"
+          }
+        }
+      }
+    },
+    "Reminds you": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知される日時"
           }
         }
       }
@@ -707,6 +880,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Todayに表示"
+          }
+        }
+      }
+    },
+    "Snooze 1 hour": {
+      "comment": "Button on a deadline's notification.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1時間後に再通知"
+          }
+        }
+      }
+    },
+    "Snooze 10 min": {
+      "comment": "Button on a deadline's notification.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10分後に再通知"
           }
         }
       }
@@ -842,6 +1037,16 @@
         }
       }
     },
+    "Time of day": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時刻"
+          }
+        }
+      }
+    },
     "Title": {
       "localizations": {
         "ja": {
@@ -869,6 +1074,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "明日"
+          }
+        }
+      }
+    },
+    "Unit": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "単位"
           }
         }
       }
@@ -905,6 +1120,17 @@
         }
       }
     },
+    "Usual time (%@)": {
+      "comment": "The usual time of day for reminders of deadlines with no time; %@ is that time.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いつもの時刻（%@）"
+          }
+        }
+      }
+    },
     "View": {
       "comment": "Accessibility label of the Month/Upcoming switch.",
       "localizations": {
@@ -916,12 +1142,56 @@
         }
       }
     },
+    "Weeks": {
+      "comment": "Unit of a reminder's lead time.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "週間"
+          }
+        }
+      }
+    },
     "When it is due": {
+      "comment": "A reminder at the moment a deadline with a time is due.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "期限の時刻"
+          }
+        }
+      }
+    },
+    "Zero means on the day itself.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "0 にすると当日になります．"
+          }
+        }
+      }
+    },
+    "· after quiet hours": {
+      "comment": "Said of a reminder that is held back until the quiet hours end.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· おやすみ時間のあと"
+          }
+        }
+      }
+    },
+    "· already passed": {
+      "comment": "Said of a reminder whose time is behind us.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· すでに過ぎています"
           }
         }
       }

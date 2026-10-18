@@ -1,9 +1,13 @@
 import KitbagCore
+import OSLog
 import UserNotifications
 
-/// Keeps the phone's pending notifications in step with what Kitbag wants shown: a reminder for each open deadline and
-/// the warnings that the signature is about to run out. They are local notifications, so they need no server and no paid
-/// developer account, and iOS shows them at the time even when Kitbag is closed.
+private let log = Logger(subsystem: "dev.kosuke.kitbag", category: "reminders")
+
+/// Keeps the phone's pending notifications in step with what Kitbag wants shown: the alerts of each open deadline and the
+/// warnings that the signature is about to run out. They are local notifications, so they need no server and no paid
+/// developer account, and iOS shows them at the time even when Kitbag is closed. A deadline's notification carries three
+/// buttons (done, snooze, tomorrow) that work without opening Kitbag.
 @MainActor
 struct ReminderScheduler {
   /// iOS keeps at most 64 pending notifications per app, and the guests' own (Headway's departure reminders) count too, so
@@ -16,6 +20,9 @@ struct ReminderScheduler {
 
   private static let signingPrefix = "kitbag.signing."
   private static let classPrefix = "kitbag.class."
+  private static let deadlinePrefix = "kitbag.deadline."
+  /// A snoozed reminder, one per deadline (snoozing again replaces it).
+  static let snoozePrefix = "kitbag.snooze."
   private let center = UNUserNotificationCenter.current()
 
   func status() async -> UNAuthorizationStatus {
@@ -38,8 +45,18 @@ struct ReminderScheduler {
     deadlines: DeadlineBook, library: TimetableLibrary, preferences: NotificationPreferences,
     courseCode: (UUID) -> String?, signatureExpiry: Date?, now: Date = Date(), calendar: Calendar = .current
   ) async {
+    registerCategories()
     var wanted: [UNNotificationRequest] = []
     var used = 0
+    let pending = await center.pendingNotificationRequests()
+
+    // A snooze the person asked for stays while its deadline is open; it counts against the budget.
+    let open = Set(deadlines.deadlines.filter { !$0.isDone }.map(\.id))
+    let snoozes = pending.map(\.identifier).filter { identifier in
+      identifier.hasPrefix(Self.snoozePrefix)
+        && UUID(uuidString: String(identifier.dropFirst(Self.snoozePrefix.count))).map(open.contains) == true
+    }
+    used += snoozes.count
 
     if preferences.signatureEnabled, let signatureExpiry {
       for reminder in SigningReminder.plan(expiresAt: signatureExpiry, now: now, calendar: calendar) {
@@ -56,7 +73,7 @@ struct ReminderScheduler {
       ?? Self.horizonDays
     let classes = NotificationPlanner.classReminders(
       library, preferences: preferences, now: now, calendar: calendar, horizonDays: horizon,
-      limit: min(Self.classLimit, Self.ownLimit - used))
+      limit: max(0, min(Self.classLimit, Self.ownLimit - used)))
     for reminder in classes {
       wanted.append(
         request(
@@ -65,22 +82,113 @@ struct ReminderScheduler {
     }
     used += classes.count
 
-    for (deadline, fire) in NotificationPlanner.deadlineReminders(
+    for reminder in NotificationPlanner.deadlineReminders(
       deadlines, preferences: preferences, now: now, calendar: calendar, limit: max(0, Self.ownLimit - used))
     {
       wanted.append(
         request(
-          id: deadline.id.uuidString, fire: fire, calendar: calendar,
-          content: deadlineContent(deadline, courseCode: deadline.courseID.flatMap(courseCode), calendar: calendar)))
+          id: reminder.id, fire: reminder.fireDate, calendar: calendar,
+          content: deadlineContent(
+            reminder, courseCode: reminder.deadline.courseID.flatMap(courseCode), preferences: preferences,
+            calendar: calendar)))
     }
 
-    let wantedIDs = Set(wanted.map(\.identifier))
-    let ours = await center.pendingNotificationRequests().map(\.identifier).filter {
-      UUID(uuidString: $0) != nil || $0.hasPrefix(Self.signingPrefix) || $0.hasPrefix(Self.classPrefix)
+    let wantedIDs = Set(wanted.map(\.identifier)).union(snoozes)
+    let ours = pending.map(\.identifier).filter {
+      UUID(uuidString: $0) != nil  // a reminder made before deadlines could have several
+        || $0.hasPrefix(Self.deadlinePrefix) || $0.hasPrefix(Self.snoozePrefix) || $0.hasPrefix(Self.signingPrefix)
+        || $0.hasPrefix(Self.classPrefix)
     }
     center.removePendingNotificationRequests(withIdentifiers: ours.filter { !wantedIDs.contains($0) })
     guard !wanted.isEmpty, await authorize() else { return }
     for request in wanted { try? await center.add(request) }
+  }
+
+  // MARK: Actions on a notification
+
+  /// The buttons of a deadline's notification, in the language chosen for Kitbag. They are registered every time the
+  /// reminders are planned, so that a change of language shows on the next notification.
+  func registerCategories() {
+    let done = UNNotificationAction(
+      identifier: DeadlineAction.done.rawValue, title: L10n.string("Done", table: "Calendar"), options: [],
+      icon: UNNotificationActionIcon(systemImageName: "checkmark.circle"))
+    let tenMinutes = UNNotificationAction(
+      identifier: DeadlineAction.snoozeTenMinutes.rawValue, title: L10n.string("Snooze 10 min", table: "Calendar"),
+      options: [], icon: UNNotificationActionIcon(systemImageName: "zzz"))
+    let hour = UNNotificationAction(
+      identifier: DeadlineAction.snoozeHour.rawValue, title: L10n.string("Snooze 1 hour", table: "Calendar"),
+      options: [], icon: UNNotificationActionIcon(systemImageName: "clock"))
+    let tomorrow = UNNotificationAction(
+      identifier: DeadlineAction.remindTomorrow.rawValue, title: L10n.string("Remind me tomorrow", table: "Calendar"),
+      options: [], icon: UNNotificationActionIcon(systemImageName: "sunrise"))
+    let category = UNNotificationCategory(
+      identifier: Self.categoryID, actions: [done, tenMinutes, hour, tomorrow], intentIdentifiers: [],
+      options: [.hiddenPreviewsShowTitle])
+    center.setNotificationCategories([category])
+  }
+
+  static let categoryID = "kitbag.deadline"
+
+  /// Puts a deadline's notification off: in ten minutes, in an hour, or tomorrow morning. The text is the same as the one
+  /// that was snoozed. Snoozing again replaces the earlier snooze.
+  func snooze(
+    _ deadlineID: UUID, content original: UNNotificationContent, action: DeadlineAction, morning: TimeOfDay,
+    now: Date = Date(), calendar: Calendar = .current
+  ) async {
+    guard let content = original.mutableCopy() as? UNMutableNotificationContent else { return }
+    let trigger: UNNotificationTrigger
+    switch action {
+    case .snoozeTenMinutes: trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10 * 60, repeats: false)
+    case .snoozeHour: trigger = UNTimeIntervalNotificationTrigger(timeInterval: 60 * 60, repeats: false)
+    case .remindTomorrow:
+      guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)),
+        let fire = calendar.date(
+          bySettingHour: min(morning.hour, 23), minute: morning.minute, second: 0, of: tomorrow)
+      else { return }
+      trigger = UNCalendarNotificationTrigger(
+        dateMatching: calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fire), repeats: false)
+    case .done: return
+    }
+    try? await center.add(
+      UNNotificationRequest(identifier: Self.snoozePrefix + deadlineID.uuidString, content: content, trigger: trigger))
+  }
+
+  /// Takes a deadline's pending notifications away, for a deadline that was just done.
+  func cancelAll(for deadlineID: UUID) async {
+    let prefix = DeadlineReminder.idPrefix(for: deadlineID)
+    let pending = await center.pendingNotificationRequests().map(\.identifier).filter {
+      $0.hasPrefix(prefix) || $0 == Self.snoozePrefix + deadlineID.uuidString || $0 == deadlineID.uuidString
+    }
+    center.removePendingNotificationRequests(withIdentifiers: pending)
+  }
+
+  /// What is waiting on this phone to be shown, by what Kitbag scheduled and what the guests did (those only counted).
+  func pendingSummary() async -> (kitbag: [PendingReminder], others: Int) {
+    var mine: [PendingReminder] = []
+    var others = 0
+    for request in await center.pendingNotificationRequests() {
+      let id = request.identifier
+      let kind: PendingReminder.Kind
+      if id.hasPrefix(Self.deadlinePrefix) || UUID(uuidString: id) != nil {
+        kind = .deadline
+      } else if id.hasPrefix(Self.snoozePrefix) {
+        kind = .snoozed
+      } else if id.hasPrefix(Self.classPrefix) {
+        kind = .classStart
+      } else if id.hasPrefix(Self.signingPrefix) {
+        kind = .signature
+      } else {
+        others += 1
+        continue
+      }
+      let date = (request.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate()
+        ?? (request.trigger as? UNTimeIntervalNotificationTrigger)?.nextTriggerDate()
+      mine.append(
+        PendingReminder(
+          id: id, title: request.content.title, subtitle: request.content.subtitle, body: request.content.body,
+          date: date, kind: kind))
+    }
+    return (mine.sorted { ($0.date ?? .distantFuture) < ($1.date ?? .distantFuture) }, others)
   }
 
   /// A notification in five seconds, to see that they arrive. False when they are not allowed.
@@ -112,21 +220,55 @@ struct ReminderScheduler {
   }
 
   private func deadlineContent(
-    _ deadline: Deadline, courseCode: String?, calendar: Calendar
+    _ reminder: DeadlineReminder, courseCode: String?, preferences: NotificationPreferences, calendar: Calendar
   )
     -> UNNotificationContent
   {
+    let deadline = reminder.deadline
     let content = UNMutableNotificationContent()
-    content.title = deadline.title
     let due = deadline.dueInstant(calendar: calendar)
+    let style = Date.FormatStyle().weekday(.abbreviated).month(.abbreviated).day().locale(LanguageStore.shared.locale)
     let when =
       deadline.time == nil
-      ? due.formattedInLanguage(date: .abbreviated, time: .omitted)
-      : due.formattedInLanguage(date: .abbreviated, time: .shortened)
-    let dueText = L10n.string("Due \(when)", table: "Calendar")
-    content.body = [courseCode, dueText].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
+      ? due.formatted(style)
+      : due.formatted(style.hour().minute())
+    switch reminder.kind {
+    case .alert:
+      content.title = deadline.title
+      let dueText = L10n.string("Due \(when)", table: "Calendar")
+      let near = Self.nearness(of: deadline, from: reminder.fireDate, calendar: calendar)
+      content.body = [dueText, near].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
+    case .followUp:
+      content.title = L10n.string("Not done yet: \(deadline.title)", table: "Calendar")
+      content.body = L10n.string("It was due \(when)", table: "Calendar")
+    }
+    content.subtitle = [L10n.string(deadline.kind.title), courseCode].compactMap { $0 }.filter { !$0.isEmpty }
+      .joined(separator: " · ")
     content.sound = .default
+    content.categoryIdentifier = Self.categoryID
+    content.threadIdentifier = deadline.courseID?.uuidString ?? "kitbag.deadlines"
+    content.userInfo = [
+      "deadlineID": deadline.id.uuidString, "morning": preferences.allDayTime.minutes,
+    ]
     return content
+  }
+
+  /// How near the deadline is when a reminder fires, in words ("in 2 hours", "tomorrow"), or nil when it is already past.
+  /// With no time on the deadline it counts whole days.
+  private static func nearness(of deadline: Deadline, from fire: Date, calendar: Calendar) -> String? {
+    let formatter = RelativeDateTimeFormatter()
+    formatter.locale = LanguageStore.shared.locale
+    formatter.unitsStyle = .full
+    formatter.dateTimeStyle = .named
+    if deadline.time == nil {
+      let days = deadline.date.days(since: LocalDate(fire, calendar: calendar), calendar: calendar)
+      return days < 0 ? nil : formatter.localizedString(from: DateComponents(day: days))
+    }
+    let due = deadline.dueInstant(calendar: calendar)
+    guard due >= fire else { return nil }
+    let minutes = Int(due.timeIntervalSince(fire) / 60)
+    if minutes < 1 { return L10n.string("now", table: "Calendar") }
+    return formatter.localizedString(for: due, relativeTo: fire)
   }
 
   private func classContent(_ reminder: ClassReminder, lead: Int) -> UNNotificationContent {
@@ -154,7 +296,27 @@ struct ReminderScheduler {
   }
 }
 
-/// Shows a notification as a banner even while Kitbag is open (iOS hides it otherwise).
+/// One notification that is waiting to be shown, for the list in Settings > Reminders.
+struct PendingReminder: Identifiable {
+  enum Kind { case deadline, snoozed, classStart, signature }
+  let id: String
+  let title: String
+  let subtitle: String
+  let body: String
+  let date: Date?
+  let kind: Kind
+}
+
+/// What a button on a deadline's notification does.
+enum DeadlineAction: String {
+  case done = "kitbag.action.done"
+  case snoozeTenMinutes = "kitbag.action.snooze10"
+  case snoozeHour = "kitbag.action.snooze60"
+  case remindTomorrow = "kitbag.action.tomorrow"
+}
+
+/// Shows a notification as a banner even while Kitbag is open (iOS hides it otherwise), and carries out the buttons of a
+/// deadline's notification. The buttons run without opening Kitbag in front: iOS starts it in the background just for that.
 final class KitbagNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
   static let shared = KitbagNotificationDelegate()
 
@@ -163,5 +325,27 @@ final class KitbagNotificationDelegate: NSObject, UNUserNotificationCenterDelega
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
     completionHandler([.banner, .list, .sound])
+  }
+
+  func userNotificationCenter(
+    _ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+    withCompletionHandler completionHandler: @escaping () -> Void
+  ) {
+    let content = response.notification.request.content
+    log.info("notification response: \(response.actionIdentifier, privacy: .public)")
+    guard let action = DeadlineAction(rawValue: response.actionIdentifier),
+      let id = (content.userInfo["deadlineID"] as? String).flatMap(UUID.init(uuidString:))
+    else {
+      completionHandler()
+      return
+    }
+    let minutes = content.userInfo["morning"] as? Int ?? TimeOfDay.usualReminder.minutes
+    nonisolated(unsafe) let finish = completionHandler
+    nonisolated(unsafe) let kept = content
+    Task { @MainActor in
+      await DeadlineStore.perform(action, deadline: id, content: kept, morning: TimeOfDay(minutes: minutes))
+      log.info("notification action finished: \(action.rawValue, privacy: .public)")
+      finish()
+    }
   }
 }

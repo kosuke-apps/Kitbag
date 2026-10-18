@@ -7,6 +7,12 @@ enum WidgetBridge {
   /// The files the widgets read, by the same names as in the app's own folder.
   private static let files = ["timetables.json", "deadlines.json"]
 
+  /// For when no screen is running to know the theme (a notification button that marked a deadline done).
+  @MainActor
+  static func syncFromSavedTheme() {
+    sync(theme: ThemeID(rawValue: UserDefaults.standard.string(forKey: "kitbag.theme") ?? "") ?? .ivory)
+  }
+
   @MainActor
   static func sync(theme: ThemeID) {
     guard let group = AppGroup.containerURL else { return }

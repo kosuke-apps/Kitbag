@@ -131,33 +131,98 @@ struct DeadlineTests {
   }
 
   @Test func remindsBeforeATimedDeadline() {
-    let time = TimeOfDay(hour: 14, minute: 30)
-    func reminder(_ lead: ReminderLead) -> Date? {
-      Deadline(title: "x", date: day(22), time: time, reminder: lead).reminderDate(calendar: calendar)
-    }
-    #expect(reminder(.none) == nil)
-    #expect(reminder(.atDue) == moment(22, 14, 30))
-    #expect(reminder(.hourBefore) == moment(22, 13, 30))
-    #expect(reminder(.dayBefore) == moment(21, 14, 30))
-    #expect(reminder(.twoDaysBefore) == moment(20, 14, 30))
+    let item = Deadline(
+      title: "x", date: day(22), time: TimeOfDay(hour: 14, minute: 30),
+      alerts: [.minutes(0), .minutes(15), .hours(1), .days(1), .weeks(1)])
+    let fires = item.alertDates(calendar: calendar).map(\.fire)
+    // The earliest first.
+    #expect(fires == [moment(15, 14, 30), moment(21, 14, 30), moment(22, 13, 30), moment(22, 14, 15), moment(22, 14, 30)])
   }
 
-  @Test func remindsAtNineForADeadlineWithoutATime() {
-    func reminder(_ lead: ReminderLead) -> Date? {
-      Deadline(title: "x", date: day(22), reminder: lead).reminderDate(calendar: calendar)
-    }
-    #expect(reminder(.none) == nil)
-    #expect(reminder(.atDue) == moment(22, 9))
-    #expect(reminder(.hourBefore) == moment(22, 9))
-    #expect(reminder(.dayBefore) == moment(21, 9))
-    #expect(reminder(.twoDaysBefore) == moment(20, 9))
+  @Test func remindsAtTheUsualTimeForADeadlineWithoutATime() {
+    let item = Deadline(title: "x", date: day(22), alerts: [.days(0), .days(1), .days(2), .weeks(1)])
+    #expect(
+      item.alertDates(calendar: calendar).map(\.fire) == [moment(15, 9), moment(20, 9), moment(21, 9), moment(22, 9)])
+    // A different usual time moves them all; an alert with a time of its own keeps it.
+    let evening = Deadline(
+      title: "x", date: day(22), alerts: [.days(1), .days(1, at: TimeOfDay(hour: 18, minute: 30))])
+    #expect(
+      evening.alertDates(defaultTime: TimeOfDay(hour: 8, minute: 15), calendar: calendar).map(\.fire)
+        == [moment(21, 8, 15), moment(21, 18, 30)])
+  }
+
+  @Test func hasNoDatesWithoutAlerts() {
+    #expect(Deadline(title: "x", date: day(22), alerts: []).alertDates(calendar: calendar).isEmpty)
   }
 
   @Test func keepsTheWallClockAcrossADaylightSavingChange() {
     // Clocks go back on 2026-11-01 in the US. A reminder the day before a 9:00 deadline is still at 9:00.
-    let item = Deadline(title: "x", date: LocalDate(year: 2026, month: 11, day: 2), time: TimeOfDay(hour: 9, minute: 0))
+    let item = Deadline(
+      title: "x", date: LocalDate(year: 2026, month: 11, day: 2), time: TimeOfDay(hour: 9, minute: 0),
+      alerts: [.days(1)])
     let expected = calendar.date(from: DateComponents(year: 2026, month: 11, day: 1, hour: 9))!
-    #expect(item.reminderDate(calendar: calendar) == expected)
+    #expect(item.alertDates(calendar: calendar).map(\.fire) == [expected])
+    // So is a morning reminder for an all-day deadline, on the day the clocks change.
+    let allDay = Deadline(title: "x", date: LocalDate(year: 2026, month: 11, day: 1), alerts: [.days(0)])
+    #expect(allDay.alertDates(calendar: calendar).map(\.fire) == [expected])
+  }
+
+  @Test func newDeadlinesStartWithTheAlertsOfTheirKind() {
+    #expect(Deadline(title: "x", kind: .exam, date: day(22)).alerts.map(\.leadMinutes) == [7 * 1440, 1440, 60])
+    #expect(Deadline(title: "x", kind: .other, date: day(22)).alerts.map(\.leadMinutes) == [1440])
+    #expect(Deadline(title: "x", date: day(22), alerts: []).alerts.isEmpty)
+  }
+}
+
+@Suite("Deadline alerts")
+struct DeadlineAlertTests {
+  @Test func putsAlertsInTheOrderTheyFireWithoutRepeats() {
+    let list = DeadlineAlert.normalized([.hours(1), .days(1), .minutes(60), .weeks(1), .days(1)], hasTime: true)
+    #expect(list.map(\.leadMinutes) == [7 * 1440, 1440, 60])
+  }
+
+  @Test func turnsSmallUnitsIntoTheDayForADeadlineWithoutATime() {
+    let list = DeadlineAlert.normalized([.hours(2), .minutes(30), .days(1)], hasTime: false)
+    #expect(list.map(\.leadMinutes) == [1440, 0])
+    #expect(list.allSatisfy { $0.unit.isWholeDays })
+  }
+
+  @Test func keepsTheTimeOfDayOnlyWhereItMeansSomething() {
+    let evening = TimeOfDay(hour: 18, minute: 0)
+    let withTime = DeadlineAlert.normalized([.days(1, at: evening)], hasTime: true)
+    #expect(withTime[0].timeOfDay == nil)
+    let allDay = DeadlineAlert.normalized([.days(1, at: evening), .days(1)], hasTime: false)
+    #expect(allDay.count == 2)  // 9:00 and 18:00 are two different reminders
+    #expect(allDay.map { $0.timeOfDay?.hour } == [nil, 18])
+  }
+
+  @Test func readsTheChoiceOfAnEarlierVersion() throws {
+    let json = """
+      { "deadlines": [
+        { "title": "A", "date": "2026-10-22" },
+        { "title": "B", "date": "2026-10-22", "reminder": "twoDaysBefore" },
+        { "title": "C", "date": "2026-10-22", "reminder": "none" },
+        { "title": "D", "date": "2026-10-22", "reminder": "hourBefore", "alerts": [ { "amount": 3, "unit": "days" } ] }
+      ] }
+      """
+    let loaded = try DeadlineBook(fileData: Data(json.utf8)).deadlines
+    #expect(loaded[0].alerts.map(\.leadMinutes) == [1440])
+    #expect(loaded[1].alerts.map(\.leadMinutes) == [2880])
+    #expect(loaded[2].alerts.isEmpty)
+    #expect(loaded[3].alerts.map(\.leadMinutes) == [4320])  // the new field wins
+  }
+
+  @Test func writesAlertsAndNotTheOldChoice() throws {
+    let item = Deadline(title: "x", date: day(22), alerts: [.hours(2), .days(1, at: TimeOfDay(hour: 18, minute: 0))])
+    let text = String(decoding: try DeadlineBook(deadlines: [item]).fileData(), as: UTF8.self)
+    #expect(text.contains("\"alerts\""))
+    #expect(!text.contains("\"reminder\""))
+    let back = try DeadlineBook(fileData: Data(text.utf8))
+    #expect(back.deadlines == [item])
+  }
+
+  @Test func refusesNegativeAmounts() {
+    #expect(DeadlineAlert(amount: -5, unit: .minutes).amount == 0)
   }
 }
 
@@ -232,10 +297,10 @@ struct DeadlineBookTests {
     let loaded = try DeadlineBook(fileData: Data(json.utf8))
     #expect(loaded.deadlines.count == 2)
     #expect(loaded.deadlines[0].kind == .assignment)
-    #expect(loaded.deadlines[0].reminder == .dayBefore)
+    #expect(loaded.deadlines[0].alerts.map(\.leadMinutes) == [1440])
     #expect(!loaded.deadlines[0].isDone)
     #expect(loaded.deadlines[1].time == TimeOfDay(hour: 13, minute: 0))
-    #expect(loaded.deadlines[1].reminder == .twoDaysBefore)
+    #expect(loaded.deadlines[1].alerts.map(\.leadMinutes) == [2880])
   }
 
   @Test func rejectsABadDay() {

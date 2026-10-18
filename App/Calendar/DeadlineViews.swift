@@ -1,5 +1,6 @@
 import KitbagCore
 import SwiftUI
+import UserNotifications
 
 /// One deadline in a list: a check circle to mark it done, the title, and what kind and when.
 struct DeadlineRow: View {
@@ -71,15 +72,21 @@ struct DeadlineRow: View {
   }
 }
 
-/// The form for a deadline: what, when, which course, and when to be reminded.
+/// The form for a deadline: what, when, which course, and when to be reminded (as many times as wanted).
 struct DeadlineEditor: View {
   @Environment(DeadlineStore.self) private var deadlines
   @Environment(TimetableStore.self) private var timetable
+  @Environment(NotificationPreferencesStore.self) private var preferencesStore
   @Environment(\.dismiss) private var dismiss
 
   @State private var deadline: Deadline
   @State private var hasTime: Bool
   @State private var confirmingDelete = false
+  /// Whether the person has touched the reminders. Until then a new deadline follows the defaults of its kind, which
+  /// change when the kind or the time does.
+  @State private var alertsEdited = false
+  @State private var appliedDefaults = false
+  @State private var access: UNAuthorizationStatus = .authorized
   private let isNew: Bool
 
   init(deadline: Deadline, isNew: Bool) {
@@ -128,13 +135,16 @@ struct DeadlineEditor: View {
               Text("Time", tableName: "Calendar")
             }
           }
-          Picker(selection: $deadline.reminder) {
-            ForEach(ReminderLead.allCases, id: \.self) { lead in
-              Text(lead.title).tag(lead)
-            }
-          } label: {
-            Text("Remind me", tableName: "Calendar")
-          }
+        }
+        Section {
+          AlertList(
+            alerts: $deadline.alerts, hasTime: hasTime, preferences: preferencesStore.preferences,
+            fireDate: { fireDate(of: $0) }, due: deadline.dueInstant(calendar: .current),
+            changed: { alertsEdited = true })
+        } header: {
+          Text("Reminders", tableName: "Calendar")
+        } footer: {
+          reminderNotice
         }
         Section {
           TextField(text: $deadline.note, axis: .vertical) {
@@ -184,7 +194,51 @@ struct DeadlineEditor: View {
       }
       .onChange(of: hasTime) { _, isOn in
         deadline.time = isOn ? (deadline.time ?? TimeOfDay(hour: 23, minute: 59)) : nil
+        refreshAlerts()
       }
+      .onChange(of: deadline.kind) { _, _ in refreshAlerts() }
+      .task {
+        if isNew, !appliedDefaults {
+          appliedDefaults = true
+          refreshAlerts()
+        }
+        access = await ReminderScheduler().status()
+      }
+    }
+  }
+
+  /// A new deadline that the person has not given reminders of their own follows the defaults of its kind, counted for
+  /// whether it has a time; otherwise the reminders stay and only what cannot apply is turned into what can.
+  private func refreshAlerts() {
+    if isNew, !alertsEdited {
+      deadline.alerts = DeadlineAlert.normalized(preferencesStore.preferences.alerts(for: deadline.kind), hasTime: hasTime)
+    } else {
+      deadline.alerts = DeadlineAlert.normalized(deadline.alerts, hasTime: hasTime)
+    }
+  }
+
+  /// When one alert would fire for this deadline as it is being edited.
+  private func fireDate(of alert: DeadlineAlert) -> Date? {
+    var probe = deadline
+    probe.time = hasTime ? (deadline.time ?? TimeOfDay(hour: 23, minute: 59)) : nil
+    probe.alerts = [alert]
+    return probe.alertDates(defaultTime: preferencesStore.preferences.allDayTime, calendar: .current).first?.fire
+  }
+
+  /// What would stop the reminders from arriving, or that there are none: the person should see it here.
+  @ViewBuilder private var reminderNotice: some View {
+    let preferences = preferencesStore.preferences
+    if deadline.alerts.isEmpty {
+      Text("No reminders: this deadline stays silent.", tableName: "Calendar")
+    } else if !preferences.deadlinesEnabled {
+      Text("Reminders about deadlines are turned off in Settings > Reminders.", tableName: "Calendar")
+        .foregroundStyle(.red)
+    } else if !preferences.deadlineKinds.contains(deadline.kind) {
+      Text("Reminders for this kind of deadline are turned off in Settings > Reminders.", tableName: "Calendar")
+        .foregroundStyle(.red)
+    } else if access == .denied {
+      Text("Notifications are turned off for Kitbag in iOS Settings, so these cannot be shown.", tableName: "Calendar")
+        .foregroundStyle(.red)
     }
   }
 
@@ -192,6 +246,7 @@ struct DeadlineEditor: View {
     var saved = deadline
     saved.title = saved.title.trimmingCharacters(in: .whitespaces)
     if !hasTime { saved.time = nil }
+    saved.alerts = DeadlineAlert.normalized(saved.alerts, hasTime: hasTime)
     deadlines.upsert(saved, courseCode: saved.courseID.flatMap { timetable.course(id: $0)?.code })
     dismiss()
   }
