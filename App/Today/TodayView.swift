@@ -8,6 +8,7 @@ struct TodayView: View {
   @Environment(DeadlineStore.self) private var deadlines
   @Environment(NoteStore.self) private var notes
   @Environment(WeatherStore.self) private var weather
+  @Environment(SubscriptionStore.self) private var subscriptions
   @Environment(LayoutStore.self) private var layout
   @Environment(\.palette) private var palette
   @Environment(\.titleDesign) private var design
@@ -119,10 +120,21 @@ struct TodayView: View {
     let calendar = Calendar.current
     let today = LocalDate(now, calendar: calendar)
     let overdue = deadlines.book.overdue(at: now, calendar: calendar)
-    let soon = Array(
-      deadlines.book.upcoming(after: now, calendar: calendar)
-        .filter { $0.date.days(since: today, calendar: calendar) <= 14 }
-        .prefix(3))
+    let own: [DueEntry] = deadlines.book.upcoming(after: now, calendar: calendar)
+      .filter { $0.date.days(since: today, calendar: calendar) <= 14 }
+      .prefix(3)
+      .map { DueEntry.deadline($0, $0.dueInstant(calendar: calendar)) }
+    // Events of subscribed calendars that are switched on for Today, within two weeks.
+    let window = DateInterval(start: now, end: now.addingTimeInterval(14 * 86400))
+    let external: [DueEntry] = subscriptions.occurrences(in: window, calendar: calendar)
+      .filter { $0.subscription.showsOnToday && !$0.event.isCompleted }
+      .prefix(3)
+      .map {
+        DueEntry.external(
+          name: $0.subscription.name, occurrence: $0.occurrence,
+          day: $0.event.day(of: $0.occurrence.start, calendar: calendar))
+      }
+    let soon = Array((own + external).sorted { $0.sortDate < $1.sortDate }.prefix(4))
     if !overdue.isEmpty || !soon.isEmpty {
       VStack(alignment: .leading, spacing: 12) {
         SectionHeading(Text("Due soon", tableName: "Today"))
@@ -140,11 +152,14 @@ struct TodayView: View {
           }
           .buttonStyle(.plain)
         }
-        ForEach(soon) { item in
+        ForEach(soon) { entry in
           Button {
-            open(ModuleRoute(.calendar, day: item.date))
+            open(ModuleRoute(.calendar, day: entry.day))
           } label: {
-            DueSoonRow(deadline: item)
+            switch entry {
+            case .deadline(let item, _): DueSoonRow(deadline: item)
+            case .external(let name, let occurrence, _): ExternalDueRow(name: name, occurrence: occurrence)
+            }
           }
           .buttonStyle(.plain)
         }
@@ -302,6 +317,57 @@ private struct PinnedNoteCard: View {
     .background(Color.stickyNote, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     .shadow(color: .black.opacity(0.10), radius: 8, y: 3)
     .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    .accessibilityElement(children: .combine)
+  }
+}
+
+/// A line in the Due soon list: one of the person's own deadlines, or an event of a subscribed calendar.
+private enum DueEntry: Identifiable {
+  case deadline(Deadline, Date)
+  case external(name: String, occurrence: CalendarEvent.Occurrence, day: LocalDate)
+
+  var id: String {
+    switch self {
+    case .deadline(let item, _): "d-\(item.id)"
+    case .external(_, let occurrence, _): "e-\(occurrence.id)"
+    }
+  }
+
+  var sortDate: Date {
+    switch self {
+    case .deadline(_, let date): date
+    case .external(_, let occurrence, let day): occurrence.isAllDay ? day.date(calendar: .current) : occurrence.start
+    }
+  }
+
+  var day: LocalDate {
+    switch self {
+    case .deadline(let item, _): item.date
+    case .external(_, _, let day): day
+    }
+  }
+}
+
+private struct ExternalDueRow: View {
+  let name: String
+  let occurrence: CalendarEvent.Occurrence
+
+  var body: some View {
+    HStack(spacing: 10) {
+      Image(systemName: "calendar.badge.clock").foregroundStyle(.secondary).frame(width: 20)
+      VStack(alignment: .leading, spacing: 1) {
+        Text(occurrence.title).font(.subheadline.weight(.medium)).lineLimit(2)
+        Text(name).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+      }
+      Spacer(minLength: 8)
+      if occurrence.isAllDay {
+        Text(occurrence.start, format: Date.FormatStyle(timeZone: .gmt).weekday(.abbreviated).month(.abbreviated).day())
+          .font(.footnote).foregroundStyle(.secondary)
+      } else {
+        Text(occurrence.start, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day().hour().minute())
+          .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.trailing)
+      }
+    }
     .accessibilityElement(children: .combine)
   }
 }

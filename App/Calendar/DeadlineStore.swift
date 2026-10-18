@@ -35,6 +35,18 @@ final class DeadlineStore {
     reminders.schedule(deadline, courseCode: courseCode)
   }
 
+  /// Adds or replaces many deadlines at once (an import) and schedules the reminders of the nearest ones. iOS keeps at
+  /// most 64 pending notifications, so only the soonest few are scheduled.
+  func importDeadlines(_ imported: [Deadline], courseCode: (UUID) -> String?) {
+    for deadline in imported { book.upsert(deadline) }
+    save()
+    let now = Date()
+    let soonest = imported.filter { !$0.isDone && $0.dueInstant(calendar: .current) >= now }
+      .sorted { $0.dueInstant(calendar: .current) < $1.dueInstant(calendar: .current) }
+      .prefix(40)
+    for deadline in soonest { reminders.schedule(deadline, courseCode: deadline.courseID.flatMap(courseCode)) }
+  }
+
   func setDone(id: UUID, _ done: Bool, courseCode: String?) {
     guard var deadline = book.deadlines.first(where: { $0.id == id }) else { return }
     deadline.isDone = done

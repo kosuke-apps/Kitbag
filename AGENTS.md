@@ -18,9 +18,8 @@ adds what is specific to this project.
   icon, which tools and which parts of Today are shown and in what order), the tools Timetable (grid in the
   look of a printed UW–Madison timetable as an A4 page, a PDF export, terms with dates, credits and course details), GPA
   (grades, term and cumulative GPA, what-if and target calculators), Calendar (deadlines with reminders,
-  month page and list), Notes (search, course, pin) and Weather (one dense screen: now, a strip of days from a week back to ten ahead, a chart and an hourly table with twelve measures, the day's totals; Open-Meteo), and Headway and Mantissa as
-  guests. Next: calendar import, export and subscription, richer notes (formatting, photos, files), a Kitbag-wide
-  language setting. Nothing in it is a placeholder for an
+  month page and list, import and export of calendar files, subscription to Canvas or Google calendars), Notes (search, course, pin) and Weather (one dense screen: now, a strip of days from a week back to ten ahead, a chart and an hourly table with twelve measures, the day's totals; Open-Meteo), and Headway and Mantissa as
+  guests. Next: richer notes (formatting, photos, files), a Kitbag-wide language setting. Nothing in it is a placeholder for an
   unbuilt feature.
 - Out of scope for now: features that cross tools (for example bus times for the next class), accounts, the App Store
   (it needs the paid Developer Program), anything that needs a paid account (WeatherKit, remote push, iCloud: the weather comes from the free Open-Meteo service instead).
@@ -28,7 +27,10 @@ adds what is specific to this project.
   the tests.
 - Data sources and what they send: the weather comes from Open-Meteo, a third-party service (free for non-commercial
   use, data under CC BY 4.0, credit shown in the app, see `THIRD_PARTY.md`). A request carries the place's coordinates
-  and, when the place follows the phone, that means the phone's approximate location. Nothing else leaves the phone.
+  and, when the place follows the phone, that means the phone's approximate location. A calendar subscription fetches the
+  address the person typed (a Canvas or Google "secret address") and sends nothing else; the address is a secret, so it
+  is kept in the keychain, never in a file, and the feed goes through an ephemeral session that caches nothing on disk.
+  Nothing else leaves the phone.
 
 ## Technical context
 
@@ -58,10 +60,15 @@ adds what is specific to this project.
     averages by credits; the average a target needs), `HomeLayout` (a saved order and hidden items, merged with what
     exists), `Deadline` and `DeadlineBook` (reminder dates, grouping by how soon), `Note` and `NoteBook` (title from the first
     line, pinned first, search), `Weather` (`Place`, `WeatherKind` from WMO codes, `Forecast` with a week of past hours, and
-    `OpenMeteo`: the request URLs and the decoding of the service's answers). Every user file has a `version`.
-    `Tests/KitbagCoreTests/` uses invented data only (98 tests).
+    `OpenMeteo`: the request URLs and the decoding of the service's answers), `CalendarEvent` and `Recurrence` (an event
+    and the occurrences of its repeat rule inside a window), `ICalendar` (the parser: line unfolding, time zones, all-day
+    events, VTODO, daily, weekly, monthly and yearly rules with count, until and exceptions; a rule it cannot read
+    becomes a single event), `ICSWriter` (deadlines with an alarm, a term's classes as weekly events with an end date)
+    and `DeadlineImport` (what an imported file adds or updates, matched by `Deadline.sourceUID`). Every user file has a
+    `version`. `Tests/KitbagCoreTests/` uses invented data only (122 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
-    `NoteStore`, `WeatherStore`) at launch, and refreshes the weather when the app becomes active.
+    `NoteStore`, `WeatherStore`, `SubscriptionStore`) at launch, and refreshes the weather and the stale subscriptions when
+    the app becomes active.
   - `App/Theme/`: `Theme` (five themes: Ivory, Slate, Midnight, Forest, System; each has a light and a dark palette,
     a title typeface and may force dark; `themedScreen()`, `themedCard()`, `SectionHeading`), `ThemeStore` (choice and
     appearance in UserDefaults, `ThemeRoot` hands the palette and tint down).
@@ -81,7 +88,12 @@ adds what is specific to this project.
     (a tool plus where to start: a day, or a note).
   - `App/Calendar/`: `DeadlineStore` and `ReminderScheduler` (local notifications), `CalendarView` (month or upcoming,
     a button at the bottom right to add), `MonthView` (month page and the selected day's agenda), `DeadlineViews`
-    (row and editor), `DeadlineStyle` (symbols, colours, names).
+    (row and editor), `DeadlineStyle` (symbols, colours, names), `SubscriptionStore` (the subscriptions in
+    `subscriptions.json`, their events in `subscription-events.json`, their addresses in the keychain via
+    `App/Support/Keychain.swift`; fetched when added, on launch and on becoming active once an hour has passed; a failed
+    refresh keeps the events it had and shows the reason), `CalendarTransfer` (import, export and the subscription
+    screens). Subscribed events are shown as hollow dots on the month page, as "Subscribed" rows in a day's agenda and
+    in Today's due-soon list; they are never copied into the deadlines.
   - `App/Notes/`: `NoteStore` (writes shortly after typing stops, drops empty notes), `NotesView` (list, search,
     editor with a bottom toolbar), `NoteStyle` (the sticky-note colour).
   - `App/Weather/`: `WeatherStore` (fetch, cache in `weather-v2.json`, chosen place or the phone's location),

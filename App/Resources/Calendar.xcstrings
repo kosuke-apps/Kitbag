@@ -53,6 +53,16 @@
         }
       }
     },
+    "Add": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加"
+          }
+        }
+      }
+    },
     "Add a deadline": {
       "localizations": {
         "ja": {
@@ -63,12 +73,52 @@
         }
       }
     },
+    "Add a subscription": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購読を追加"
+          }
+        }
+      }
+    },
     "Add an exam or an assignment with the + button.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "＋ボタンで試験や課題を追加できます．"
+          }
+        }
+      }
+    },
+    "Address": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アドレス"
+          }
+        }
+      }
+    },
+    "All": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべて"
+          }
+        }
+      }
+    },
+    "All day": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "終日"
           }
         }
       }
@@ -94,12 +144,84 @@
         }
       }
     },
+    "Calendar options": {
+      "comment": "Accessibility label of the menu button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カレンダーのメニュー"
+          }
+        }
+      }
+    },
     "Cancel": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "キャンセル"
+          }
+        }
+      }
+    },
+    "Canvas": {
+      "comment": "Example name of a subscription shown in the empty field.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Canvas"
+          }
+        }
+      }
+    },
+    "Canvas: Calendar, then Calendar Feed, and copy the address.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Canvas: 「カレンダー」→「カレンダーフィード」でアドレスをコピーします．"
+          }
+        }
+      }
+    },
+    "Choose what to import as deadlines": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切りとして読み込むものを選択"
+          }
+        }
+      }
+    },
+    "Classes of this term (.ics)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この学期の授業（.ics）"
+          }
+        }
+      }
+    },
+    "Could not read that file.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このファイルを読み込めませんでした．"
+          }
+        }
+      }
+    },
+    "Could not update: %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新できませんでした: %@"
           }
         }
       }
@@ -120,6 +242,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "日付"
+          }
+        }
+      }
+    },
+    "Deadlines (.ics)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切り（.ics）"
+          }
+        }
+      }
+    },
+    "Deadlines (Kitbag file)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切り（Kitbagのファイル）"
           }
         }
       }
@@ -217,12 +359,82 @@
         }
       }
     },
+    "Events: %lld": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "予定: %lld件"
+          }
+        }
+      }
+    },
     "Exam": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "試験"
+          }
+        }
+      }
+    },
+    "Export…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書き出す…"
+          }
+        }
+      }
+    },
+    "Google Calendar: the calendar's settings, then Secret address in iCal format.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Googleカレンダー: カレンダーの設定→「iCal形式の非公開URL」．"
+          }
+        }
+      }
+    },
+    "https://…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://…"
+          }
+        }
+      }
+    },
+    "Import": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "読み込む"
+          }
+        }
+      }
+    },
+    "Import a file…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルを読み込む…"
+          }
+        }
+      }
+    },
+    "Imported %lld deadlines.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切りを%lld件読み込みました．"
           }
         }
       }
@@ -274,6 +486,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "月"
+          }
+        }
+      }
+    },
+    "Name": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名前"
           }
         }
       }
@@ -358,6 +580,16 @@
         }
       }
     },
+    "OK": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
     "Other": {
       "localizations": {
         "ja": {
@@ -419,12 +651,32 @@
         }
       }
     },
+    "Refresh": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新"
+          }
+        }
+      }
+    },
     "Remind me": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "通知"
+          }
+        }
+      }
+    },
+    "Remove": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除"
           }
         }
       }
@@ -449,6 +701,77 @@
         }
       }
     },
+    "Show on Today": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todayに表示"
+          }
+        }
+      }
+    },
+    "Subscribe to your Canvas or Google calendar, and its events appear in Kitbag and stay up to date.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CanvasやGoogleカレンダーを購読すると，予定がKitbagに表示され，最新の状態に保たれます．"
+          }
+        }
+      }
+    },
+    "Subscriptions": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購読"
+          }
+        }
+      }
+    },
+    "Subscriptions…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購読…"
+          }
+        }
+      }
+    },
+    "That is not a calendar address.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カレンダーのアドレスではありません．"
+          }
+        }
+      }
+    },
+    "The address could not be read from the keychain.": {
+      "comment": "Shown when a calendar subscription address cannot be stored in or read from the keychain.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キーチェーンからアドレスを読み取れませんでした．"
+          }
+        }
+      }
+    },
+    "The address works like a password, so Kitbag keeps it in the keychain.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このアドレスはパスワードのように扱われるため，Kitbagはキーチェーンに保存します．"
+          }
+        }
+      }
+    },
     "The deadlines could not be saved.": {
       "localizations": {
         "ja": {
@@ -465,6 +788,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "保存されていた締め切りを読み込めませんでした．別のファイルとして残し，新しい一覧を始めました．"
+          }
+        }
+      }
+    },
+    "The server answered %lld.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバーの応答: %lld"
+          }
+        }
+      }
+    },
+    "There are no events in that calendar.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このカレンダーに予定がありません．"
+          }
+        }
+      }
+    },
+    "There are no events in that file.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このファイルに予定がありません．"
+          }
+        }
+      }
+    },
+    "There is nothing in that file within the coming year.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このファイルには，今後1年以内の予定がありません．"
           }
         }
       }
@@ -517,6 +880,27 @@
           "stringUnit": {
             "state": "translated",
             "value": "今後"
+          }
+        }
+      }
+    },
+    "Update": {
+      "comment": "Marks an event that is already in Kitbag and would be updated.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新"
+          }
+        }
+      }
+    },
+    "Updated %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新: %@"
           }
         }
       }

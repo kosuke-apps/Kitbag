@@ -1,9 +1,12 @@
 import KitbagCore
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// The calendar tool: a month page with the day's classes and deadlines under it, or the list of what is coming up.
 struct CalendarView: View {
   @Environment(DeadlineStore.self) private var deadlines
+  @Environment(TimetableStore.self) private var timetable
+  @Environment(SubscriptionStore.self) private var subscriptions
   @Environment(\.palette) private var palette
 
   private enum Mode: Hashable {
@@ -16,6 +19,15 @@ struct CalendarView: View {
   @State private var selected: LocalDate
   @State private var editing: Deadline?
   @State private var showingDone = false
+  @State private var showingImporter = false
+  @State private var preview: ImportPreview?
+  @State private var showingSubscriptions = false
+  @State private var exportDocument = ExportDocument(data: Data())
+  @State private var exportType = UTType.calendarEvent
+  @State private var exportName = "Deadlines"
+  @State private var showingExporter = false
+  @State private var message: Text?
+  @State private var externalCounts: [LocalDate: Int] = [:]
 
   /// Opens on `initialDay` (today when nil).
   init(initialDay: LocalDate? = nil) {
@@ -46,14 +58,43 @@ struct CalendarView: View {
       .navigationTitle(Text("Calendar", tableName: "Calendar"))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItemGroup(placement: .topBarLeading) {
           Button(action: goToToday) { Text("Today", tableName: "Calendar") }
+          transferMenu
         }
       }
     }
     .sheet(item: $editing) { deadline in
       DeadlineEditor(deadline: deadline, isNew: !deadlines.book.deadlines.contains { $0.id == deadline.id })
     }
+    .sheet(item: $preview) { preview in ImportPreviewSheet(candidates: preview.candidates) }
+    .sheet(isPresented: $showingSubscriptions) { SubscriptionsView() }
+    .fileImporter(
+      isPresented: $showingImporter,
+      allowedContentTypes: [.calendarEvent, .json, UTType(filenameExtension: "ics") ?? .calendarEvent]
+    ) { result in
+      if let url = try? result.get() {
+        handleImport(url)
+      } else {
+        message = Text("Could not read that file.", tableName: "Calendar")
+      }
+    }
+    .fileExporter(
+      isPresented: $showingExporter, document: exportDocument, contentType: exportType, defaultFilename: exportName
+    ) { _ in }
+    .alert(
+      Text("Calendar", tableName: "Calendar"),
+      isPresented: Binding(get: { message != nil }, set: { if !$0 { message = nil } })
+    ) {
+      Button {
+      } label: {
+        Text("OK", tableName: "Calendar")
+      }
+    } message: {
+      if let message { message }
+    }
+    .task(id: externalKey) { externalCounts = counts() }
+    .task { await subscriptions.refreshStale() }
   }
 
   // MARK: Month
@@ -64,7 +105,7 @@ struct CalendarView: View {
         notices
         MonthHeader(
           month: month, previous: { move(by: -1) }, next: { move(by: 1) })
-        MonthGridView(month: month, selected: $selected, book: deadlines.book)
+        MonthGridView(month: month, selected: $selected, book: deadlines.book, externalCounts: externalCounts)
         DayAgenda(day: selected) { editing = $0 }
       }
       .padding(.horizontal, 16)
@@ -192,6 +233,125 @@ struct CalendarView: View {
     }
     .accessibilityLabel(Text("Add a deadline", tableName: "Calendar"))
     .padding(20)
+  }
+
+  // MARK: Files and subscriptions
+
+  private var transferMenu: some View {
+    Menu {
+      Button {
+        showingImporter = true
+      } label: {
+        Label {
+          Text("Import a file…", tableName: "Calendar")
+        } icon: {
+          Image(systemName: "square.and.arrow.down")
+        }
+      }
+      Menu {
+        Button {
+          exportDeadlines()
+        } label: {
+          Text("Deadlines (.ics)", tableName: "Calendar")
+        }
+        Button {
+          exportClasses()
+        } label: {
+          Text("Classes of this term (.ics)", tableName: "Calendar")
+        }
+        Button {
+          exportJSON()
+        } label: {
+          Text("Deadlines (Kitbag file)", tableName: "Calendar")
+        }
+      } label: {
+        Label {
+          Text("Export…", tableName: "Calendar")
+        } icon: {
+          Image(systemName: "square.and.arrow.up")
+        }
+      }
+      Divider()
+      Button {
+        showingSubscriptions = true
+      } label: {
+        Label {
+          Text("Subscriptions…", tableName: "Calendar")
+        } icon: {
+          Image(systemName: "antenna.radiowaves.left.and.right")
+        }
+      }
+    } label: {
+      Image(systemName: "ellipsis.circle")
+    }
+    .accessibilityLabel(Text("Calendar options", tableName: "Calendar"))
+  }
+
+  private func handleImport(_ url: URL) {
+    let scoped = url.startAccessingSecurityScopedResource()
+    defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+    guard let data = try? Data(contentsOf: url) else {
+      message = Text("Could not read that file.", tableName: "Calendar")
+      return
+    }
+    if url.pathExtension.lowercased() == "json" {
+      guard let book = try? DeadlineBook(fileData: data) else {
+        message = Text("Could not read that file.", tableName: "Calendar")
+        return
+      }
+      deadlines.importDeadlines(book.deadlines) { timetable.course(id: $0)?.code }
+      message = Text("Imported \(book.deadlines.count) deadlines.", tableName: "Calendar")
+      return
+    }
+    let events = ICalendar.parse(String(decoding: data, as: UTF8.self), defaultTimeZone: .current)
+    guard !events.isEmpty else {
+      message = Text("There are no events in that file.", tableName: "Calendar")
+      return
+    }
+    let now = Date()
+    let window = DateInterval(start: now.addingTimeInterval(-60 * 86400), end: now.addingTimeInterval(400 * 86400))
+    let candidates = DeadlineImport.deadlines(
+      from: events, courses: timetable.timetable.courses, existing: deadlines.book.deadlines, calendar: .current,
+      window: window)
+    if candidates.isEmpty {
+      message = Text("There is nothing in that file within the coming year.", tableName: "Calendar")
+    } else {
+      preview = ImportPreview(candidates: candidates)
+    }
+  }
+
+  private func exportDeadlines() {
+    let text = ICSWriter.deadlines(
+      deadlines.book.deadlines, courseCode: { timetable.course(id: $0)?.code }, calendar: .current)
+    present(Data(text.utf8), .calendarEvent, "Deadlines")
+  }
+
+  private func exportClasses() {
+    let term = timetable.timetable
+    present(Data(ICSWriter.classes(of: term, calendar: .current).utf8), .calendarEvent, term.termName)
+  }
+
+  private func exportJSON() {
+    guard let data = try? deadlines.book.fileData() else { return }
+    present(data, .json, "Deadlines")
+  }
+
+  private func present(_ data: Data, _ type: UTType, _ name: String) {
+    exportDocument = ExportDocument(data: data)
+    exportType = type
+    exportName = name
+    showingExporter = true
+  }
+
+  /// Changes when the month shown or a subscription's events change, so that the dots are worked out again.
+  private var externalKey: String {
+    "\(month.month.text)|"
+      + subscriptions.subscriptions.map { "\($0.id)\($0.lastFetched?.timeIntervalSince1970 ?? 0)" }.joined()
+  }
+
+  private func counts() -> [LocalDate: Int] {
+    guard let first = month.weeks.first?.first, let last = month.weeks.last?.last else { return [:] }
+    return subscriptions.counts(from: first, to: last, calendar: .current)
   }
 
   private func move(by months: Int) {

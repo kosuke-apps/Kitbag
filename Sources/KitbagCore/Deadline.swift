@@ -30,10 +30,13 @@ public struct Deadline: Hashable, Codable, Identifiable, Sendable {
   public var isDone: Bool
   public var note: String
   public var reminder: ReminderLead
+  /// The id of the calendar event it was imported from, so that importing the same file again updates it.
+  public var sourceUID: String?
 
   public init(
     id: UUID = UUID(), title: String, kind: DeadlineKind = .assignment, courseID: UUID? = nil, date: LocalDate,
-    time: TimeOfDay? = nil, isDone: Bool = false, note: String = "", reminder: ReminderLead = .dayBefore
+    time: TimeOfDay? = nil, isDone: Bool = false, note: String = "", reminder: ReminderLead = .dayBefore,
+    sourceUID: String? = nil
   ) {
     self.id = id
     self.title = title
@@ -44,10 +47,11 @@ public struct Deadline: Hashable, Codable, Identifiable, Sendable {
     self.isDone = isDone
     self.note = note
     self.reminder = reminder
+    self.sourceUID = sourceUID
   }
 
   private enum CodingKeys: String, CodingKey {
-    case id, title, kind, courseID, date, time, isDone, note, reminder
+    case id, title, kind, courseID, date, time, isDone, note, reminder, sourceUID
   }
 
   /// A hand-written file may leave out everything except the title and the day.
@@ -62,7 +66,8 @@ public struct Deadline: Hashable, Codable, Identifiable, Sendable {
       time: try container.decodeIfPresent(TimeOfDay.self, forKey: .time),
       isDone: try container.decodeIfPresent(Bool.self, forKey: .isDone) ?? false,
       note: try container.decodeIfPresent(String.self, forKey: .note) ?? "",
-      reminder: try container.decodeIfPresent(ReminderLead.self, forKey: .reminder) ?? .dayBefore)
+      reminder: try container.decodeIfPresent(ReminderLead.self, forKey: .reminder) ?? .dayBefore,
+      sourceUID: try container.decodeIfPresent(String.self, forKey: .sourceUID))
   }
 
   /// The moment it is due. With no time, the last minute of the day.

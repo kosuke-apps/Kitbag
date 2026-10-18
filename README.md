@@ -18,7 +18,9 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
 - GPA: grades per course, term and cumulative GPA (UW–Madison, US plus/minus or Japanese scale), a what-if calculator and
   the average a target GPA needs.
 - Calendar: deadlines (assignments, exams, quizzes, projects) with local-notification reminders, a month page with the
-  day's classes and deadlines, and a list grouped by how soon each is due.
+  day's classes and deadlines, and a list grouped by how soon each is due. Import a calendar file (`.ics`) after a
+  preview, export deadlines or a term's classes as `.ics`, and subscribe to a Canvas or Google calendar by its address:
+  its events show beside yours and on Today (the address stays in the keychain).
 - Notes: free text with search, an optional course, and a pin that shows the note on the Today screen.
 - Weather: everything on one screen, with no scrolling: now, a strip of days from a week back to ten ahead, a chart and
   an hourly table (temperature, feels like, rain chance and amount, wind and gusts, humidity, cloud, UV, pressure) for
@@ -29,7 +31,7 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
 - Headway (live Madison bus map) and Mantissa (offline exact calculator) run inside it as guests, from their own
   repositories, unchanged.
 
-Next: calendar import, export and subscription, richer notes.
+Next: richer notes (formatting, photos, files).
 
 ## Getting started
 

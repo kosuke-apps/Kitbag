@@ -27,6 +27,7 @@ struct MonthGridView: View {
   let month: MonthGrid
   @Binding var selected: LocalDate
   let book: DeadlineBook
+  var externalCounts: [LocalDate: Int] = [:]
 
   private let calendar = Calendar.current
 
@@ -46,7 +47,8 @@ struct MonthGridView: View {
           ForEach(month.weeks[row], id: \.self) { day in
             DayCell(
               day: day, isToday: day == today, isSelected: day == selected, isInMonth: month.contains(day),
-              kinds: book.openKinds(on: day), hasDone: book.hasDeadlines(on: day)
+              kinds: book.openKinds(on: day), hasDone: book.hasDeadlines(on: day),
+              hasExternal: (externalCounts[day] ?? 0) > 0
             ) {
               selected = day
             }
@@ -64,6 +66,7 @@ private struct DayCell: View {
   let isInMonth: Bool
   let kinds: [DeadlineKind]
   let hasDone: Bool
+  let hasExternal: Bool
   let select: () -> Void
 
   var body: some View {
@@ -90,6 +93,9 @@ private struct DayCell: View {
           if kinds.isEmpty && hasDone {
             Circle().fill(Color.secondary.opacity(0.4)).frame(width: 5, height: 5)
           }
+          if hasExternal {
+            Circle().strokeBorder(Color.secondary, lineWidth: 1).frame(width: 5, height: 5)
+          }
         }
         .frame(height: 6)
       }
@@ -108,6 +114,7 @@ private struct DayCell: View {
 struct DayAgenda: View {
   @Environment(TimetableStore.self) private var timetable
   @Environment(DeadlineStore.self) private var deadlines
+  @Environment(SubscriptionStore.self) private var subscriptions
 
   let day: LocalDate
   let edit: (Deadline) -> Void
@@ -116,6 +123,7 @@ struct DayAgenda: View {
     let calendar = Calendar.current
     let slots = timetable.timetable.slots(on: day, calendar: calendar)
     let items = deadlines.book.on(day, calendar: calendar)
+    let subscribed = subscriptions.occurrences(on: day, calendar: calendar)
     let termEvents = timetable.terms.flatMap { term -> [(name: String, begins: Bool)] in
       var events: [(name: String, begins: Bool)] = []
       if term.startDate == day { events.append((term.termName, true)) }
@@ -147,7 +155,27 @@ struct DayAgenda: View {
           }
         }
       }
-      if slots.isEmpty && items.isEmpty && termEvents.isEmpty {
+      if !subscribed.isEmpty {
+        VStack(alignment: .leading, spacing: 8) {
+          ForEach(subscribed, id: \.occurrence.id) { item in
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+              Image(systemName: "calendar.badge.clock").foregroundStyle(.secondary).frame(width: 20)
+              VStack(alignment: .leading, spacing: 1) {
+                Text(item.occurrence.title).font(.subheadline.weight(.medium))
+                Text(item.subscription.name).font(.caption).foregroundStyle(.secondary)
+              }
+              Spacer(minLength: 8)
+              if item.occurrence.isAllDay {
+                Text("All day", tableName: "Calendar").font(.footnote).foregroundStyle(.secondary)
+              } else {
+                Text(item.occurrence.start, format: .dateTime.hour().minute()).font(.footnote).foregroundStyle(
+                  .secondary)
+              }
+            }
+          }
+        }
+      }
+      if slots.isEmpty && items.isEmpty && termEvents.isEmpty && subscribed.isEmpty {
         Text("Nothing on this day.", tableName: "Calendar")
           .font(.subheadline)
           .foregroundStyle(.secondary)

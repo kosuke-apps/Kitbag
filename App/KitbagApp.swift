@@ -9,6 +9,7 @@ struct KitbagApp: App {
   @State private var deadlines = DeadlineStore()
   @State private var notes = NoteStore()
   @State private var weather = WeatherStore()
+  @State private var subscriptions = SubscriptionStore()
   @State private var themes = ThemeStore()
   @State private var layout = LayoutStore()
   @Environment(\.scenePhase) private var scenePhase
@@ -23,14 +24,19 @@ struct KitbagApp: App {
       .environment(deadlines)
       .environment(notes)
       .environment(weather)
+      .environment(subscriptions)
       .environment(themes)
       .environment(layout)
       .task { await weather.refresh() }
+      .task { await subscriptions.refreshStale() }
       #if DEBUG
         .task { exportPDFIfAsked() }
       #endif
       .onChange(of: scenePhase) { _, phase in
-        if phase == .active { Task { await weather.refresh() } }
+        if phase == .active {
+          Task { await weather.refresh() }
+          Task { await subscriptions.refreshStale() }
+        }
       }
     }
   }
