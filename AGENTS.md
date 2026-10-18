@@ -75,7 +75,7 @@ adds what is specific to this project.
     events, VTODO, daily, weekly, monthly and yearly rules with count, until and exceptions; a rule it cannot read
     becomes a single event), `ICSWriter` (deadlines with an alarm, a term's classes as weekly events with an end date)
     and `DeadlineImport` (what an imported file adds or updates, matched by `Deadline.sourceUID`). Every user file has a
-    `version`. `Tests/KitbagCoreTests/` uses invented data only (181 tests).
+    `version`. `Tests/KitbagCoreTests/` uses invented data only (184 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
     `NoteStore`, `WeatherStore`, `SubscriptionStore`) at launch, and refreshes the weather and the stale subscriptions when
     the app becomes active.
@@ -149,6 +149,13 @@ adds what is specific to this project.
     code; `App/Resources/PrivacyInfo.xcprivacy` declares no tracking and the one required-reason API used (UserDefaults,
     CA92.1). Pre-publication checks (all done 2026-10-18, nothing published): gitleaks clean over the history, only the
     noreply address in commits, no `.label.toml` tracked, no local path in a tracked file, personal data kept in `Local/`.
+  - Backup folder (`App/Backup/BackupFolder.swift`): the person picks a folder with the system picker (iCloud Drive works, and
+    needs no capability, which a free Apple ID cannot sign: tested, Xcode says "Personal development teams do not support the
+    iCloud capability"); Kitbag keeps a bookmark to it and, at most once a day (on becoming active or going to the
+    background), writes `Kitbag <date>.kitbag` into it through `NSFileCoordinator`, keeping the newest ten
+    (`BackupNaming` in KitbagCore decides names, due-ness and pruning, and never touches other files). Another device picks
+    the same folder and restores the newest one. This is not live sync. The bookmark and the last-backup time are
+    device-only keys that a backup leaves out and a restore leaves alone.
   - `App/Backup/`: `BackupManager` writes everything into one `.kitbag` file (timetable, deadlines, notes with their
     attachments, and the `kitbag.*` and `weather.*` settings from UserDefaults; not the weather cache, not the calendar
     subscriptions or their secret addresses, not the guests' own data) using `BackupArchive` from KitbagCore (a header, a

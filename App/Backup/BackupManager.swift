@@ -29,6 +29,10 @@ struct BackupManager {
   private static let dataFiles = ["timetables.json", "deadlines.json", "notes.json"]
   private static let settingsPrefixes = ["kitbag.", "weather."]
   private static let settingsPath = "settings.plist"
+  /// Settings that mean something only on this device (the chosen backup folder is a bookmark into this phone's files).
+  private static let deviceOnlyKeys: Set<String> = [
+    BackupFolderStore.bookmarkKey, BackupFolderStore.lastBackupKey, BackupFolderStore.nameKey,
+  ]
 
   private let fileManager = FileManager.default
 
@@ -65,7 +69,7 @@ struct BackupManager {
   /// The settings of Kitbag in UserDefaults: the keys that start with `kitbag.` or `weather.`.
   private func settingsData() throws -> Data {
     let all = UserDefaults.standard.dictionaryRepresentation().filter { key, _ in
-      Self.settingsPrefixes.contains { key.hasPrefix($0) }
+      Self.settingsPrefixes.contains { key.hasPrefix($0) } && !Self.deviceOnlyKeys.contains(key)
     }
     return try PropertyListSerialization.data(fromPropertyList: all, format: .xml, options: 0)
   }
@@ -126,10 +130,12 @@ struct BackupManager {
       let values = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any]
     {
       let defaults = UserDefaults.standard
-      for key in defaults.dictionaryRepresentation().keys where Self.settingsPrefixes.contains(where: key.hasPrefix) {
+      for key in defaults.dictionaryRepresentation().keys
+      where Self.settingsPrefixes.contains(where: key.hasPrefix) && !Self.deviceOnlyKeys.contains(key) {
         defaults.removeObject(forKey: key)
       }
-      for (key, value) in values where Self.settingsPrefixes.contains(where: key.hasPrefix) {
+      for (key, value) in values
+      where Self.settingsPrefixes.contains(where: key.hasPrefix) && !Self.deviceOnlyKeys.contains(key) {
         defaults.set(value, forKey: key)
       }
     }

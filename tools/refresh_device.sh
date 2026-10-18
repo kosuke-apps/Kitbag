@@ -48,9 +48,10 @@ last=0
 now="$(date +%s)"
 age_days=$(( (now - last) / 86400 ))
 
-# The UDID of the paired phone, found by name. The build addresses it by UDID, which works while the phone is only paired;
-# a destination by name needs the phone to be connected at that moment.
-udid() {
+# What this Mac knows about the paired phone: its UDID and whether the connection is up. Prints "<udid> <state>", where the
+# state is "unavailable" when the phone is asleep, locked away or on another network, and "connected"/"disconnected" (both
+# usable) when it can be reached. Xcode builds for the phone only in the usable states.
+phone_state() {
   local json="$(mktemp)"
   xcrun devicectl list devices --json-output "$json" >/dev/null 2>&1
   /usr/bin/python3 - "$json" "$DEVICE" <<'PY'
@@ -62,7 +63,8 @@ except Exception:
     sys.exit(1)
 for device in devices:
     if device.get("deviceProperties", {}).get("name") == name:
-        print(device["hardwareProperties"]["udid"])
+        state = device.get("connectionProperties", {}).get("tunnelState", "unavailable")
+        print(device["hardwareProperties"]["udid"], state)
         sys.exit(0)
 sys.exit(1)
 PY
@@ -71,14 +73,33 @@ PY
   return $code
 }
 
-# Does the phone answer? A paired phone is listed even when it is asleep or on another network, so ask it something.
-reachable() {
+# Asks the phone something, which wakes the connection if it is merely idle.
+poke() {
   xcrun devicectl device info details --device "$DEVICE" --timeout 20 >/dev/null 2>&1
+}
+
+# Waits up to $1 seconds for the phone to become usable; sets UDID. False when it does not.
+wait_for_phone() {
+  local deadline=$(( $(date +%s) + $1 )) line
+  while true; do
+    poke
+    if line="$(phone_state)"; then
+      UDID="${line% *}"
+      [[ "${line#* }" != "unavailable" ]] && return 0
+    fi
+    (( $(date +%s) >= deadline )) && return 1
+    sleep 10
+  done
 }
 
 if [[ "$mode" == "check" ]]; then
   if (( last == 0 )); then print "Never installed by this script."; else print "Last install: $(date -r "$last" '+%Y-%m-%d %H:%M') (${age_days} days ago)."; fi
-  if reachable; then print "The phone answers."; else print "The phone does not answer (asleep, locked away, or on another network)."; fi
+  poke
+  if line="$(phone_state)"; then
+    print "The phone is ${line#* } (unavailable means asleep, away from this Wi-Fi, or its network pairing has lapsed)."
+  else
+    print "No paired device is called \"$DEVICE\"."
+  fi
   exit 0
 fi
 
@@ -86,12 +107,10 @@ if [[ "$mode" == "due" ]] && (( last > 0 )) && (( age_days < MAX_AGE_DAYS )); th
   exit 0   # not due yet; stay quiet, the agent runs often
 fi
 
-if ! reachable; then
-  log "The phone ($DEVICE) does not answer; will try again on the next run."
+if ! wait_for_phone 240; then
+  log "The phone ($DEVICE) is not available (asleep, away from this Wi-Fi, or its pairing has lapsed); will try again on the next run."
   exit 1
 fi
-
-UDID="$(udid)" || { log "No paired device is called \"$DEVICE\"."; exit 1; }
 
 # Move this app's provisioning profile aside so that the build fetches a new one (seven fresh days).
 if [[ -d "$PROFILES" ]]; then
@@ -116,9 +135,8 @@ for attempt in 1 2 3; do
     break
   fi
   grep -q "Unable to find a destination" "$STATE_DIR/build.log" || break
-  log "The build did not see the phone (attempt $attempt); trying again."
-  sleep 15
-  reachable
+  log "The build did not see the phone (attempt $attempt); waiting for it."
+  wait_for_phone 120 || true
 done
 if (( ! built )); then
   log "The build failed; see $STATE_DIR/build.log"

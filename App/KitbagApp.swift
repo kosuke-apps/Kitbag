@@ -15,6 +15,7 @@ struct KitbagApp: App {
   @State private var layout = LayoutStore()
   @State private var notificationPreferences = NotificationPreferencesStore()
   @State private var gradeScales = GradeScaleStore()
+  @State private var backupFolder = BackupFolderStore()
   @Environment(\.scenePhase) private var scenePhase
 
   var body: some Scene {
@@ -34,6 +35,7 @@ struct KitbagApp: App {
       .environment(layout)
       .environment(notificationPreferences)
       .environment(gradeScales)
+      .environment(backupFolder)
       .task {
         // Kitbag's own handler comes after the guests', which set theirs when they start.
         UNUserNotificationCenter.current().delegate = KitbagNotificationDelegate.shared
@@ -48,6 +50,7 @@ struct KitbagApp: App {
         .task { exportPDFIfAsked() }
         .task { backupIfAsked() }
         .task { importTimetableIfAsked() }
+        .task { await backupFolderIfAsked() }
       #endif
       .task {
         deadlines.applyWidgetActions()
@@ -66,6 +69,8 @@ struct KitbagApp: App {
           Task { await weather.refresh() }
           Task { await subscriptions.refreshStale() }
         }
+        // The automatic backup into the chosen folder, at most once a day (see BackupNaming.isDue).
+        if phase == .active || phase == .background { Task { await backupFolder.backUpIfDue() } }
       }
     }
   }
@@ -79,6 +84,16 @@ struct KitbagApp: App {
       guard let name = UserDefaults.standard.string(forKey: "kitbagImportTimetable") else { return }
       _ = try? timetable.importFile(at: URL.documentsDirectory.appending(path: name))
       WidgetBridge.sync(theme: themes.themeID)
+    }
+
+    /// For checking the backup folder without the picker: `-kitbagBackupFolder <name>` makes a folder of that name in the app's
+    /// Documents, chooses it and backs up into it at once. Only in debug builds.
+    @MainActor fileprivate func backupFolderIfAsked() async {
+      guard let name = UserDefaults.standard.string(forKey: "kitbagBackupFolder") else { return }
+      let url = URL.documentsDirectory.appending(path: name)
+      try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+      backupFolder.choose(url)
+      await backupFolder.backUpIfDue(force: true)
     }
 
     /// For checking backups from the command line: `-kitbagBackupTo <path>` writes a backup there, and

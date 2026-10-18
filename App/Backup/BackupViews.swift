@@ -3,6 +3,10 @@ import SwiftUI
 
 /// The Data section of Settings: send everything to another place, or put a backup back.
 struct DataSettings: View {
+  @Environment(BackupFolderStore.self) private var folder
+  @State private var choosingFolder = false
+  @State private var folderRestore: URL?
+  @State private var nothingInFolder = false
   @State private var importing = false
   @State private var candidate: URL?
   @State private var importFailed = false
@@ -10,6 +14,45 @@ struct DataSettings: View {
   @State private var exportFailed = false
 
   var body: some View {
+    Group {
+      manualSection
+      folderSection
+    }
+    .fileImporter(isPresented: $importing, allowedContentTypes: [.kitbagBackup]) { result in
+      switch result {
+      case .success(let url): candidate = url
+      case .failure: importFailed = true
+      }
+    }
+    .fileImporter(isPresented: $choosingFolder, allowedContentTypes: [.folder]) { result in
+      if case .success(let url) = result {
+        folder.choose(url)
+        Task { await folder.backUpIfDue(force: true) }
+      }
+    }
+    .restoreBackup($candidate)
+    .restoreBackup($folderRestore)
+    .alert(Text("The backup could not be made.", tableName: "Settings"), isPresented: $exportFailed) {
+      Button {
+      } label: {
+        Text("OK", tableName: "Notes")
+      }
+    }
+    .alert(Text("That file could not be opened.", tableName: "Settings"), isPresented: $importFailed) {
+      Button {
+      } label: {
+        Text("OK", tableName: "Notes")
+      }
+    }
+    .alert(Text("There is no backup in that folder yet.", tableName: "Settings"), isPresented: $nothingInFolder) {
+      Button {
+      } label: {
+        Text("OK", tableName: "Notes")
+      }
+    }
+  }
+
+  private var manualSection: some View {
     Section {
       Button {
         Task { await export() }
@@ -41,24 +84,83 @@ struct DataSettings: View {
         "One file with the timetable, deadlines, notes with their photos and files, and the settings. Send it to yourself by AirDrop or keep it in Files; opening it on another iPhone offers to restore it. Calendar subscriptions are left out because their addresses are secret.",
         tableName: "Settings")
     }
-    .fileImporter(isPresented: $importing, allowedContentTypes: [.kitbagBackup]) { result in
-      switch result {
-      case .success(let url): candidate = url
-      case .failure: importFailed = true
+  }
+
+  /// Automatic backups into a folder the person picks, for example in iCloud Drive, so that another device can restore them.
+  private var folderSection: some View {
+    Section {
+      if folder.isSet {
+        LabeledContent {
+          Text(folder.folderName ?? "")
+        } label: {
+          Text("Backup folder", tableName: "Settings")
+        }
+        if let last = folder.lastBackup {
+          LabeledContent {
+            Text(last.formattedInLanguage(date: .abbreviated, time: .shortened))
+          } label: {
+            Text("Last backup", tableName: "Settings")
+          }
+        }
+        if let error = folder.lastError {
+          Text(error).font(.footnote).foregroundStyle(.red)
+        }
+        Button {
+          Task { await folder.backUpIfDue(force: true) }
+        } label: {
+          HStack {
+            Label {
+              Text("Back up now", tableName: "Settings")
+            } icon: {
+              Image(systemName: "arrow.triangle.2.circlepath")
+            }
+            Spacer()
+            if folder.isWorking { ProgressView() }
+          }
+        }
+        .disabled(folder.isWorking)
+        Button {
+          Task {
+            if let copy = try? await folder.newestBackupCopy() {
+              folderRestore = copy
+            } else {
+              nothingInFolder = true
+            }
+          }
+        } label: {
+          Label {
+            Text("Restore the newest backup from it", tableName: "Settings")
+          } icon: {
+            Image(systemName: "clock.arrow.circlepath")
+          }
+        }
+        Button {
+          choosingFolder = true
+        } label: {
+          Text("Choose another folder…", tableName: "Settings")
+        }
+        Button(role: .destructive) {
+          folder.forget()
+        } label: {
+          Text("Stop backing up to a folder", tableName: "Settings")
+        }
+      } else {
+        Button {
+          choosingFolder = true
+        } label: {
+          Label {
+            Text("Back up to a folder…", tableName: "Settings")
+          } icon: {
+            Image(systemName: "folder.badge.plus")
+          }
+        }
       }
-    }
-    .restoreBackup($candidate)
-    .alert(Text("The backup could not be made.", tableName: "Settings"), isPresented: $exportFailed) {
-      Button {
-      } label: {
-        Text("OK", tableName: "Notes")
-      }
-    }
-    .alert(Text("That file could not be opened.", tableName: "Settings"), isPresented: $importFailed) {
-      Button {
-      } label: {
-        Text("OK", tableName: "Notes")
-      }
+    } header: {
+      Text("Backup folder", tableName: "Settings")
+    } footer: {
+      Text(
+        "Pick a folder in iCloud Drive and Kitbag saves a dated backup there once a day, keeping the last ten. On another iPhone or iPad, pick the same folder and restore the newest one. This is not live sync: whichever device backed up last has the newest data.",
+        tableName: "Settings")
     }
   }
 }

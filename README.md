@@ -32,7 +32,9 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
   [Open-Meteo](https://open-meteo.com/) (CC BY 4.0).
 - Backup: Settings > Data exports everything (timetable, deadlines, notes with photos and files, settings) as one `.kitbag`
   file to send by AirDrop or keep in Files, and restores one (after asking, and after saving what was there). It is also the
-  way to move to another iPhone, since iCloud sync needs a paid developer account.
+  way to move to another iPhone. iCloud sync itself needs the iCloud capability, which a free Apple ID cannot use, so instead
+  a backup folder you pick (in iCloud Drive, for example) takes a dated backup once a day, for another iPhone or iPad to
+  restore.
 - Widgets: the class on now or next, the day's list and the whole week as a timetable, and what is due next (tap a circle
   to mark one done), on the home screen and the lock screen.
 - Settings: a language (system, English, 日本語) for Kitbag, its tools and the apps inside it, five themes, light or dark, five app icons, and which tools and which parts of Today are shown and in what
@@ -62,11 +64,14 @@ Xcode asks Apple for a new provisioning profile. Kitbag shows what is left at th
 Settings) and warns with a notification two days before, the evening before and on the day.
 
 `tools/refresh_device.sh` renews it from the Mac without opening Xcode: it moves this app's provisioning profile aside so
-that the build fetches a new one, builds for the phone and installs over Wi-Fi with `devicectl`. The phone has to be
-paired for network use (Xcode > Window > Devices and Simulators > "Connect via network"), awake and on the same Wi-Fi.
-`tools/refresh_device.sh --check` says when it last ran and whether the phone answers. `tools/install_refresh_agent.sh`
-installs a launchd agent that runs it every hour and does something only once the last install is four days old
-(`--remove` takes it away). Installing over a running app closes it.
+that the build fetches a new one, builds for the phone and installs over the local network with `devicectl` (no USB cable,
+no AirDrop; the phone and the Mac must be on the same Wi-Fi and the phone awake). It waits up to a few minutes for the
+phone to be reachable and, if it is not, tries again later. The phone must be paired for network use once (Xcode >
+Window > Devices and Simulators > "Connect via network"). `tools/refresh_device.sh --check` says when it last ran and
+whether the phone is reachable. `tools/install_refresh_agent.sh` installs a launchd agent that runs it every hour and does
+something only once the last install is four days old (`--remove` takes it away); it makes no sound and shows nothing, the
+result is in `~/Library/Logs/KitbagRefresh.log` (`KITBAG_NOTIFY=1` adds macOS notifications). Installing over a running app
+closes it; the app's data stays.
 
 ## Architecture
 

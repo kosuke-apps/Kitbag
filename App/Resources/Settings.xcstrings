@@ -141,6 +141,39 @@
         }
       }
     },
+    "Back up now": {
+      "comment": "Button that makes an automatic backup now.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今すぐバックアップ"
+          }
+        }
+      }
+    },
+    "Back up to a folder…": {
+      "comment": "Button that picks a folder for automatic backups.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダにバックアップ…"
+          }
+        }
+      }
+    },
+    "Backup folder": {
+      "comment": "Settings section title and row label.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップ用フォルダ"
+          }
+        }
+      }
+    },
     "Cancel": {
       "comment": "Button that dismisses a confirmation.",
       "localizations": {
@@ -148,6 +181,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "キャンセル"
+          }
+        }
+      }
+    },
+    "Choose another folder…": {
+      "comment": "Button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別のフォルダを選ぶ…"
           }
         }
       }
@@ -454,6 +498,17 @@
         }
       }
     },
+    "Last backup": {
+      "comment": "Settings row: when the last automatic backup was made.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最後のバックアップ"
+          }
+        }
+      }
+    },
     "Light": {
       "localizations": {
         "ja": {
@@ -624,6 +679,17 @@
         }
       }
     },
+    "Pick a folder in iCloud Drive and Kitbag saves a dated backup there once a day, keeping the last ten. On another iPhone or iPad, pick the same folder and restore the newest one. This is not live sync: whichever device backed up last has the newest data.": {
+      "comment": "Footer under the backup folder buttons.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud Drive のフォルダを選ぶと，Kitbag は日付つきのバックアップを1日1回そこに保存し，直近10個を残します．別の iPhone や iPad で同じフォルダを選び，最新のバックアップを復元できます．リアルタイム同期ではなく，最後にバックアップした端末のデータが最新になります．"
+          }
+        }
+      }
+    },
     "Pinned notes": {
       "localizations": {
         "ja": {
@@ -744,6 +810,17 @@
         }
       }
     },
+    "Restore the newest backup from it": {
+      "comment": "Button that restores the newest backup in the chosen folder.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新のバックアップを復元"
+          }
+        }
+      }
+    },
     "Restore this backup?": {
       "comment": "Title of the confirmation before a restore.",
       "localizations": {
@@ -854,6 +931,17 @@
         }
       }
     },
+    "Stop backing up to a folder": {
+      "comment": "Button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダへのバックアップをやめる"
+          }
+        }
+      }
+    },
     "System": {
       "localizations": {
         "ja": {
@@ -871,6 +959,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "そのファイルを開けませんでした．"
+          }
+        }
+      }
+    },
+    "That folder could not be used.": {
+      "comment": "Shown when the chosen backup folder cannot be remembered.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "そのフォルダは使えません．"
           }
         }
       }
@@ -897,6 +996,28 @@
         }
       }
     },
+    "The backup could not be saved: %@": {
+      "comment": "Shown when writing the automatic backup fails; the placeholder is the system's reason.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップを保存できませんでした: %@"
+          }
+        }
+      }
+    },
+    "The backup folder is not there any more. Choose it again.": {
+      "comment": "Shown when the bookmark to the backup folder no longer resolves.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップ用のフォルダが見つかりません．選び直してください．"
+          }
+        }
+      }
+    },
     "The icon could not be changed.": {
       "localizations": {
         "ja": {
@@ -913,6 +1034,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "テーマ"
+          }
+        }
+      }
+    },
+    "There is no backup in that folder yet.": {
+      "comment": "Alert when restoring the newest backup from a folder with none.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "そのフォルダにはまだバックアップがありません．"
           }
         }
       }
