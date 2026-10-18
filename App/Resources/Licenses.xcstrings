@@ -1,0 +1,204 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Bus timetables and live positions in Headway: data provided under license granted by City of Madison, WI, Metro Transit. Headway and Kitbag are independent of the City and Metro Transit.": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headway のバスの時刻表とリアルタイム位置: City of Madison, WI, Metro Transit の許諾に基づき提供されたデータです．Headway と Kitbag は市および Metro Transit とは無関係です．"
+          }
+        }
+      }
+    },
+    "Colours and layers of Headway's map": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headway の地図の色とレイヤー"
+          }
+        }
+      }
+    },
+    "Creative Commons Attribution 4.0": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クリエイティブ・コモンズ 表示 4.0"
+          }
+        }
+      }
+    },
+    "Data": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "データ"
+          }
+        }
+      }
+    },
+    "Draws the map in Headway": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headway の地図を描画"
+          }
+        }
+      }
+    },
+    "Exact calculator, inside Kitbag": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "厳密な電卓（Kitbag 内）"
+          }
+        }
+      }
+    },
+    "Kitbag and the apps inside it are free software under the MIT licence. They were built with AI assistance. Everything stays on your phone; see PRIVACY.md in the source.": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag と中のアプリは MIT ライセンスのフリーソフトウェアで，AI の支援を受けて作られました．データはすべて iPhone の中にとどまります．詳しくはソースの PRIVACY.md をご覧ください．"
+          }
+        }
+      }
+    },
+    "Licences": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライセンス"
+          }
+        }
+      }
+    },
+    "Live Madison bus map, inside Kitbag": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "マディソンのバスのリアルタイム地図（Kitbag 内）"
+          }
+        }
+      }
+    },
+    "Map data © OpenStreetMap contributors, Open Database Licence 1.0 (in Headway).": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地図データ © OpenStreetMap contributors，Open Database Licence 1.0（Headway 内）．"
+          }
+        }
+      }
+    },
+    "Map labels in Headway": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headway の地図の文字"
+          }
+        }
+      }
+    },
+    "Opens Headway's timetable archive": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headway の時刻表アーカイブを展開"
+          }
+        }
+      }
+    },
+    "Reads Headway's live feeds": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headway のリアルタイムデータを読み取り"
+          }
+        }
+      }
+    },
+    "Software": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ソフトウェア"
+          }
+        }
+      }
+    },
+    "The definition of Headway's live feeds": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headway のリアルタイムデータの定義"
+          }
+        }
+      }
+    },
+    "The text of this licence is in the source repository.": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このライセンスの全文はソースリポジトリにあります．"
+          }
+        }
+      }
+    },
+    "This app": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このアプリ"
+          }
+        }
+      }
+    },
+    "Weather data by Open-Meteo.com, under CC BY 4.0. Free for non-commercial use.": {
+      "comment": "Licences screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open-Meteo.com の気象データ（CC BY 4.0）．非商用利用は無料です．"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

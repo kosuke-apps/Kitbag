@@ -1,7 +1,9 @@
 # Third-party material
 
 Kitbag's own code is under the MIT licence (`LICENSE`, Copyright (c) 2026 Kosuke Satake). Kitbag has no dependency of its
-own. Apple's frameworks (SwiftUI, UIKit, UserNotifications, BackgroundTasks) are part of the system and need no entry.
+own. Apple's frameworks (SwiftUI, UIKit, Charts, WidgetKit, AppIntents, QuickLook, PhotosUI, CoreLocation, Security,
+UserNotifications, BackgroundTasks) are part of the system and need no entry. The licences and data credits are also shown
+in the app (Settings > About > Licences); keep that screen, `LICENSE` and this file in step.
 
 ## Shipped in the app
 

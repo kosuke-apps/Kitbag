@@ -142,6 +142,13 @@ adds what is specific to this project.
     `.locale(...)`, because `String(localized:)` and `formatted(date:time:)` would follow the phone. The choice is passed to
     the guests (`GuestRuntimes.applyLanguage` writes it into Headway's and Mantissa's own language settings, so the two
     never disagree) and to the widgets (through `WidgetSettings`). Never use `String(localized:)` in Kitbag's own sources.
+  - Licensing and privacy: `LICENSE` (MIT, Copyright (c) 2026 Kosuke Satake) is copied into the app and shown in Settings >
+    About > Licences (`App/Licenses/LicensesView.swift`: Kitbag, the guests, and every library and font the guests carry,
+    each with its text from the bundle, plus the data credits). That screen, `LICENSE`, `THIRD_PARTY.md` and the guests' own
+    lists must change together. `PRIVACY.md` says what stays on the phone and lists every network address in Kitbag's own
+    code; `App/Resources/PrivacyInfo.xcprivacy` declares no tracking and the one required-reason API used (UserDefaults,
+    CA92.1). Pre-publication checks (all done 2026-10-18, nothing published): gitleaks clean over the history, only the
+    noreply address in commits, no `.label.toml` tracked, no local path in a tracked file, personal data kept in `Local/`.
   - `App/Backup/`: `BackupManager` writes everything into one `.kitbag` file (timetable, deadlines, notes with their
     attachments, and the `kitbag.*` and `weather.*` settings from UserDefaults; not the weather cache, not the calendar
     subscriptions or their secret addresses, not the guests' own data) using `BackupArchive` from KitbagCore (a header, a

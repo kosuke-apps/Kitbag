@@ -81,6 +81,10 @@ Guests are pinned release tags of other repositories, built as separate modules 
 - Build: the `xcodebuild` command above
 - Visual: run in the iOS Simulator, open each guest, tap the house button
 
+## Privacy
+
+No account, no analytics, no server of its own: see `PRIVACY.md`.
+
 ## Licence
 
 MIT, Copyright (c) 2026 Kosuke Satake. Third-party material is listed in `THIRD_PARTY.md`.

@@ -140,6 +140,9 @@ targets:
       - path: Guests/GuestIcons
         type: folder
         buildPhase: resources
+      # The licence of Kitbag and the guests (all MIT, the same text), shown in Settings > Licences.
+      - path: LICENSE
+        buildPhase: resources
     dependencies:
       - package: Kitbag
         product: KitbagCore

@@ -98,6 +98,11 @@ struct SettingsView: View {
             Text("Version", tableName: "Settings")
           }
 
+          NavigationLink {
+            LicensesView()
+          } label: {
+            Text("Licences", tableName: "Licenses")
+          }
           Link(destination: URL(string: "https://open-meteo.com/")!) {
             Text("Weather data by Open-Meteo.com", tableName: "Weather")
           }
