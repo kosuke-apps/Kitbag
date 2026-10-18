@@ -95,7 +95,7 @@ targets:
           - en
           - ja
         # What the guests ask of the host (docs/guests.md): Headway shows the rider's position and watches routes.
-        NSLocationWhenInUseUsageDescription: Headway shows where you are on the map and finds nearby stops.
+        NSLocationWhenInUseUsageDescription: Kitbag uses your location to show nearby bus stops and the weather where you are.
         UIBackgroundModes:
           - fetch
         BGTaskSchedulerPermittedIdentifiers:

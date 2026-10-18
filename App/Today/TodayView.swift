@@ -7,12 +7,21 @@ struct TodayView: View {
   @Environment(TimetableStore.self) private var timetable
   @Environment(DeadlineStore.self) private var deadlines
   @Environment(NoteStore.self) private var notes
+  @Environment(WeatherStore.self) private var weather
   let open: (ModuleRoute) -> Void
 
   var body: some View {
     TimelineView(.everyMinute) { context in
       VStack(alignment: .leading, spacing: 16) {
         header(now: context.date)
+        if let forecast = weather.forecast {
+          Button {
+            open(ModuleRoute(.weather))
+          } label: {
+            WeatherCard(forecast: forecast)
+          }
+          .buttonStyle(.plain)
+        }
         if !timetable.timetable.courses.isEmpty {
           classes(now: context.date)
         }

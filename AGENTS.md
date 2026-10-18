@@ -13,13 +13,19 @@ adds what is specific to this project.
 - Intended users: the author first (an exchange student at UW–Madison); anyone who builds the project themselves.
 - Core user journey: open Kitbag, see the Today screen, tap an app icon below it, the tool opens full screen inside
   Kitbag, tap the house button at the top right to come back.
-- Status: a trial prototype. Working: the home screen with a Today section (date, the class that is on or comes next,
-  today's classes), the Timetable tool (grid in the look of a printed UW–Madison timetable, course editor, JSON import
-  and export) and Headway as a guest. Next: deadlines and calendar, notes, weather, pinned notes on the Today screen,
-  Mantissa as the second guest. Nothing in it is a placeholder for an unbuilt feature.
+- Status: a trial prototype. Working: the home screen with a Today section (date that opens the calendar, weather,
+  the class that is on or comes next, today's classes, what is due soon, pinned notes), the tools Timetable (grid in the
+  look of a printed UW–Madison timetable, course editor, JSON import and export), Calendar (deadlines with reminders,
+  month page and list), Notes (search, course, pin) and Weather (one screen, Open-Meteo), and Headway as a guest. Next:
+  Mantissa as the second guest, a Kitbag-wide language setting, trying it on the iPhone. Nothing in it is a
+  placeholder for an unbuilt feature.
 - Out of scope for now: features that cross tools (for example bus times for the next class), accounts, the App Store
-  (it needs the paid Developer Program), anything that needs a paid account (WeatherKit, remote push, iCloud).
-- The university timetable and deadlines are the author's personal data: they never go into the repository.
+  (it needs the paid Developer Program), anything that needs a paid account (WeatherKit, remote push, iCloud: the weather comes from the free Open-Meteo service instead).
+- The university timetable, deadlines and notes are the author's personal data: they never go into the repository or
+  the tests.
+- Data sources and what they send: the weather comes from Open-Meteo, a third-party service (free for non-commercial
+  use, data under CC BY 4.0, credit shown in the app, see `THIRD_PARTY.md`). A request carries the place's coordinates
+  and, when the place follows the phone, that means the phone's approximate location. Nothing else leaves the phone.
 
 ## Technical context
 
@@ -40,27 +46,45 @@ adds what is specific to this project.
   - `Package.swift`, `Sources/KitbagCore/`: the logic, tested on the Mac with `swift test` and linked into the app.
     `Weekday` (ISO numbering, written as names), `TimeOfDay` (minutes, written as `"13:20"`), `Course` and `Meeting`
     (hand-writable JSON; id, location and instructor may be left out), `Timetable` (slots of a day, `upcoming(after:)`
-    for the class on now or next, `hourRange` and `visibleDays` for the grid, the file format with a `version`).
-    `Tests/KitbagCoreTests/` uses invented courses only.
-  - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and `TimetableStore` at launch.
+    for the class on now or next, `hourRange` and `visibleDays` for the grid, the file format with a `version`),
+    `LocalDate` (a day as `"2026-10-22"`, independent of time zone) and `MonthGrid` (the rows of a month page),
+    `Deadline` and `DeadlineBook` (reminder dates, grouping by how soon), `Note` and `NoteBook` (title from the first
+    line, pinned first, search), `Weather` (`Place`, `WeatherKind` from WMO codes, `Forecast`, and `OpenMeteo`: the
+    request URLs and the decoding of the service's answers). Every user file has a `version`.
+    `Tests/KitbagCoreTests/` uses invented data only (64 tests).
+  - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
+    `NoteStore`, `WeatherStore`) at launch, and refreshes the weather when the app becomes active.
+  - `App/Support/AppFiles.swift`: where data files live (Application Support/Kitbag) and how an unreadable one is set
+    aside. A file written by hand is rewritten once on load so that every id stays the same.
   - `App/Guests/`: `GuestRuntimes.swift` (one runtime per guest, created at launch because background-task
     registration must happen before the app has finished launching), `HeadwayGuest.swift` (the adapter).
   - `App/Modules/ModuleID.swift`: the tools on the home screen: title, icon, content.
   - `App/Home/`: `HomeView` (Today section, icon grid, full-screen cover), `ModuleTile` (icon and name; a guest's
     icon image or an SF Symbol square), `ModuleScreen` (the container with the house button at the top right: a tool
     keeps the top-right corner free, so its own toolbar uses the leading side).
-  - `App/Today/TodayView.swift`: date, the next-class card (tap opens the timetable), today's classes.
+  - `App/Today/TodayView.swift`: the date (opens the calendar), the weather card, the next-class card (opens the
+    timetable), today's classes, due-soon deadlines and pinned notes. Each part opens its tool through a `ModuleRoute`
+    (a tool plus where to start: a day, or a note).
+  - `App/Calendar/`: `DeadlineStore` and `ReminderScheduler` (local notifications), `CalendarView` (month or upcoming,
+    a button at the bottom right to add), `MonthView` (month page and the selected day's agenda), `DeadlineViews`
+    (row and editor), `DeadlineStyle` (symbols, colours, names).
+  - `App/Notes/`: `NoteStore` (writes shortly after typing stops, drops empty notes), `NotesView` (list, search,
+    editor with a bottom toolbar), `NoteStyle` (the sticky-note colour).
+  - `App/Weather/`: `WeatherStore` (fetch, cache in `weather.json`, chosen place or the phone's location),
+    `WeatherView` (now, hours, days, details, credit), `PlacePicker` and `WeatherCard` (the Today card),
+    `WeatherFormat` (units, condition names, symbol colours).
   - `App/Timetable/`: `TimetableStore` (the timetable as `timetable.json` in Application Support; an unreadable file
     is moved aside, never overwritten), `TimetableView` (screen, menu, import and export), `TimetableGrid` (the grid
     and legend: blocks as tall as the class, details dropped level by level when a block is small), `CourseEditing`
     (detail sheet, course list, course form), `CourseColor+Style` (pastel and dark variants).
-  - `App/Resources/`: String Catalogs `Shell`, `Today` and `Timetable` (Kitbag's own strings, always
+  - `App/Resources/`: String Catalogs `Shell`, `Today`, `Timetable`, `Calendar`, `Notes` and `Weather` (add strings
+    with `tools/add_strings.py <table>`; Kitbag's own strings, always
     `Text("…", tableName: "…")`; the default table "Localizable" belongs to Headway's catalog, which is copied into the
     same bundle), `en.lproj`/`ja.lproj/InfoPlist.strings`, `Assets.xcassets` (the app icon, drawn by
     `tools/make_icon.swift`).
   - `Local/` (not committed): the author's own files, for example `timetable-2026-fall.json`, the author's real
     timetable. Put it on a device through Timetable > menu > Import a file; into a simulator with the command below.
-  - `tools/`: `sync_guests.sh`, `guests.txt`, `make_icon.swift`.
+  - `tools/`: `sync_guests.sh`, `guests.txt`, `make_icon.swift`, `add_strings.py`.
 - Constraints: never edit anything under `Guests/` and never write to a guest's repository. Strings are localized
   (English base, Japanese); Kitbag's own strings live in the "Shell" table. The guest Headway keeps its own in-app
   language setting; a Kitbag-wide language choice is not built yet.

@@ -14,9 +14,14 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
   each tool opens inside Kitbag.
 - Timetable: the week as a grid in the look of a printed school timetable (pastel blocks as tall as the class, a legend
   of courses), a course editor, and import and export as a readable JSON file.
+- Calendar: deadlines (assignments, exams, quizzes, projects) with local-notification reminders, a month page with the
+  day's classes and deadlines, and a list grouped by how soon each is due.
+- Notes: free text with search, an optional course, and a pin that shows the note on the Today screen.
+- Weather: now, the next 24 hours, the next 8 days and the details on one screen, for Madison, a place you search for,
+  or your location. Data by [Open-Meteo](https://open-meteo.com/) (CC BY 4.0).
 - Headway (live Madison bus map) runs inside it as a guest, from its own repository, unchanged.
 
-Next: deadlines and calendar, notes, weather, pinned notes on the Today screen.
+Next: Mantissa as a second guest.
 
 ## Getting started
 

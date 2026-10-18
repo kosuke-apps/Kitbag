@@ -8,6 +8,8 @@ struct KitbagApp: App {
   @State private var timetable = TimetableStore()
   @State private var deadlines = DeadlineStore()
   @State private var notes = NoteStore()
+  @State private var weather = WeatherStore()
+  @Environment(\.scenePhase) private var scenePhase
 
   var body: some Scene {
     WindowGroup {
@@ -16,6 +18,11 @@ struct KitbagApp: App {
         .environment(timetable)
         .environment(deadlines)
         .environment(notes)
+        .environment(weather)
+        .task { await weather.refresh() }
+        .onChange(of: scenePhase) { _, phase in
+          if phase == .active { Task { await weather.refresh() } }
+        }
     }
   }
 }

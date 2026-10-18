@@ -55,6 +55,17 @@
           }
         }
       }
+    },
+    "Weather": {
+      "comment": "Name of the weather tool on the home screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天気"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

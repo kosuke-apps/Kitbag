@@ -1,0 +1,645 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Automatic": {
+      "comment": "Units follow the phone's region.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動"
+          }
+        }
+      }
+    },
+    "Change location…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "場所を変更…"
+          }
+        }
+      }
+    },
+    "Check your connection and try again.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接続を確認して，もう一度お試しください．"
+          }
+        }
+      }
+    },
+    "Clear": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快晴"
+          }
+        }
+      }
+    },
+    "Could not load the weather": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天気を読み込めませんでした"
+          }
+        }
+      }
+    },
+    "Could not refresh. Showing the last forecast.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新できませんでした．前回の予報を表示しています．"
+          }
+        }
+      }
+    },
+    "Current location": {
+      "comment": "Name of a place when its name could not be found.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在地"
+          }
+        }
+      }
+    },
+    "Daily forecast": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日ごとの予報"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了"
+          }
+        }
+      }
+    },
+    "Drizzle": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "霧雨"
+          }
+        }
+      }
+    },
+    "Extreme": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "極めて強い"
+          }
+        }
+      }
+    },
+    "Feels like %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "体感 %@"
+          }
+        }
+      }
+    },
+    "Fog": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "霧"
+          }
+        }
+      }
+    },
+    "Freezing drizzle": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "着氷性の霧雨"
+          }
+        }
+      }
+    },
+    "Freezing rain": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "着氷性の雨"
+          }
+        }
+      }
+    },
+    "Gusts %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "突風 %@"
+          }
+        }
+      }
+    },
+    "H %@": {
+      "comment": "Today's high temperature; %@ is a temperature such as 52°.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最高 %@"
+          }
+        }
+      }
+    },
+    "H %@  L %@": {
+      "comment": "Today's high and low on the home screen card.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最高 %@  最低 %@"
+          }
+        }
+      }
+    },
+    "Heavy rain": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大雨"
+          }
+        }
+      }
+    },
+    "Heavy rain showers": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "激しいにわか雨"
+          }
+        }
+      }
+    },
+    "Heavy snow": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大雪"
+          }
+        }
+      }
+    },
+    "High": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "強い"
+          }
+        }
+      }
+    },
+    "Hourly forecast": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1時間ごとの予報"
+          }
+        }
+      }
+    },
+    "Humidity": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "湿度"
+          }
+        }
+      }
+    },
+    "L %@": {
+      "comment": "Today's low temperature.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最低 %@"
+          }
+        }
+      }
+    },
+    "Location": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "場所"
+          }
+        }
+      }
+    },
+    "Low": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "弱い"
+          }
+        }
+      }
+    },
+    "Madison, Wisconsin": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウィスコンシン州マディソン"
+          }
+        }
+      }
+    },
+    "Mainly clear": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "おおむね晴れ"
+          }
+        }
+      }
+    },
+    "Metric (°C, km/h)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メートル法（°C，km/h）"
+          }
+        }
+      }
+    },
+    "Moderate": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中程度"
+          }
+        }
+      }
+    },
+    "No places found.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "場所が見つかりません．"
+          }
+        }
+      }
+    },
+    "Now": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今"
+          }
+        }
+      }
+    },
+    "Overcast": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "くもり"
+          }
+        }
+      }
+    },
+    "Partly cloudy": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "晴れ時々くもり"
+          }
+        }
+      }
+    },
+    "Precipitation": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "降水"
+          }
+        }
+      }
+    },
+    "Pressure": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "気圧"
+          }
+        }
+      }
+    },
+    "Rain": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雨"
+          }
+        }
+      }
+    },
+    "Rain showers": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "にわか雨"
+          }
+        }
+      }
+    },
+    "Search for a city": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "都市を検索"
+          }
+        }
+      }
+    },
+    "Snow": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雪"
+          }
+        }
+      }
+    },
+    "Snow grains": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雪あられ"
+          }
+        }
+      }
+    },
+    "Snow showers": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "にわか雪"
+          }
+        }
+      }
+    },
+    "Sun": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日の出・日の入り"
+          }
+        }
+      }
+    },
+    "Sunset %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日の入り %@"
+          }
+        }
+      }
+    },
+    "Thunderstorm": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雷雨"
+          }
+        }
+      }
+    },
+    "Thunderstorm with hail": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ひょうを伴う雷雨"
+          }
+        }
+      }
+    },
+    "Today": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日"
+          }
+        }
+      }
+    },
+    "Today %@": {
+      "comment": "Precipitation expected today; %@ is an amount such as 6.5 mm.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日 %@"
+          }
+        }
+      }
+    },
+    "Try again": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もう一度試す"
+          }
+        }
+      }
+    },
+    "Units": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "単位"
+          }
+        }
+      }
+    },
+    "Unknown": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不明"
+          }
+        }
+      }
+    },
+    "Updated %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新: %@"
+          }
+        }
+      }
+    },
+    "US (°F, mph)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "米国式（°F，mph）"
+          }
+        }
+      }
+    },
+    "Use my location": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在地を使う"
+          }
+        }
+      }
+    },
+    "UV index": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "紫外線指数"
+          }
+        }
+      }
+    },
+    "Very high": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非常に強い"
+          }
+        }
+      }
+    },
+    "Visibility": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "視程"
+          }
+        }
+      }
+    },
+    "Weather": {
+      "comment": "Title of the weather tool.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天気"
+          }
+        }
+      }
+    },
+    "Weather data by Open-Meteo.com": {
+      "comment": "Credit required by the data licence (CC BY 4.0).",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天気データ: Open-Meteo.com"
+          }
+        }
+      }
+    },
+    "Weather options": {
+      "comment": "Accessibility label of the menu button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天気のメニュー"
+          }
+        }
+      }
+    },
+    "Wind": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "風"
+          }
+        }
+      }
+    },
+    "Your location is not available. Turn on location access in Settings, or choose a place.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在地を使えません．設定で位置情報を許可するか，場所を選んでください．"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

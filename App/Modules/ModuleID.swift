@@ -29,6 +29,7 @@ enum ModuleID: String, CaseIterable, Identifiable {
   case timetable
   case calendar
   case notes
+  case weather
   case headway
 
   var id: String { rawValue }
@@ -38,6 +39,7 @@ enum ModuleID: String, CaseIterable, Identifiable {
     case .timetable: LocalizedStringResource("Timetable", table: "Shell")
     case .calendar: LocalizedStringResource("Calendar", table: "Shell")
     case .notes: LocalizedStringResource("Notes", table: "Shell")
+    case .weather: LocalizedStringResource("Weather", table: "Shell")
     case .headway: LocalizedStringResource("Headway", table: "Shell")
     }
   }
@@ -47,6 +49,7 @@ enum ModuleID: String, CaseIterable, Identifiable {
     case .timetable: .symbol("tablecells.fill", Color(red: 0.36, green: 0.34, blue: 0.84))
     case .calendar: .symbol("calendar", Color(red: 0.93, green: 0.31, blue: 0.30))
     case .notes: .symbol("note.text", Color(red: 0.96, green: 0.68, blue: 0.10))
+    case .weather: .symbol("cloud.sun.fill", Color(red: 0.22, green: 0.52, blue: 0.95))
     case .headway: .guest("Headway")
     }
   }
@@ -58,6 +61,7 @@ enum ModuleID: String, CaseIterable, Identifiable {
     case .timetable: TimetableView()
     case .calendar: CalendarView(initialDay: route.day)
     case .notes: NotesView(initialNoteID: route.noteID)
+    case .weather: WeatherView()
     case .headway: HeadwayGuestView(runtime: guests.headway)
     }
   }
