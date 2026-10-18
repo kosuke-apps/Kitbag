@@ -39,6 +39,7 @@ struct KitbagApp: App {
       #if DEBUG
         .task { exportPDFIfAsked() }
         .task { backupIfAsked() }
+        .task { importTimetableIfAsked() }
       #endif
       .task { WidgetBridge.sync(theme: themes.themeID) }
       .onChange(of: themes.themeID) { _, id in WidgetBridge.sync(theme: id) }
@@ -58,6 +59,14 @@ struct KitbagApp: App {
 
 #if DEBUG
   extension KitbagApp {
+    /// For putting a timetable file on a phone from the Mac without touching it: copy the file into the app's folder with
+    /// `devicectl device copy to`, then launch with `-kitbagImportTimetable <file name>` (a file in the app's Documents folder). Only in debug builds.
+    @MainActor fileprivate func importTimetableIfAsked() {
+      guard let name = UserDefaults.standard.string(forKey: "kitbagImportTimetable") else { return }
+      _ = try? timetable.importFile(at: URL.documentsDirectory.appending(path: name))
+      WidgetBridge.sync(theme: themes.themeID)
+    }
+
     /// For checking backups from the command line: `-kitbagBackupTo <path>` writes a backup there, and
     /// `-kitbagRestoreFrom <path>` restores one. Only in debug builds.
     @MainActor fileprivate func backupIfAsked() {
