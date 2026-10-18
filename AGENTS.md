@@ -75,7 +75,7 @@ adds what is specific to this project.
     events, VTODO, daily, weekly, monthly and yearly rules with count, until and exceptions; a rule it cannot read
     becomes a single event), `ICSWriter` (deadlines with an alarm, a term's classes as weekly events with an end date)
     and `DeadlineImport` (what an imported file adds or updates, matched by `Deadline.sourceUID`). Every user file has a
-    `version`. `Tests/KitbagCoreTests/` uses invented data only (164 tests).
+    `version`. `Tests/KitbagCoreTests/` uses invented data only (172 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
     `NoteStore`, `WeatherStore`, `SubscriptionStore`) at launch, and refreshes the weather and the stale subscriptions when
     the app becomes active.
@@ -123,6 +123,13 @@ adds what is specific to this project.
     viewer), `TermViews` (term name and dates, header, editor), `CourseViews` (card, detail with grade, deadlines and
     notes of the course, editor with credits), `CourseColor+Style` (pastel, dark and strong tones).
   - `App/GPA/GPAView.swift`: the cumulative and per-term GPA, grade menus, the what-if calculator and the target.
+  - Reminders: `NotificationPreferences` and `NotificationPlanner` (KitbagCore) decide what is scheduled; `ReminderScheduler`
+    makes the requests and keeps to a budget, because iOS holds at most 64 per app and the guests' own count too (the
+    signature's three, up to 28 class reminders for the next week, the rest of 54 for deadlines, soonest first). Deadline
+    reminders (by kind), class reminders (off until turned on; lead time; per course), quiet hours and the signature
+    warning are set in Settings > Notifications > Choose what to be reminded of (`NotificationPreferencesView`, stored in
+    UserDefaults so that a backup carries it). Class reminders are dated for the coming days, not a weekly repeat, so they
+    stop at the end of a term.
   - `App/Backup/`: `BackupManager` writes everything into one `.kitbag` file (timetable, deadlines, notes with their
     attachments, and the `kitbag.*` and `weather.*` settings from UserDefaults; not the weather cache, not the calendar
     subscriptions or their secret addresses, not the guests' own data) using `BackupArchive` from KitbagCore (a header, a

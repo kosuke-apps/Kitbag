@@ -197,6 +197,15 @@ private struct NotificationSettings: View {
           Text("Send a test notification", tableName: "Settings")
         }
       }
+      NavigationLink {
+        NotificationPreferencesView()
+      } label: {
+        Label {
+          Text("Choose what to be reminded of", tableName: "Settings")
+        } icon: {
+          Image(systemName: "slider.horizontal.3")
+        }
+      }
     } header: {
       Text("Notifications", tableName: "Settings")
     } footer: {

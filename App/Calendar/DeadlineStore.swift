@@ -15,6 +15,9 @@ final class DeadlineStore {
   private var syncing: Task<Void, Never>?
   /// The code of a course (`ME 101`), for a reminder's text; set once the timetable is loaded.
   var courseCode: (UUID) -> String? = { _ in nil }
+  /// The terms and the person's reminder preferences, which decide what is scheduled; set once the stores are loaded.
+  var library: () -> TimetableLibrary = { TimetableLibrary() }
+  var preferences: () -> NotificationPreferences = { NotificationPreferences() }
 
   init(url: URL = AppFiles.url("deadlines.json")) {
     self.url = url
@@ -88,12 +91,15 @@ final class DeadlineStore {
   func syncReminders() {
     let snapshot = book
     let lookup = courseCode
+    let terms = library()
+    let chosen = preferences()
     let expiry = SigningStatus.expiresAt
     let reminders = reminders
     let previous = syncing
     syncing = Task {
       await previous?.value
-      await reminders.sync(deadlines: snapshot, courseCode: lookup, signatureExpiry: expiry)
+      await reminders.sync(
+        deadlines: snapshot, library: terms, preferences: chosen, courseCode: lookup, signatureExpiry: expiry)
     }
   }
 

@@ -12,6 +12,39 @@
         }
       }
     },
+    "%@ starts in %lld min": {
+      "comment": "Notification title before a class; the placeholders are the course code and the minutes.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ は %lld 分後に始まります"
+          }
+        }
+      }
+    },
+    "%lld min before": {
+      "comment": "A choice of how long before a class the reminder comes.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 分前"
+          }
+        }
+      }
+    },
+    "%lld of %lld": {
+      "comment": "How many courses get class reminders, such as '3 of 5'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / %lld"
+          }
+        }
+      }
+    },
     "A build signed with a free Apple ID stops opening when this runs out, and is renewed by installing it again from the Mac.": {
       "comment": "Footer under the signature details.",
       "localizations": {
@@ -19,6 +52,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "無料の Apple ID で署名したビルドは，これが切れると開けなくなります．Mac からもう一度インストールすると更新されます．"
+          }
+        }
+      }
+    },
+    "A reminder that falls in these hours waits until they end, unless that would be after the thing is due.": {
+      "comment": "Footer under the quiet hours switch.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この時間帯のリマインダーは，終わるまで待ちます．ただし，締め切りや授業に間に合わなくなる場合は，そのまま通知します．"
           }
         }
       }
@@ -40,6 +84,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "アカウント"
+          }
+        }
+      }
+    },
+    "All": {
+      "comment": "Shown when every course gets class reminders.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべて"
           }
         }
       }
@@ -86,6 +141,28 @@
         }
       }
     },
+    "Choose what to be reminded of": {
+      "comment": "Link to the detailed reminder settings.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知する内容を選ぶ"
+          }
+        }
+      }
+    },
+    "Classes": {
+      "comment": "Section title in the reminder settings.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "授業"
+          }
+        }
+      }
+    },
     "Connect your iPhone to your Mac and install Kitbag again to renew it.": {
       "comment": "Body of the signature warning notification.",
       "localizations": {
@@ -104,6 +181,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "iPhone を Mac につないで，Kitbag をもう一度インストールしてください．"
+          }
+        }
+      }
+    },
+    "Courses": {
+      "comment": "Row and screen title for choosing which courses get class reminders.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "科目"
           }
         }
       }
@@ -140,6 +228,17 @@
         }
       }
     },
+    "Deadlines": {
+      "comment": "Section title in the reminder settings.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切り"
+          }
+        }
+      }
+    },
     "Drag to reorder. Turn a part off to hide it from Today.": {
       "localizations": {
         "ja": {
@@ -166,6 +265,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "もうすぐ期限"
+          }
+        }
+      }
+    },
+    "Each deadline keeps its own lead time, which you set when you edit it.": {
+      "comment": "Footer under the deadline reminder switches.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインドの時間は締め切りごとに，編集画面で決めます．"
           }
         }
       }
@@ -203,12 +313,34 @@
         }
       }
     },
+    "From": {
+      "comment": "Start of the quiet hours.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開始"
+          }
+        }
+      }
+    },
     "Home screen": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "ホーム画面"
+          }
+        }
+      }
+    },
+    "How long before": {
+      "comment": "Label of the lead time picker.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "何分前に通知"
           }
         }
       }
@@ -491,6 +623,72 @@
         }
       }
     },
+    "Quiet hours": {
+      "comment": "Switch and section title.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "おやすみ時間"
+          }
+        }
+      }
+    },
+    "Remind me about deadlines": {
+      "comment": "Switch for deadline reminders.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切りをリマインドする"
+          }
+        }
+      }
+    },
+    "Remind me before classes": {
+      "comment": "Switch for class reminders.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "授業の前にリマインドする"
+          }
+        }
+      }
+    },
+    "Remind me before the classes of the courses that are on.": {
+      "comment": "Footer on the course list for class reminders.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンにした科目の授業の前にリマインドします．"
+          }
+        }
+      }
+    },
+    "Reminders": {
+      "comment": "Title of the reminder settings screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダー"
+          }
+        }
+      }
+    },
+    "Reminders are made for the next week of classes each time Kitbag runs, so they stop by themselves when a term ends.": {
+      "comment": "Footer under the class reminder switches.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーは Kitbag を開くたびに，向こう1週間の授業分が作られます．学期が終わると自然に止まります．"
+          }
+        }
+      }
+    },
     "Reminders cannot be shown until notifications are allowed in iOS Settings.": {
       "comment": "Footer shown when notifications are denied.",
       "localizations": {
@@ -759,12 +957,45 @@
         }
       }
     },
+    "Two days before, the evening before and the morning of the day Kitbag stops opening.": {
+      "comment": "Footer under the signature warning switch.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag が開けなくなる2日前，前日の夜，当日の朝に通知します．"
+          }
+        }
+      }
+    },
+    "Until": {
+      "comment": "End of the quiet hours.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "終了"
+          }
+        }
+      }
+    },
     "Version": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "バージョン"
+          }
+        }
+      }
+    },
+    "Warn before the signature runs out": {
+      "comment": "Switch for the signature warnings.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "署名が切れる前に警告する"
           }
         }
       }

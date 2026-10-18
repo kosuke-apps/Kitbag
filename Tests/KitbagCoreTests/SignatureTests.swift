@@ -82,24 +82,3 @@ struct SignatureTests {
     #expect(early.map(\.kind) == [.twoDays, .oneDay])
   }
 }
-
-@Suite("Reminder plan")
-struct ReminderPlanTests {
-  @Test func keepsTheSoonestOpenRemindersUpToTheLimit() {
-    let now = date(18, 12)
-    func deadline(_ title: String, day: Int, done: Bool = false) -> Deadline {
-      Deadline(
-        title: title, date: LocalDate(year: 2026, month: 10, day: day), time: TimeOfDay(hour: 12, minute: 0),
-        isDone: done,
-        reminder: .hourBefore)
-    }
-    let book = DeadlineBook(deadlines: [
-      deadline("late", day: 30), deadline("soon", day: 20), deadline("done", day: 21, done: true),
-      deadline("past", day: 10), deadline("middle", day: 25),
-    ])
-    let plan = book.reminderPlan(now: now, calendar: chicago, limit: 2)
-    #expect(plan.map(\.deadline.title) == ["soon", "middle"])
-    #expect(plan[0].fireDate == date(20, 11))
-    #expect(book.reminderPlan(now: now, calendar: chicago, limit: 10).count == 3)
-  }
-}

@@ -13,6 +13,7 @@ struct KitbagApp: App {
   @State private var subscriptions = SubscriptionStore()
   @State private var themes = ThemeStore()
   @State private var layout = LayoutStore()
+  @State private var notificationPreferences = NotificationPreferencesStore()
   @Environment(\.scenePhase) private var scenePhase
 
   var body: some Scene {
@@ -28,10 +29,13 @@ struct KitbagApp: App {
       .environment(subscriptions)
       .environment(themes)
       .environment(layout)
+      .environment(notificationPreferences)
       .task {
         // Kitbag's own handler comes after the guests', which set theirs when they start.
         UNUserNotificationCenter.current().delegate = KitbagNotificationDelegate.shared
         deadlines.courseCode = { [timetable] in timetable.course(id: $0)?.code }
+        deadlines.library = { [timetable] in timetable.library }
+        deadlines.preferences = { [notificationPreferences] in notificationPreferences.preferences }
         deadlines.syncReminders()
       }
       .task { await weather.refresh() }
@@ -46,7 +50,8 @@ struct KitbagApp: App {
         WidgetBridge.sync(theme: themes.themeID)
       }
       .onChange(of: themes.themeID) { _, id in WidgetBridge.sync(theme: id) }
-      .onChange(of: timetable.timetable.courses.map(\.code)) { _, _ in deadlines.syncReminders() }
+      .onChange(of: timetable.library) { _, _ in deadlines.syncReminders() }
+      .onChange(of: notificationPreferences.preferences) { _, _ in deadlines.syncReminders() }
       .onChange(of: scenePhase) { _, phase in
         // The widgets read a copy of the data; bring it up to date when the app is left as well as when it is entered.
         // What a widget queued (a deadline ticked off) is applied first, so that the copy does not undo it.
@@ -89,6 +94,7 @@ struct KitbagApp: App {
         notes.reload()
         themes.reload()
         layout.reload()
+        notificationPreferences.reload()
         WidgetBridge.sync(theme: themes.themeID)
       }
     }

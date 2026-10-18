@@ -106,6 +106,7 @@ private struct RestoreBackupModifier: ViewModifier {
   @Environment(NoteStore.self) private var notes
   @Environment(ThemeStore.self) private var themes
   @Environment(LayoutStore.self) private var layout
+  @Environment(NotificationPreferencesStore.self) private var notifications
 
   @State private var summary: BackupSummary?
   @State private var accessing: URL?
@@ -199,6 +200,7 @@ private struct RestoreBackupModifier: ViewModifier {
       notes.reload()
       themes.reload()
       layout.reload()
+      notifications.reload()
       WidgetBridge.sync(theme: themes.themeID)
       outcome = .restored
     } catch {

@@ -101,18 +101,3 @@ public struct SigningReminder: Equatable, Sendable {
     return list.filter { $0.fireDate > now && $0.fireDate < expiresAt }
   }
 }
-
-extension DeadlineBook {
-  /// The reminders to have scheduled at `now`: not done, still to come, soonest first, and no more than `limit` because
-  /// iOS keeps at most 64 pending notifications for an app.
-  public func reminderPlan(now: Date, calendar: Calendar, limit: Int) -> [(deadline: Deadline, fireDate: Date)] {
-    deadlines
-      .compactMap { deadline -> (deadline: Deadline, fireDate: Date)? in
-        guard !deadline.isDone, let fire = deadline.reminderDate(calendar: calendar), fire > now else { return nil }
-        return (deadline, fire)
-      }
-      .sorted { $0.fireDate < $1.fireDate }
-      .prefix(limit)
-      .map { $0 }
-  }
-}
