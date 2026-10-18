@@ -138,8 +138,6 @@ struct DayAgenda: View {
           .foregroundStyle(.secondary)
       }
     }
-    .padding(14)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+    .themedCard(padding: 16, radius: 20)
   }
 }

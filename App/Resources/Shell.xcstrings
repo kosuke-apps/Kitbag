@@ -34,6 +34,17 @@
         }
       }
     },
+    "Mantissa": {
+      "comment": "Name of the calculator app on the home screen. A proper noun, the same in every language.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantissa"
+          }
+        }
+      }
+    },
     "Notes": {
       "comment": "Name of the notes tool on the home screen.",
       "localizations": {
@@ -41,6 +52,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "メモ"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "comment": "Name of the settings tool on the home screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
           }
         }
       }

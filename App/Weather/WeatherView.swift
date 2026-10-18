@@ -64,6 +64,7 @@ struct WeatherView: View {
       .padding(.bottom, 24)
     }
     .refreshable { await store.refresh(force: true) }
+    .themedScreen()
   }
 
   @ViewBuilder private var banners: some View {
@@ -263,9 +264,7 @@ struct WeatherView: View {
       title.font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
       content()
     }
-    .padding(14)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+    .themedCard(padding: 14, radius: 18)
   }
 
   private func tile<Content: View>(
@@ -286,9 +285,8 @@ struct WeatherView: View {
       }
       .font(.title3.weight(.medium))
     }
-    .padding(14)
-    .frame(maxWidth: .infinity, minHeight: 92, alignment: .topLeading)
-    .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+    .frame(minHeight: 70, alignment: .topLeading)
+    .themedCard(padding: 14, radius: 18)
     .accessibilityElement(children: .combine)
   }
 

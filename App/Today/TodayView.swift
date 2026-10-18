@@ -1,32 +1,26 @@
 import KitbagCore
 import SwiftUI
 
-/// The top of the home screen: today's date (it opens the calendar), the class that is on or comes next, today's
-/// classes, and what is due soon.
+/// The top of the home screen: today's date (it opens the calendar) and the parts the person chose to show, in the
+/// order they chose: the weather, the class that is on or comes next, today's classes, what is due soon, pinned notes.
 struct TodayView: View {
   @Environment(TimetableStore.self) private var timetable
   @Environment(DeadlineStore.self) private var deadlines
   @Environment(NoteStore.self) private var notes
   @Environment(WeatherStore.self) private var weather
+  @Environment(LayoutStore.self) private var layout
+  @Environment(\.palette) private var palette
+  @Environment(\.titleDesign) private var design
+
   let open: (ModuleRoute) -> Void
 
   var body: some View {
     TimelineView(.everyMinute) { context in
-      VStack(alignment: .leading, spacing: 16) {
+      VStack(alignment: .leading, spacing: 18) {
         header(now: context.date)
-        if let forecast = weather.forecast {
-          Button {
-            open(ModuleRoute(.weather))
-          } label: {
-            WeatherCard(forecast: forecast)
-          }
-          .buttonStyle(.plain)
+        ForEach(layout.visibleSections) { section in
+          sectionView(section, now: context.date)
         }
-        if !timetable.timetable.courses.isEmpty {
-          classes(now: context.date)
-        }
-        dueSoon(now: context.date)
-        pinnedNotes
       }
       .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -36,40 +30,81 @@ struct TodayView: View {
     Button {
       open(ModuleRoute(.calendar, day: LocalDate(now, calendar: .current)))
     } label: {
-      HStack(spacing: 6) {
-        Text(now, format: .dateTime.weekday(.wide).month(.wide).day())
-          .font(.title2.weight(.semibold))
-        Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+      VStack(alignment: .leading, spacing: 2) {
+        Text(now, format: .dateTime.weekday(.wide))
+          .font(.subheadline.weight(.semibold))
+          .textCase(.uppercase)
+          .tracking(1.6)
+          .foregroundStyle(palette.heading)
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+          Text(now, format: .dateTime.month(.wide).day())
+            .font(.system(size: 40, weight: .semibold, design: design))
+            .minimumScaleFactor(0.7)
+            .lineLimit(1)
+          Image(systemName: "chevron.right")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(palette.heading)
+        }
       }
     }
     .buttonStyle(.plain)
     .accessibilityHint(Text("Opens the calendar", tableName: "Today"))
   }
 
-  // MARK: Classes
+  @ViewBuilder private func sectionView(_ section: TodaySection, now: Date) -> some View {
+    switch section {
+    case .weather: weatherCard
+    case .nextClass: nextClass(now: now)
+    case .todaysClasses: todaysClasses(now: now)
+    case .dueSoon: dueSoon(now: now)
+    case .pinnedNotes: pinnedNotes
+    }
+  }
 
-  @ViewBuilder private func classes(now: Date) -> some View {
-    let calendar = Calendar.current
-    if let upcoming = timetable.timetable.upcoming(after: now, calendar: calendar) {
+  // MARK: Weather
+
+  @ViewBuilder private var weatherCard: some View {
+    if let forecast = weather.forecast {
       Button {
-        open(ModuleRoute(.timetable))
+        open(ModuleRoute(.weather))
       } label: {
-        NextClassCard(upcoming: upcoming, now: now, calendar: calendar)
+        WeatherCard(forecast: forecast)
       }
       .buttonStyle(.plain)
-    } else {
-      Text("No classes in the next week.", tableName: "Today")
-        .font(.subheadline)
-        .foregroundStyle(.secondary)
     }
+  }
+
+  // MARK: Classes
+
+  @ViewBuilder private func nextClass(now: Date) -> some View {
+    if !timetable.timetable.courses.isEmpty {
+      let calendar = Calendar.current
+      if let upcoming = timetable.timetable.upcoming(after: now, calendar: calendar) {
+        Button {
+          open(ModuleRoute(.timetable))
+        } label: {
+          NextClassCard(upcoming: upcoming, now: now, calendar: calendar)
+        }
+        .buttonStyle(.plain)
+      } else {
+        Text("No classes in the next week.", tableName: "Today")
+          .font(.subheadline)
+          .foregroundStyle(.secondary)
+      }
+    }
+  }
+
+  @ViewBuilder private func todaysClasses(now: Date) -> some View {
+    let calendar = Calendar.current
     let today = timetable.timetable.slots(on: Weekday(date: now, calendar: calendar))
     if !today.isEmpty {
-      VStack(alignment: .leading, spacing: 8) {
-        Text("Today", tableName: "Today").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+      VStack(alignment: .leading, spacing: 10) {
+        SectionHeading(Text("Today", tableName: "Today"))
         ForEach(today) { slot in
           ClassLine(slot: slot, isOver: endOf(slot, now: now, calendar: calendar) <= now)
         }
       }
+      .themedCard()
     }
   }
 
@@ -78,37 +113,19 @@ struct TodayView: View {
     return calendar.date(byAdding: .minute, value: slot.meeting.end.minutes, to: start) ?? start
   }
 
-  // MARK: Notes
-
-  @ViewBuilder private var pinnedNotes: some View {
-    let pinned = Array(notes.book.pinned.prefix(3))
-    if !pinned.isEmpty {
-      VStack(alignment: .leading, spacing: 8) {
-        Text("Pinned", tableName: "Today").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
-        ForEach(pinned) { note in
-          Button {
-            open(ModuleRoute(.notes, noteID: note.id))
-          } label: {
-            PinnedNoteCard(note: note)
-          }
-          .buttonStyle(.plain)
-        }
-      }
-    }
-  }
-
   // MARK: Deadlines
 
   @ViewBuilder private func dueSoon(now: Date) -> some View {
     let calendar = Calendar.current
     let today = LocalDate(now, calendar: calendar)
     let overdue = deadlines.book.overdue(at: now, calendar: calendar)
-    let soon = deadlines.book.upcoming(after: now, calendar: calendar)
-      .filter { $0.date.days(since: today, calendar: calendar) <= 14 }
-      .prefix(3)
+    let soon = Array(
+      deadlines.book.upcoming(after: now, calendar: calendar)
+        .filter { $0.date.days(since: today, calendar: calendar) <= 14 }
+        .prefix(3))
     if !overdue.isEmpty || !soon.isEmpty {
-      VStack(alignment: .leading, spacing: 8) {
-        Text("Due soon", tableName: "Today").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+      VStack(alignment: .leading, spacing: 12) {
+        SectionHeading(Text("Due soon", tableName: "Today"))
         if !overdue.isEmpty {
           Button {
             open(ModuleRoute(.calendar, day: today))
@@ -123,7 +140,7 @@ struct TodayView: View {
           }
           .buttonStyle(.plain)
         }
-        ForEach(Array(soon)) { item in
+        ForEach(soon) { item in
           Button {
             open(ModuleRoute(.calendar, day: item.date))
           } label: {
@@ -132,47 +149,82 @@ struct TodayView: View {
           .buttonStyle(.plain)
         }
       }
+      .themedCard()
+    }
+  }
+
+  // MARK: Notes
+
+  @ViewBuilder private var pinnedNotes: some View {
+    let pinned = Array(notes.book.pinned.prefix(3))
+    if !pinned.isEmpty {
+      VStack(alignment: .leading, spacing: 10) {
+        SectionHeading(Text("Pinned", tableName: "Today"))
+        ForEach(pinned) { note in
+          Button {
+            open(ModuleRoute(.notes, noteID: note.id))
+          } label: {
+            PinnedNoteCard(note: note)
+          }
+          .buttonStyle(.plain)
+        }
+      }
     }
   }
 }
 
-/// The class on now or next: when, where, and how long until it starts.
+/// The class on now or next: when, where, and how long until it starts (or, if it has begun, how far along it is).
 private struct NextClassCard: View {
+  @Environment(\.titleDesign) private var design
   let upcoming: Timetable.Upcoming
   let now: Date
   let calendar: Calendar
 
   var body: some View {
     let slot = upcoming.slot
+    let color = slot.course.color.blockColor
     let inProgress = upcoming.isInProgress(at: now)
-    HStack(alignment: .top, spacing: 12) {
-      VStack(alignment: .leading, spacing: 3) {
+    VStack(alignment: .leading, spacing: 10) {
+      HStack(alignment: .firstTextBaseline) {
         (inProgress ? Text("Now", tableName: "Today") : Text("Next", tableName: "Today"))
           .font(.caption.weight(.bold))
+          .textCase(.uppercase)
+          .tracking(1.4)
           .foregroundStyle(.primary.opacity(0.6))
-        Text(slot.course.code).font(.title3.weight(.semibold))
-        if !slot.course.title.isEmpty { Text(slot.course.title).font(.subheadline) }
-        if !slot.meeting.location.isEmpty {
-          Label(slot.meeting.location, systemImage: "mappin.and.ellipse")
-            .font(.footnote)
-            .foregroundStyle(.primary.opacity(0.7))
-        }
-      }
-      Spacer(minLength: 8)
-      VStack(alignment: .trailing, spacing: 3) {
-        Text(
-          "\(upcoming.start.formatted(date: .omitted, time: .shortened))–\(upcoming.end.formatted(date: .omitted, time: .shortened))"
-        )
-        .font(.subheadline.weight(.medium))
+        Spacer()
         timing
-          .font(.footnote)
+          .font(.footnote.weight(.medium))
           .foregroundStyle(.primary.opacity(0.7))
       }
+      Text(slot.course.code)
+        .font(.system(size: 30, weight: .semibold, design: design))
+      if !slot.course.title.isEmpty { Text(slot.course.title).font(.subheadline) }
+      HStack(spacing: 14) {
+        Label(
+          "\(upcoming.start.formatted(date: .omitted, time: .shortened))–\(upcoming.end.formatted(date: .omitted, time: .shortened))",
+          systemImage: "clock")
+        if !slot.meeting.location.isEmpty {
+          Label(slot.meeting.location, systemImage: "mappin.and.ellipse").lineLimit(1)
+        }
+      }
+      .font(.footnote)
+      .foregroundStyle(.primary.opacity(0.75))
+      if inProgress {
+        ProgressBar(
+          fraction: now.timeIntervalSince(upcoming.start) / max(upcoming.end.timeIntervalSince(upcoming.start), 1))
+      }
     }
-    .padding(14)
+    .padding(18)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(slot.course.color.blockColor, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-    .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    .background(
+      LinearGradient(colors: [color, color.opacity(0.72)], startPoint: .topLeading, endPoint: .bottomTrailing),
+      in: RoundedRectangle(cornerRadius: 22, style: .continuous)
+    )
+    .overlay(
+      RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Color.primary.opacity(0.10), lineWidth: 0.75)
+    )
+    .shadow(color: color.opacity(0.35), radius: 14, y: 6)
+    .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     .accessibilityElement(children: .combine)
   }
 
@@ -184,6 +236,21 @@ private struct NextClassCard: View {
     } else {
       Text(upcoming.start, format: .dateTime.weekday(.wide))
     }
+  }
+}
+
+private struct ProgressBar: View {
+  let fraction: Double
+
+  var body: some View {
+    GeometryReader { proxy in
+      ZStack(alignment: .leading) {
+        Capsule().fill(Color.primary.opacity(0.15))
+        Capsule().fill(Color.primary.opacity(0.55)).frame(width: proxy.size.width * min(max(fraction, 0), 1))
+      }
+    }
+    .frame(height: 4)
+    .accessibilityHidden(true)
   }
 }
 
@@ -230,10 +297,11 @@ private struct PinnedNoteCard: View {
       }
     }
     .multilineTextAlignment(.leading)
-    .padding(12)
+    .padding(14)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Color.stickyNote, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-    .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    .background(Color.stickyNote, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    .shadow(color: .black.opacity(0.10), radius: 8, y: 3)
+    .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     .accessibilityElement(children: .combine)
   }
 }

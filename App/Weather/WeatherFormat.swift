@@ -120,3 +120,19 @@ extension WeatherKind {
     }
   }
 }
+
+extension WeatherKind {
+  /// The colour that tints the weather card on the Today screen.
+  func cardTint(isDay: Bool) -> Color {
+    switch self {
+    case .clear, .mainlyClear: isDay ? Color(hex: 0x4C9BFF) : Color(hex: 0x5B5BD6)
+    case .partlyCloudy: isDay ? Color(hex: 0x6AA6E8) : Color(hex: 0x6A6FC9)
+    case .overcast, .fog: Color(hex: 0x7A8CA8)
+    case .drizzle, .rain, .heavyRain, .rainShowers, .heavyRainShowers, .freezingDrizzle, .freezingRain:
+      Color(hex: 0x4A7FB5)
+    case .snow, .heavySnow, .snowGrains, .snowShowers: Color(hex: 0x7FC4E6)
+    case .thunderstorm, .thunderstormWithHail: Color(hex: 0x8B6BD6)
+    case .unknown: Color.gray
+    }
+  }
+}

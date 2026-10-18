@@ -29,10 +29,14 @@ while read -r name repo tag icon extras; do
   [ -f "$staging/$icon" ] || { echo "error: $name: icon $icon is not in the snapshot"; rm -rf "$staging"; exit 1; }
   echo "$tag $(git -C "$source_repo" rev-parse --short "$tag^{commit}")" > "$staging/.kitbag-snapshot"
 
-  # Kitbag does not carry a guest's asset catalog (it would bring a second AppIcon); say so if there is more than the icon.
+  # Kitbag does not carry a guest's asset catalog (it would bring a second AppIcon). An accent colour is mirrored in the
+  # adapter by hand; anything else in the catalog is worth a look.
   catalog="$staging/App/Resources/Assets.xcassets"
-  if [ -d "$catalog" ] && [ -n "$(ls "$catalog" | grep -v '^AppIcon.appiconset$' || true)" ]; then
-    echo "warning: $name now has assets besides its app icon; Kitbag skips its Assets.xcassets (docs/guests.md)"
+  if [ -d "$catalog" ]; then
+    [ -d "$catalog/AccentColor.colorset" ] && echo "note: $name has an AccentColor; its adapter sets the same tint (docs/guests.md)"
+    if [ -n "$(ls "$catalog" | grep -v -e '^AppIcon.appiconset$' -e '^AccentColor.colorset$' -e '^Contents.json$' || true)" ]; then
+      echo "warning: $name has assets besides its app icon and accent colour; Kitbag skips its Assets.xcassets (docs/guests.md)"
+    fi
   fi
 
   rm -rf "Guests/$name"
@@ -41,4 +45,5 @@ while read -r name repo tag icon extras; do
   echo "$name $tag -> Guests/$name"
   count=$((count + 1))
 done < tools/guests.txt
+python3 tools/merge_guest_strings.py
 echo "synced $count guest(s)"

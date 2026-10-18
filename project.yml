@@ -20,6 +20,8 @@ packages:
   # The guest apps are read from the pinned snapshots that tools/sync_guests.sh makes. See docs/guests.md.
   Headway:
     path: Guests/Headway
+  Mantissa:
+    path: Guests/Mantissa
   # The same version and source as Headway's own project.yml (keep them equal when Headway changes it).
   MapLibre:
     url: https://github.com/maplibre/maplibre-gl-native-distribution
@@ -49,19 +51,42 @@ targets:
         # Lets App/Guests/HeadwayGuest.swift `@testable import` the guest's internal types, in Release too.
         ENABLE_TESTABILITY: YES
         DEFINES_MODULE: YES
+  # Mantissa's Swift sources, the same way (its engine is the MantissaCore package).
+  MantissaGuest:
+    type: framework
+    platform: iOS
+    sources:
+      - path: Guests/Mantissa/App
+        excludes:
+          - MantissaApp.swift
+          - Info.plist
+          - Resources/**
+    dependencies:
+      - package: Mantissa
+        product: MantissaCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.kosuke.kitbag.mantissaguest
+        PRODUCT_MODULE_NAME: MantissaGuest
+        GENERATE_INFOPLIST_FILE: YES
+        ENABLE_TESTABILITY: YES
+        DEFINES_MODULE: YES
   Kitbag:
     type: application
     platform: iOS
     sources:
       - path: App
-      # Headway's resources. Not its Assets.xcassets (only an app icon, which would clash with Kitbag's) and not its
-      # InfoPlist.strings (they would rename Kitbag to Headway; App/Resources/*.lproj carries the equivalents).
+      # Headway's resources. Not its Assets.xcassets (only an app icon, which would clash with Kitbag's), not its
+      # InfoPlist.strings (they would rename Kitbag to Headway; App/Resources/*.lproj carries the equivalents) and not its
+      # Localizable.xcstrings: every guest's strings are merged into Guests/Merged (tools/merge_guest_strings.py).
       - path: Guests/Headway/App/Resources
         excludes:
           - glyphs
           - Assets.xcassets
           - en.lproj
           - ja.lproj
+          - Localizable.xcstrings
+      - path: Guests/Merged
       - path: Guests/Headway/App/Resources/glyphs
         type: folder
         buildPhase: resources
@@ -79,6 +104,7 @@ targets:
       - package: Kitbag
         product: KitbagCore
       - target: HeadwayGuest
+      - target: MantissaGuest
       - package: MapLibre
         product: MapLibre
     info:
@@ -106,6 +132,8 @@ targets:
         GENERATE_INFOPLIST_FILE: NO
         CODE_SIGN_STYLE: Automatic
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # The icons the person can switch to in Settings (the main one is AppIcon). Drawn by tools/make_icons.swift.
+        ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: "IconBook IconPencil IconMonogram IconBag"
         TARGETED_DEVICE_FAMILY: "1"
         SWIFT_EMIT_LOC_STRINGS: YES
 schemes:

@@ -19,9 +19,13 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
 - Notes: free text with search, an optional course, and a pin that shows the note on the Today screen.
 - Weather: now, the next 24 hours, the next 8 days and the details on one screen, for Madison, a place you search for,
   or your location. Data by [Open-Meteo](https://open-meteo.com/) (CC BY 4.0).
-- Headway (live Madison bus map) runs inside it as a guest, from its own repository, unchanged.
+- Settings: five themes, light or dark, five app icons, and which tools and which parts of Today are shown and in what
+  order.
+- Headway (live Madison bus map) and Mantissa (offline exact calculator) run inside it as guests, from their own
+  repositories, unchanged.
 
-Next: Mantissa as a second guest.
+Next: a redone timetable (A4 page, PDF, terms, grades and GPA), a denser weather screen, calendar import and
+subscription, richer notes.
 
 ## Getting started
 

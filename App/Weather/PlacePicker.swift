@@ -116,10 +116,15 @@ struct WeatherCard: View {
         Text(forecast.place.name).font(.caption).foregroundStyle(.secondary)
       }
     }
-    .padding(12)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-    .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    .themedCard(padding: 14, radius: 20)
+    .background {
+      let tint = forecast.current.kind.cardTint(isDay: forecast.current.isDay)
+      LinearGradient(
+        colors: [tint.opacity(0.30), tint.opacity(0.06)], startPoint: .topLeading, endPoint: .bottomTrailing
+      )
+      .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+    .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     .accessibilityElement(children: .combine)
   }
 }

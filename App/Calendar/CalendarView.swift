@@ -4,6 +4,7 @@ import SwiftUI
 /// The calendar tool: a month page with the day's classes and deadlines under it, or the list of what is coming up.
 struct CalendarView: View {
   @Environment(DeadlineStore.self) private var deadlines
+  @Environment(\.palette) private var palette
 
   private enum Mode: Hashable {
     case month
@@ -40,6 +41,7 @@ struct CalendarView: View {
         case .upcoming: upcomingContent
         }
       }
+      .themedScreen()
       .overlay(alignment: .bottomTrailing) { addButton }
       .navigationTitle(Text("Calendar", tableName: "Calendar"))
       .navigationBarTitleDisplayMode(.inline)
@@ -107,6 +109,7 @@ struct CalendarView: View {
         } header: {
           Text(group.bucket.title)
         }
+        .listRowBackground(palette.card)
       }
       if !done.isEmpty {
         Section {
@@ -130,6 +133,7 @@ struct CalendarView: View {
       }
     }
     .listStyle(.insetGrouped)
+    .scrollContentBackground(.hidden)
     .contentMargins(.bottom, 80, for: .scrollContent)
   }
 

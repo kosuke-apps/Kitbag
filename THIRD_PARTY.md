@@ -5,13 +5,14 @@ own. Apple's frameworks (SwiftUI, UIKit, UserNotifications, BackgroundTasks) are
 
 ## Shipped in the app
 
-Kitbag embeds Headway (same author, MIT) built unchanged from a release tag, so everything Headway ships is shipped here
-too, with the same terms. Headway's own list, with the checks behind it, is its `THIRD_PARTY.md`; the full licence texts
+Kitbag embeds Headway and Mantissa (same author, MIT) built unchanged from release tags, so everything they ship is
+shipped here too, with the same terms. Mantissa uses no library. Headway's own list, with the checks behind it, is its `THIRD_PARTY.md`; the full licence texts
 are in Headway's Settings > Licences screen inside Kitbag.
 
 | What | Where | Licence |
 |---|---|---|
 | Headway | `Guests/Headway`, pinned in `tools/guests.txt` (snapshot, not committed) | MIT, Copyright (c) 2026 Kosuke Satake |
+| Mantissa | `Guests/Mantissa`, pinned in `tools/guests.txt` (snapshot, not committed) | MIT, Copyright (c) 2026 Kosuke Satake |
 | [MapLibre Native](https://github.com/maplibre/maplibre-native) | Swift package, via maplibre-gl-native-distribution 6.31.0 | BSD 2-Clause |
 | [SwiftProtobuf](https://github.com/apple/swift-protobuf) | Swift package (Headway's dependency) | Apache License 2.0 |
 | [ZIPFoundation](https://github.com/weichsel/ZIPFoundation) | Swift package (Headway's dependency) | MIT |

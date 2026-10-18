@@ -9,20 +9,26 @@ struct KitbagApp: App {
   @State private var deadlines = DeadlineStore()
   @State private var notes = NoteStore()
   @State private var weather = WeatherStore()
+  @State private var themes = ThemeStore()
+  @State private var layout = LayoutStore()
   @Environment(\.scenePhase) private var scenePhase
 
   var body: some Scene {
     WindowGroup {
-      HomeView()
-        .environment(guests)
-        .environment(timetable)
-        .environment(deadlines)
-        .environment(notes)
-        .environment(weather)
-        .task { await weather.refresh() }
-        .onChange(of: scenePhase) { _, phase in
-          if phase == .active { Task { await weather.refresh() } }
-        }
+      ThemeRoot {
+        HomeView()
+      }
+      .environment(guests)
+      .environment(timetable)
+      .environment(deadlines)
+      .environment(notes)
+      .environment(weather)
+      .environment(themes)
+      .environment(layout)
+      .task { await weather.refresh() }
+      .onChange(of: scenePhase) { _, phase in
+        if phase == .active { Task { await weather.refresh() } }
+      }
     }
   }
 }

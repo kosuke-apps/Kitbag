@@ -4,6 +4,7 @@ import SwiftUI
 /// The notes tool: a list with search, pinned notes first, and an editor for each note.
 struct NotesView: View {
   @Environment(NoteStore.self) private var store
+  @Environment(\.palette) private var palette
 
   /// A note to open straight away (from the Today screen).
   let initialNoteID: UUID?
@@ -24,16 +25,21 @@ struct NotesView: View {
           } header: {
             Text("Pinned", tableName: "Notes")
           }
+          .listRowBackground(palette.card)
           Section {
             ForEach(results.filter { !$0.isPinned }) { row($0) }
           } header: {
             Text("Notes", tableName: "Notes")
           }
+          .listRowBackground(palette.card)
         } else {
           ForEach(results) { row($0) }
+            .listRowBackground(palette.card)
         }
       }
       .listStyle(.insetGrouped)
+      .scrollContentBackground(.hidden)
+      .themedScreen()
       .contentMargins(.bottom, 80, for: .scrollContent)
       .searchable(text: $query, prompt: Text("Search notes", tableName: "Notes"))
       .navigationTitle(Text("Notes", tableName: "Notes"))
@@ -177,7 +183,9 @@ struct NoteEditor: View {
     let note = store.book.note(id: noteID)
     TextEditor(text: $text)
       .focused($focused)
+      .scrollContentBackground(.hidden)
       .padding(.horizontal, 12)
+      .themedScreen()
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItemGroup(placement: .bottomBar) {

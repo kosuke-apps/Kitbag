@@ -34,6 +34,7 @@ struct TimetableView: View {
           content
         }
       }
+      .themedScreen()
       .navigationTitle(Text("Timetable", tableName: "Timetable"))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {

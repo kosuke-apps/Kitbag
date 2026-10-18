@@ -30,5 +30,8 @@ struct HeadwayGuestView: View {
         .environment(runtime.model)
         .task { await runtime.model.start() }
     }
+    // Headway has no accent colour of its own, so it uses the system blue, not Kitbag's theme accent.
+    .accentColor(Color.blue)
+    .tint(Color.blue)
   }
 }

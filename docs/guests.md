@@ -15,7 +15,8 @@ mounts the guest's root component, the way a host page would mount another team'
 2. `project.yml` builds `Guests/<Name>/App/*.swift` into a framework `<Name>Guest`, except the guest's `@main` file,
    its `Info.plist` and its `Resources/`.
 3. The `Kitbag` target carries the guest's resources in its own bundle, because the guest finds them with
-   `Bundle.main` and SwiftUI looks strings up in the main bundle.
+   `Bundle.main` and SwiftUI looks strings up in the main bundle. Every guest's `Localizable.xcstrings` is merged into
+   one (`tools/merge_guest_strings.py` writes `Guests/Merged/`), because two catalogs of that name cannot share a bundle.
 4. `App/Guests/<Name>Guest.swift` does what the guest's `@main` does, then shows its root view. It uses
    `@testable import <Name>Guest`, which reaches the guest's internal types without changing them.
 
@@ -29,13 +30,17 @@ Kitbag mirrors these by hand. When a release changes one, change it here too.
 | Info.plist keys (location string, background modes, BGTask identifiers) | `project.yml`, target `Kitbag`, `info.properties` |
 | Localized Info.plist strings | `App/Resources/*.lproj/InfoPlist.strings` (Kitbag's own display name too) |
 | Swift package dependencies and their versions | `project.yml`, `packages` (same versions as the guest's `project.yml`) |
-| Resource files (String Catalog, styles, glyphs, data) | `project.yml`, target `Kitbag`, `sources` |
+| Resource files (styles, glyphs, data) | `project.yml`, target `Kitbag`, `sources` |
+| String Catalog | merged by `tools/merge_guest_strings.py` (a clash between two guests is printed; the first guest in `tools/guests.txt` wins) |
+| Accent colour (an `AccentColor` asset) | the adapter's `accentColor(_:)` and `tint(_:)`: Headway has none and uses the system blue, Mantissa's rose is copied by hand |
+| Where the house button fits | `ModuleID.homeButtonPlacement`: a floating corner button, or a slim bar for a guest that uses the top right (Mantissa) |
 | App icon | not carried (Kitbag has its own); the tile uses `Guests/GuestIcons/<Name>.png` |
 | Its own settings screen, version text | unchanged; the version shown is Kitbag's, because the guest reads `Bundle.main` |
 
-Known limits: every guest's launch work is paid when Kitbag starts, whether or not the guest is opened; two guests
-that define a resource with the same name (a String Catalog table, an image) clash, and the second one has to be handled
-the way `Shell.xcstrings` is.
+Known limits: every guest's launch work is paid when Kitbag starts, unless its adapter creates it lazily (Mantissa's does);
+two guests that define a resource with the same name clash (image assets are not carried at all, string catalogs are
+merged, and a key that two guests translate differently goes to the first guest: "Times" and "System default" today);
+a guest reads `UserDefaults.standard` with its own keys, so Kitbag's keys are prefixed `kitbag.` and `weather.`.
 
 ## Upgrading a guest (for example Headway 0.6.2 to 0.7.0)
 
