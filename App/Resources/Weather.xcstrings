@@ -22,6 +22,16 @@
         }
       }
     },
+    "Chart of the day's temperature and chance of rain": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1日の気温と降水確率のグラフ"
+          }
+        }
+      }
+    },
     "Check your connection and try again.": {
       "localizations": {
         "ja": {
@@ -38,6 +48,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "快晴"
+          }
+        }
+      }
+    },
+    "Cloud": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雲量"
           }
         }
       }
@@ -113,6 +133,16 @@
         }
       }
     },
+    "Feels": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "体感"
+          }
+        }
+      }
+    },
     "Feels like %@": {
       "localizations": {
         "ja": {
@@ -149,6 +179,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "着氷性の雨"
+          }
+        }
+      }
+    },
+    "Gusts": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "突風"
           }
         }
       }
@@ -356,6 +396,28 @@
         }
       }
     },
+    "Past": {
+      "comment": "Marks a day that has already happened.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "過去"
+          }
+        }
+      }
+    },
+    "Precip.": {
+      "comment": "Row name in the hourly table: the amount of rain in the hour (short).",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "降水量"
+          }
+        }
+      }
+    },
     "Precipitation": {
       "localizations": {
         "ja": {
@@ -386,6 +448,26 @@
         }
       }
     },
+    "Rain %": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "降水確率"
+          }
+        }
+      }
+    },
+    "Rain chance": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "降水確率"
+          }
+        }
+      }
+    },
     "Rain showers": {
       "localizations": {
         "ja": {
@@ -402,6 +484,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "都市を検索"
+          }
+        }
+      }
+    },
+    "Sky": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "空"
           }
         }
       }
@@ -456,6 +548,27 @@
         }
       }
     },
+    "Temp": {
+      "comment": "Row name in the hourly table (short).",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "気温"
+          }
+        }
+      }
+    },
+    "Temperature": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "気温"
+          }
+        }
+      }
+    },
     "Thunderstorm": {
       "localizations": {
         "ja": {
@@ -472,6 +585,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ひょうを伴う雷雨"
+          }
+        }
+      }
+    },
+    "Time": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時刻"
           }
         }
       }
@@ -553,6 +676,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "現在地を使う"
+          }
+        }
+      }
+    },
+    "UV": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "紫外線"
           }
         }
       }

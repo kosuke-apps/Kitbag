@@ -28,6 +28,14 @@ enum UnitPreference: String, CaseIterable {
 struct WeatherFormat {
   let usesUSUnits: Bool
 
+  func temperatureValue(_ celsius: Double) -> Double { usesUSUnits ? celsius * 9 / 5 + 32 : celsius }
+  func windValue(_ kmh: Double) -> Double { usesUSUnits ? kmh * 0.621371 : kmh }
+  func rainValue(_ millimetres: Double) -> Double { usesUSUnits ? millimetres / 25.4 : millimetres }
+  func pressureValue(_ hectopascals: Double) -> Double { usesUSUnits ? hectopascals * 0.02953 : hectopascals }
+  var windUnit: String { usesUSUnits ? "mph" : "km/h" }
+  var rainUnit: String { usesUSUnits ? "in" : "mm" }
+  var pressureUnit: String { usesUSUnits ? "inHg" : "hPa" }
+
   /// `52°`, rounded.
   func temperature(_ celsius: Double) -> String {
     let value = usesUSUnits ? celsius * 9 / 5 + 32 : celsius

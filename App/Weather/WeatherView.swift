@@ -1,10 +1,16 @@
+import Charts
 import KitbagCore
 import SwiftUI
 
-/// The weather tool: everything on one screen. Now, the hours ahead, the days ahead, and the details.
+/// The weather tool, built to be read on one screen: now at the top, a strip of days (a week back and ten ahead), a chart
+/// of the chosen day, a table of its hours with many measures, and the day's totals.
 struct WeatherView: View {
   @Environment(WeatherStore.self) private var store
+  @Environment(\.palette) private var palette
+  @Environment(\.titleDesign) private var design
   @AppStorage("weather.units") private var unitsRaw = UnitPreference.automatic.rawValue
+
+  @State private var selectedDay: LocalDate?
   @State private var showingPlaces = false
 
   private var units: UnitPreference { UnitPreference(rawValue: unitsRaw) ?? .automatic }
@@ -35,6 +41,7 @@ struct WeatherView: View {
           ProgressView().controlSize(.large)
         }
       }
+      .themedScreen()
       .navigationTitle(Text("Weather", tableName: "Weather"))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
@@ -45,26 +52,35 @@ struct WeatherView: View {
     .task { await store.refresh() }
   }
 
-  // MARK: Sections
+  // MARK: Layout
 
   private func content(_ forecast: Forecast) -> some View {
+    let calendar = forecast.calendar
     let now = Date()
-    let today = forecast.today(at: now) ?? forecast.daily.first
-    let hours = forecast.hours(from: now, count: 24)
+    let today = LocalDate(now, calendar: calendar)
+    let day = selectedDay ?? today
+    let hours = forecast.hours(on: day)
+    let summary = forecast.day(day)
     return ScrollView {
-      VStack(spacing: 14) {
+      VStack(spacing: 8) {
         banners
-        header(forecast, today: today)
-        card(Text("Hourly forecast", tableName: "Weather")) { hourly(hours, forecast: forecast) }
-        card(Text("Daily forecast", tableName: "Weather")) { daily(forecast) }
-        details(forecast, today: today, hours: hours)
+        header(forecast, today: forecast.day(today))
+        nowStats(forecast, today: forecast.day(today))
+        DayStrip(forecast: forecast, selected: day, today: today, format: format) { selectedDay = $0 }
+        VStack(alignment: .leading, spacing: 4) {
+          dayHeading(day, today: today, calendar: calendar)
+          HourChart(hours: hours, forecast: forecast, now: now, isToday: day == today, format: format)
+        }
+        .themedCard(padding: 10, radius: 16)
+        HourlyTable(hours: hours, forecast: forecast, now: now, isToday: day == today, format: format)
+          .themedCard(padding: 8, radius: 16)
+        daySummary(summary)
         footer(forecast)
       }
-      .padding(.horizontal, 16)
-      .padding(.bottom, 24)
+      .padding(.horizontal, 12)
+      .padding(.bottom, 12)
     }
     .refreshable { await store.refresh(force: true) }
-    .themedScreen()
   }
 
   @ViewBuilder private var banners: some View {
@@ -82,212 +98,153 @@ struct WeatherView: View {
   private func banner(_ message: Text) -> some View {
     message
       .font(.footnote)
-      .padding(10)
+      .padding(8)
       .frame(maxWidth: .infinity, alignment: .leading)
       .background(Color.yellow.opacity(0.25), in: RoundedRectangle(cornerRadius: 8))
   }
 
+  // MARK: Now
+
+  /// The place, and the weather now: small, because the rest of the screen needs the room.
   private func header(_ forecast: Forecast, today: Forecast.Day?) -> some View {
     let current = forecast.current
-    return VStack(spacing: 4) {
+    return HStack(alignment: .center, spacing: 10) {
+      WeatherSymbol(kind: current.kind, isDay: current.isDay, size: 34)
+      VStack(alignment: .leading, spacing: 0) {
+        Text(format.temperature(current.temperature)).font(.system(size: 34, weight: .semibold, design: design))
+        Text(current.kind.title).font(.footnote.weight(.medium))
+      }
+      VStack(alignment: .leading, spacing: 1) {
+        if let today {
+          Text(
+            "H \(format.temperature(today.maxTemperature))  L \(format.temperature(today.minTemperature))",
+            tableName: "Weather")
+        }
+        Text("Feels like \(format.temperature(current.apparentTemperature))", tableName: "Weather")
+          .foregroundStyle(.secondary)
+      }
+      .font(.footnote)
+      Spacer(minLength: 4)
       Button {
         showingPlaces = true
       } label: {
-        HStack(spacing: 6) {
-          if store.followsLocation { Image(systemName: "location.fill").font(.footnote) }
-          Text(forecast.place.name).font(.title2.weight(.semibold))
-          Image(systemName: "chevron.down").font(.footnote.weight(.semibold))
+        VStack(alignment: .trailing, spacing: 1) {
+          HStack(spacing: 4) {
+            if store.followsLocation { Image(systemName: "location.fill").font(.caption2) }
+            Text(forecast.place.name).font(.subheadline.weight(.semibold)).lineLimit(1)
+            Image(systemName: "chevron.down").font(.caption2.weight(.semibold))
+          }
+          if !forecast.place.detail.isEmpty {
+            Text(forecast.place.detail).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+          }
         }
+        .foregroundStyle(.primary)
       }
       .buttonStyle(.plain)
-      if !forecast.place.detail.isEmpty {
-        Text(forecast.place.detail).font(.footnote).foregroundStyle(.secondary)
-      }
-      HStack(spacing: 14) {
-        WeatherSymbol(kind: current.kind, isDay: current.isDay, size: 54)
-        Text(format.temperature(current.temperature)).font(.system(size: 76, weight: .thin))
-      }
-      .padding(.top, 6)
-      Text(current.kind.title).font(.title3)
-      HStack(spacing: 14) {
-        if let today {
-          Text("H \(format.temperature(today.maxTemperature))", tableName: "Weather")
-          Text("L \(format.temperature(today.minTemperature))", tableName: "Weather")
-        }
-        Text("Feels like \(format.temperature(current.apparentTemperature))", tableName: "Weather")
-      }
-      .font(.subheadline)
-      .foregroundStyle(.secondary)
     }
-    .frame(maxWidth: .infinity)
-    .padding(.top, 4)
+    .padding(.top, 2)
     .accessibilityElement(children: .combine)
   }
 
-  private func hourly(_ hours: [Forecast.Hour], forecast: Forecast) -> some View {
-    let zone = TimeZone(identifier: forecast.timeZoneID) ?? .current
-    return ScrollView(.horizontal, showsIndicators: false) {
-      HStack(spacing: 18) {
-        ForEach(Array(hours.enumerated()), id: \.element.id) { index, hour in
-          VStack(spacing: 6) {
-            if index == 0 {
-              Text("Now", tableName: "Weather").font(.footnote.weight(.semibold))
-            } else {
-              Text(hour.time, format: Date.FormatStyle(timeZone: zone).hour()).font(.footnote)
-            }
-            WeatherSymbol(kind: hour.kind, isDay: hour.isDay, size: 22).frame(height: 26)
-            Text(format.temperature(hour.temperature)).font(.subheadline.weight(.medium))
-            if let chance = hour.precipitationProbability, chance >= 10 {
-              Text(format.percent(chance)).font(.caption2).foregroundStyle(Color.cyan)
-            } else {
-              Text(" ").font(.caption2)
-            }
-          }
-          .frame(minWidth: 40)
-          .accessibilityElement(children: .combine)
-        }
-      }
-      .padding(.vertical, 4)
-    }
-  }
-
-  private func daily(_ forecast: Forecast) -> some View {
-    let low = forecast.daily.map(\.minTemperature).min() ?? 0
-    let high = forecast.daily.map(\.maxTemperature).max() ?? 1
-    return VStack(spacing: 10) {
-      ForEach(Array(forecast.daily.enumerated()), id: \.element.id) { index, day in
-        HStack(spacing: 8) {
-          Group {
-            if index == 0 {
-              Text("Today", tableName: "Weather")
-            } else {
-              Text(day.date.date(calendar: .current), format: .dateTime.weekday(.abbreviated))
-            }
-          }
-          .font(.subheadline)
-          .frame(width: 54, alignment: .leading)
-          WeatherSymbol(kind: day.kind, isDay: true, size: 20).frame(width: 28)
-          Group {
-            if let chance = day.precipitationProbability, chance >= 10 {
-              Text(format.percent(chance)).foregroundStyle(Color.cyan)
-            } else {
-              Text("")
-            }
-          }
-          .font(.caption2)
-          .frame(width: 34, alignment: .leading)
-          Text(format.temperature(day.minTemperature)).foregroundStyle(.secondary).frame(
-            width: 36, alignment: .trailing)
-          TemperatureBar(
-            minimum: day.minTemperature, maximum: day.maxTemperature, weekMinimum: low, weekMaximum: high)
-          Text(format.temperature(day.maxTemperature)).frame(width: 36, alignment: .leading)
-        }
-        .font(.subheadline)
-        .accessibilityElement(children: .combine)
-      }
-    }
-  }
-
-  private func details(_ forecast: Forecast, today: Forecast.Day?, hours: [Forecast.Hour]) -> some View {
+  /// Now, in small figures: wind, gusts, humidity, pressure, visibility, UV.
+  private func nowStats(_ forecast: Forecast, today: Forecast.Day?) -> some View {
     let current = forecast.current
-    let zone = TimeZone(identifier: forecast.timeZoneID) ?? .current
-    let timeStyle = Date.FormatStyle(timeZone: zone).hour().minute()
-    return LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-      tile(Text("Wind", tableName: "Weather"), systemImage: "wind") {
-        Text("\(format.wind(current.windSpeed)) \(WeatherFormat.compass(current.windDirection))")
-        if let gusts = current.windGusts { Text("Gusts \(format.wind(gusts))", tableName: "Weather").detail() }
-      }
-      tile(Text("Humidity", tableName: "Weather"), systemImage: "humidity") {
-        Text(format.percent(current.humidity))
-      }
-      if let uv = today?.uvIndexMax {
-        tile(Text("UV index", tableName: "Weather"), systemImage: "sun.max") {
-          Text("\(Int(uv.rounded()))")
-          Text(uvLevel(uv)).detail()
-        }
-      }
-      tile(Text("Pressure", tableName: "Weather"), systemImage: "gauge.with.dots.needle.bottom.50percent") {
-        Text(format.pressure(current.pressure))
-      }
-      if let visibility = hours.first?.visibility {
-        tile(Text("Visibility", tableName: "Weather"), systemImage: "eye") {
-          Text(format.distance(metres: visibility))
-        }
-      }
-      if let today {
-        tile(Text("Precipitation", tableName: "Weather"), systemImage: "drop") {
-          Text(today.precipitationProbability.map { format.percent($0) } ?? "–")
-          if let sum = today.precipitationSum {
-            Text("Today \(format.rainfall(millimetres: sum))", tableName: "Weather").detail()
-          }
-        }
-        if let sunrise = today.sunrise, let sunset = today.sunset {
-          tile(Text("Sun", tableName: "Weather"), systemImage: "sunrise") {
-            Text(sunrise, format: timeStyle)
-            Text("Sunset \(sunset.formatted(timeStyle))", tableName: "Weather").detail()
-          }
-        }
-      }
+    let hour = forecast.hours(from: Date(), count: 1).first
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 6, alignment: .leading), count: 3)
+    return LazyVGrid(columns: columns, spacing: 4) {
+      stat("wind", "\(format.wind(current.windSpeed)) \(WeatherFormat.compass(current.windDirection))")
+      stat("gauge.with.dots.needle.bottom.50percent", format.pressure(current.pressure))
+      stat("humidity", format.percent(current.humidity))
+      stat("wind.snow", current.windGusts.map { format.wind($0) } ?? "–")
+      stat("eye", hour?.visibility.map { format.distance(metres: $0) } ?? "–")
+      stat("sun.max", (hour?.uvIndex ?? today?.uvIndexMax).map { "UV \(Int($0.rounded()))" } ?? "–")
+    }
+    .font(.caption)
+    .padding(.horizontal, 2)
+  }
+
+  private func stat(_ symbol: String, _ value: String) -> some View {
+    HStack(spacing: 4) {
+      Image(systemName: symbol).foregroundStyle(palette.heading).frame(width: 14)
+      Text(value).lineLimit(1).minimumScaleFactor(0.8)
     }
   }
 
-  private func uvLevel(_ index: Double) -> LocalizedStringResource {
-    switch index {
-    case ..<3: LocalizedStringResource("Low", table: "Weather")
-    case ..<6: LocalizedStringResource("Moderate", table: "Weather")
-    case ..<8: LocalizedStringResource("High", table: "Weather")
-    case ..<11: LocalizedStringResource("Very high", table: "Weather")
-    default: LocalizedStringResource("Extreme", table: "Weather")
+  // MARK: Day
+
+  private func dayHeading(_ day: LocalDate, today: LocalDate, calendar: Calendar) -> some View {
+    HStack {
+      Text(day.date(calendar: .current), format: .dateTime.weekday(.wide).month(.abbreviated).day())
+        .font(.footnote.weight(.semibold))
+      if day < today {
+        Text("Past", tableName: "Weather")
+          .font(.caption2.weight(.bold))
+          .padding(.horizontal, 6)
+          .padding(.vertical, 1)
+          .background(Color.secondary.opacity(0.2), in: Capsule())
+      }
+      Spacer()
+      HStack(spacing: 10) {
+        Label {
+          Text("Temperature", tableName: "Weather")
+        } icon: {
+          Capsule().fill(palette.accent).frame(width: 12, height: 3)
+        }
+        Label {
+          Text("Rain chance", tableName: "Weather")
+        } icon: {
+          RoundedRectangle(cornerRadius: 1).fill(Color.cyan.opacity(0.5)).frame(width: 8, height: 8)
+        }
+      }
+      .font(.caption2)
+      .foregroundStyle(.secondary)
     }
+  }
+
+  /// The day's totals in one row: sun, UV, rain and wind.
+  private func daySummary(_ day: Forecast.Day?) -> some View {
+    let zone = TimeZone(identifier: store.forecast?.timeZoneID ?? "") ?? .current
+    let timeStyle = Date.FormatStyle(timeZone: zone).hour().minute()
+    return HStack(spacing: 6) {
+      chip("sunrise", day?.sunrise.map { $0.formatted(timeStyle) } ?? "–", day?.sunset.map { $0.formatted(timeStyle) })
+      chip("sun.max", day?.uvIndexMax.map { "UV \(Int($0.rounded()))" } ?? "–", nil)
+      chip(
+        "drop", day?.precipitationSum.map { "\(rain($0)) \(format.rainUnit)" } ?? "–",
+        day?.precipitationProbability.map { format.percent($0) })
+      chip(
+        "wind", day?.windSpeedMax.map { "\(Int(format.windValue($0).rounded())) \(format.windUnit)" } ?? "–",
+        day?.windGustsMax.map { "↑ \(Int(format.windValue($0).rounded()))" })
+    }
+  }
+
+  private func rain(_ millimetres: Double) -> String {
+    String(format: "%.1f", format.rainValue(millimetres))
+  }
+
+  private func chip(_ symbol: String, _ main: String, _ sub: String?) -> some View {
+    VStack(spacing: 1) {
+      Image(systemName: symbol).font(.caption).foregroundStyle(palette.heading)
+      Text(main).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.7)
+      Text(sub ?? " ").font(.caption2).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.7)
+    }
+    .frame(maxWidth: .infinity)
+    .themedCard(padding: 6, radius: 12)
   }
 
   private func footer(_ forecast: Forecast) -> some View {
-    VStack(spacing: 4) {
+    HStack(spacing: 4) {
       Text("Updated \(forecast.fetchedAt.formatted(date: .omitted, time: .shortened))", tableName: "Weather")
-      HStack(spacing: 4) {
-        Link(destination: URL(string: "https://open-meteo.com/")!) {
-          Text("Weather data by Open-Meteo.com", tableName: "Weather")
-        }
-        Text("·")
-        Link(destination: URL(string: "https://creativecommons.org/licenses/by/4.0/")!) { Text("CC BY 4.0") }
+      Text("·")
+      Link(destination: URL(string: "https://open-meteo.com/")!) {
+        Text("Weather data by Open-Meteo.com", tableName: "Weather")
       }
+      Text("·")
+      Link(destination: URL(string: "https://creativecommons.org/licenses/by/4.0/")!) { Text("CC BY 4.0") }
     }
-    .font(.caption)
+    .font(.caption2)
     .foregroundStyle(.secondary)
-    .padding(.top, 4)
-  }
-
-  // MARK: Pieces
-
-  private func card<Content: View>(_ title: Text, @ViewBuilder content: () -> Content) -> some View {
-    VStack(alignment: .leading, spacing: 10) {
-      title.font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
-      content()
-    }
-    .themedCard(padding: 14, radius: 18)
-  }
-
-  private func tile<Content: View>(
-    _ title: Text, systemImage: String, @ViewBuilder content: () -> Content
-  )
-    -> some View
-  {
-    VStack(alignment: .leading, spacing: 6) {
-      Label {
-        title
-      } icon: {
-        Image(systemName: systemImage)
-      }
-      .font(.footnote.weight(.semibold))
-      .foregroundStyle(.secondary)
-      VStack(alignment: .leading, spacing: 2) {
-        content()
-      }
-      .font(.title3.weight(.medium))
-    }
-    .frame(minHeight: 70, alignment: .topLeading)
-    .themedCard(padding: 14, radius: 18)
-    .accessibilityElement(children: .combine)
+    .lineLimit(1)
+    .minimumScaleFactor(0.7)
   }
 
   private var optionsMenu: some View {
@@ -324,32 +281,321 @@ struct WeatherView: View {
   }
 }
 
-extension Text {
-  fileprivate func detail() -> some View {
-    font(.footnote).foregroundStyle(.secondary)
+// MARK: - Days
+
+/// A scrolling strip of days, a week back to ten ahead: pick one to see its hours below.
+private struct DayStrip: View {
+  @Environment(\.palette) private var palette
+  let forecast: Forecast
+  let selected: LocalDate
+  let today: LocalDate
+  let format: WeatherFormat
+  let select: (LocalDate) -> Void
+
+  var body: some View {
+    ScrollViewReader { proxy in
+      ScrollView(.horizontal, showsIndicators: false) {
+        HStack(spacing: 6) {
+          ForEach(forecast.daily) { day in
+            Button {
+              select(day.date)
+            } label: {
+              chip(day)
+            }
+            .buttonStyle(.plain)
+            .id(day.date)
+          }
+        }
+        .padding(.horizontal, 2)
+        .padding(.vertical, 2)
+      }
+      .onAppear { proxy.scrollTo(selected, anchor: .center) }
+    }
+  }
+
+  private func chip(_ day: Forecast.Day) -> some View {
+    let isSelected = day.date == selected
+    let isPast = day.date < today
+    return VStack(spacing: 1) {
+      Text(
+        day.date == today
+          ? String(localized: "Today", table: "Weather")
+          : day.date.date(calendar: .current).formatted(.dateTime.weekday(.abbreviated))
+      )
+      .font(.system(size: 10, weight: day == forecast.day(today) ? .bold : .medium))
+      .lineLimit(1)
+      .minimumScaleFactor(0.7)
+      Text(day.date.date(calendar: .current), format: .dateTime.day())
+        .font(.system(size: 13, weight: .semibold))
+      WeatherSymbol(kind: day.kind, isDay: true, size: 15).frame(height: 18)
+      Text(format.temperature(day.maxTemperature)).font(.system(size: 11, weight: .semibold))
+      Text(format.temperature(day.minTemperature)).font(.system(size: 10)).foregroundStyle(.secondary)
+    }
+    .frame(width: 44)
+    .padding(.vertical, 5)
+    .background(
+      isSelected ? palette.accent.opacity(0.22) : palette.card,
+      in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+    )
+    .overlay(
+      RoundedRectangle(cornerRadius: 12, style: .continuous)
+        .strokeBorder(isSelected ? palette.accent : palette.cardStroke, lineWidth: isSelected ? 1.5 : 0.75)
+    )
+    .opacity(isPast && !isSelected ? 0.65 : 1)
+    .accessibilityElement(children: .combine)
+    .accessibilityAddTraits(isSelected ? .isSelected : [])
   }
 }
 
-/// A bar from the day's low to its high, placed within the week's range.
-private struct TemperatureBar: View {
-  let minimum: Double
-  let maximum: Double
-  let weekMinimum: Double
-  let weekMaximum: Double
+extension Forecast.Day {
+  fileprivate static func == (lhs: Forecast.Day?, rhs: Forecast.Day) -> Bool { lhs?.date == rhs.date }
+}
+
+// MARK: - Chart
+
+/// The day's temperature and feels-like lines over bars for the chance of rain, with a mark at the present time.
+private struct HourChart: View {
+  @Environment(\.palette) private var palette
+  let hours: [Forecast.Hour]
+  let forecast: Forecast
+  let now: Date
+  let isToday: Bool
+  let format: WeatherFormat
 
   var body: some View {
-    GeometryReader { proxy in
-      let span = max(weekMaximum - weekMinimum, 1)
-      let start = (minimum - weekMinimum) / span
-      let end = (maximum - weekMinimum) / span
-      ZStack(alignment: .leading) {
-        Capsule().fill(Color.secondary.opacity(0.25))
-        Capsule()
-          .fill(LinearGradient(colors: [.cyan, .yellow, .orange], startPoint: .leading, endPoint: .trailing))
-          .frame(width: max(proxy.size.width * (end - start), 6))
-          .offset(x: proxy.size.width * start)
+    let zone = TimeZone(identifier: forecast.timeZoneID) ?? .current
+    let temps =
+      hours.map { format.temperatureValue($0.temperature) }
+      + hours.map { format.temperatureValue($0.apparentTemperature) }
+    let low = (temps.min() ?? 0).rounded(.down) - 1
+    let high = (temps.max() ?? 1).rounded(.up) + 1
+    let rainTop = low + (high - low) * 0.38
+    Chart {
+      ForEach(hours) { hour in
+        if let chance = hour.precipitationProbability {
+          BarMark(
+            x: .value("Hour", hour.time, unit: .hour), yStart: .value("Base", low),
+            yEnd: .value("Rain", low + (rainTop - low) * chance / 100), width: .ratio(0.8)
+          )
+          .foregroundStyle(Color.cyan.opacity(0.4))
+        }
+        LineMark(
+          x: .value("Hour", hour.time), y: .value("Feels like", format.temperatureValue(hour.apparentTemperature)),
+          series: .value("Series", "feels")
+        )
+        .foregroundStyle(Color.secondary)
+        .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+        .interpolationMethod(.catmullRom)
+        LineMark(
+          x: .value("Hour", hour.time), y: .value("Temperature", format.temperatureValue(hour.temperature)),
+          series: .value("Series", "temp")
+        )
+        .foregroundStyle(palette.accent)
+        .lineStyle(StrokeStyle(lineWidth: 2))
+        .interpolationMethod(.catmullRom)
+      }
+      if isToday {
+        RuleMark(x: .value("Now", now))
+          .foregroundStyle(Color.red.opacity(0.75))
+          .lineStyle(StrokeStyle(lineWidth: 1))
       }
     }
-    .frame(height: 5)
+    .chartYScale(domain: low...high)
+    .chartXAxis {
+      AxisMarks(values: .stride(by: .hour, count: 3)) { _ in
+        AxisGridLine().foregroundStyle(Color.primary.opacity(0.08))
+        AxisValueLabel(format: Date.FormatStyle(timeZone: zone).hour(), centered: false)
+      }
+    }
+    .chartYAxis {
+      AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { _ in
+        AxisGridLine().foregroundStyle(Color.primary.opacity(0.08))
+        AxisValueLabel()
+      }
+    }
+    .font(.caption2)
+    .frame(height: 104)
+    .accessibilityLabel(Text("Chart of the day's temperature and chance of rain", tableName: "Weather"))
+  }
+}
+
+// MARK: - Table
+
+/// One row of the hourly table.
+private enum HourlyRow: CaseIterable {
+  case time
+  case sky
+  case temperature
+  case feelsLike
+  case rainChance
+  case rain
+  case wind
+  case gusts
+  case humidity
+  case cloud
+  case uv
+  case pressure
+
+  var height: CGFloat {
+    switch self {
+    case .sky: 24
+    default: 19
+    }
+  }
+
+  var title: LocalizedStringResource {
+    switch self {
+    case .time: LocalizedStringResource("Time", table: "Weather")
+    case .sky: LocalizedStringResource("Sky", table: "Weather")
+    case .temperature: LocalizedStringResource("Temp", table: "Weather")
+    case .feelsLike: LocalizedStringResource("Feels", table: "Weather")
+    case .rainChance: LocalizedStringResource("Rain %", table: "Weather")
+    case .rain: LocalizedStringResource("Precip.", table: "Weather")
+    case .wind: LocalizedStringResource("Wind", table: "Weather")
+    case .gusts: LocalizedStringResource("Gusts", table: "Weather")
+    case .humidity: LocalizedStringResource("Humidity", table: "Weather")
+    case .cloud: LocalizedStringResource("Cloud", table: "Weather")
+    case .uv: LocalizedStringResource("UV", table: "Weather")
+    case .pressure: LocalizedStringResource("Pressure", table: "Weather")
+    }
+  }
+
+  func unit(_ format: WeatherFormat) -> String? {
+    switch self {
+    case .rain: format.rainUnit
+    case .wind, .gusts: format.windUnit
+    case .pressure: format.pressureUnit
+    case .temperature, .feelsLike: format.usesUSUnits ? "°F" : "°C"
+    default: nil
+    }
+  }
+}
+
+/// The hours of a day as columns and the measures as rows (a spreadsheet you scroll sideways), with the rows named on the
+/// left. The hour that is now is outlined; past hours are dimmed.
+private struct HourlyTable: View {
+  @Environment(\.palette) private var palette
+  let hours: [Forecast.Hour]
+  let forecast: Forecast
+  let now: Date
+  let isToday: Bool
+  let format: WeatherFormat
+
+  private let columnWidth: CGFloat = 46
+
+  var body: some View {
+    HStack(alignment: .top, spacing: 4) {
+      VStack(alignment: .leading, spacing: 0) {
+        ForEach(HourlyRow.allCases, id: \.self) { row in
+          HStack(spacing: 2) {
+            Text(row.title).font(.system(size: 10, weight: .medium))
+            if let unit = row.unit(format) { Text(unit).font(.system(size: 8)).foregroundStyle(.tertiary) }
+          }
+          .lineLimit(1)
+          .minimumScaleFactor(0.7)
+          .frame(width: 58, height: row.height, alignment: .leading)
+        }
+      }
+      ScrollViewReader { proxy in
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: 0) {
+            ForEach(hours) { hour in
+              column(hour).id(hour.time)
+            }
+          }
+        }
+        .onAppear { scrollToStart(proxy) }
+        .onChange(of: hours.first?.time) { _, _ in scrollToStart(proxy) }
+      }
+    }
+  }
+
+  private func scrollToStart(_ proxy: ScrollViewProxy) {
+    let calendar = forecast.calendar
+    let target =
+      isToday
+      ? hours.first { $0.time.addingTimeInterval(3600) > now }
+      : hours.first { calendar.component(.hour, from: $0.time) == 6 }
+    if let target { proxy.scrollTo(target.time, anchor: isToday ? .center : .leading) }
+  }
+
+  private func column(_ hour: Forecast.Hour) -> some View {
+    let zone = TimeZone(identifier: forecast.timeZoneID) ?? .current
+    let isNow = isToday && hour.time <= now && now < hour.time.addingTimeInterval(3600)
+    let isPast = hour.time.addingTimeInterval(3600) <= now
+    return VStack(spacing: 0) {
+      ForEach(HourlyRow.allCases, id: \.self) { row in
+        cell(row, hour, zone: zone)
+          .frame(width: columnWidth, height: row.height)
+          .background(tint(row, hour))
+      }
+    }
+    .opacity(isPast ? 0.6 : 1)
+    .overlay {
+      if isNow { RoundedRectangle(cornerRadius: 4).strokeBorder(Color.red.opacity(0.8), lineWidth: 1.2) }
+    }
+    .accessibilityElement(children: .combine)
+  }
+
+  @ViewBuilder private func cell(_ row: HourlyRow, _ hour: Forecast.Hour, zone: TimeZone) -> some View {
+    switch row {
+    case .time:
+      Text(hour.time, format: Date.FormatStyle(timeZone: zone).hour()).font(.system(size: 11, weight: .semibold))
+    case .sky:
+      WeatherSymbol(kind: hour.kind, isDay: hour.isDay, size: 15)
+    case .temperature:
+      Text("\(Int(format.temperatureValue(hour.temperature).rounded()))°").font(.system(size: 12, weight: .semibold))
+    case .feelsLike:
+      Text("\(Int(format.temperatureValue(hour.apparentTemperature).rounded()))°").font(.system(size: 11))
+        .foregroundStyle(.secondary)
+    case .rainChance:
+      text(hour.precipitationProbability.map { "\(Int($0.rounded()))" })
+    case .rain:
+      text(hour.precipitation.map { $0 < 0.05 ? "–" : String(format: "%.1f", format.rainValue($0)) })
+    case .wind:
+      HStack(spacing: 1) {
+        if let direction = hour.windDirection {
+          Image(systemName: "location.north.fill").font(.system(size: 7)).rotationEffect(.degrees(direction + 180))
+        }
+        Text("\(Int(format.windValue(hour.windSpeed).rounded()))").font(.system(size: 11))
+      }
+    case .gusts:
+      text(hour.windGusts.map { "\(Int(format.windValue($0).rounded()))" })
+    case .humidity:
+      text(hour.humidity.map { "\(Int($0.rounded()))" })
+    case .cloud:
+      text(hour.cloudCover.map { "\(Int($0.rounded()))" })
+    case .uv:
+      text(hour.uvIndex.map { $0 < 0.5 ? "–" : "\(Int($0.rounded()))" })
+    case .pressure:
+      text(
+        hour.pressure.map {
+          format.usesUSUnits
+            ? String(format: "%.2f", format.pressureValue($0)) : "\(Int(format.pressureValue($0).rounded()))"
+        })
+    }
+  }
+
+  private func text(_ value: String?) -> some View {
+    Text(value ?? "–").font(.system(size: 11)).foregroundStyle(
+      value == nil || value == "–" ? Color.secondary.opacity(0.5) : Color.primary)
+  }
+
+  /// A faint colour behind a cell that grows with the value, so that the table can be read at a glance.
+  private func tint(_ row: HourlyRow, _ hour: Forecast.Hour) -> Color {
+    func level(_ value: Double?, max: Double) -> Double { min(Swift.max((value ?? 0) / max, 0), 1) }
+    switch row {
+    case .temperature:
+      let t = min(max((hour.temperature + 10) / 45, 0), 1)
+      return Color(hue: 0.62 - 0.62 * t, saturation: 0.55, brightness: 0.95).opacity(0.28)
+    case .rainChance: return Color.cyan.opacity(0.06 + 0.4 * level(hour.precipitationProbability, max: 100))
+    case .rain: return Color.cyan.opacity(0.4 * level(hour.precipitation, max: 3))
+    case .wind: return Color.teal.opacity(0.05 + 0.3 * level(hour.windSpeed, max: 50))
+    case .gusts: return Color.teal.opacity(0.05 + 0.3 * level(hour.windGusts, max: 70))
+    case .humidity: return Color.blue.opacity(0.03 + 0.18 * level(hour.humidity, max: 100))
+    case .cloud: return Color.gray.opacity(0.03 + 0.25 * level(hour.cloudCover, max: 100))
+    case .uv: return Color.orange.opacity(0.4 * level(hour.uvIndex, max: 11))
+    default: return Color.clear
+    }
   }
 }

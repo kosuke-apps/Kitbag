@@ -20,14 +20,16 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
 - Calendar: deadlines (assignments, exams, quizzes, projects) with local-notification reminders, a month page with the
   day's classes and deadlines, and a list grouped by how soon each is due.
 - Notes: free text with search, an optional course, and a pin that shows the note on the Today screen.
-- Weather: now, the next 24 hours, the next 8 days and the details on one screen, for Madison, a place you search for,
-  or your location. Data by [Open-Meteo](https://open-meteo.com/) (CC BY 4.0).
+- Weather: everything on one screen, with no scrolling: now, a strip of days from a week back to ten ahead, a chart and
+  an hourly table (temperature, feels like, rain chance and amount, wind and gusts, humidity, cloud, UV, pressure) for
+  the day you pick, and the day's totals; for Madison, a place you search for, or your location. Data by
+  [Open-Meteo](https://open-meteo.com/) (CC BY 4.0).
 - Settings: five themes, light or dark, five app icons, and which tools and which parts of Today are shown and in what
   order.
 - Headway (live Madison bus map) and Mantissa (offline exact calculator) run inside it as guests, from their own
   repositories, unchanged.
 
-Next: a denser weather screen with past data, calendar import, export and subscription, richer notes.
+Next: calendar import, export and subscription, richer notes.
 
 ## Getting started
 

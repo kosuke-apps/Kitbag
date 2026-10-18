@@ -21,7 +21,13 @@ private let forecastJSON = """
       "is_day": [1, 1, 1, 0],
       "uv_index": [2.1, 1.8, 1.2, 0.0],
       "visibility": [24140.0, 24140.0, 20000.0, 9000.0],
-      "wind_speed_10m": [13.0, 14.4, 15.0, 16.0]
+      "wind_speed_10m": [13.0, 14.4, 15.0, 16.0],
+      "relative_humidity_2m": [60, 61, 62, 63],
+      "precipitation": [0.0, 0.0, 0.2, null],
+      "cloud_cover": [20, 30, 80, 100],
+      "pressure_msl": [1016.5, 1016.4, 1015.2, 1014.0],
+      "wind_gusts_10m": [25.0, 30.2, 32.0, 35.0],
+      "wind_direction_10m": [240, 250, 255, 260]
     },
     "daily": {
       "time": ["2026-10-18", "2026-10-19"],
@@ -33,7 +39,8 @@ private let forecastJSON = """
       "uv_index_max": [3.4, 1.9],
       "sunrise": ["2026-10-18T07:12", "2026-10-19T07:13"],
       "sunset": ["2026-10-18T18:03", "2026-10-19T18:01"],
-      "wind_speed_10m_max": [20.0, 28.0]
+      "wind_speed_10m_max": [20.0, 28.0],
+      "wind_gusts_10m_max": [30.2, 40.0]
     }
   }
   """
@@ -78,6 +85,10 @@ struct WeatherTests {
     #expect(items["current"]?.contains("temperature_2m") == true)
     #expect(items["hourly"]?.contains("precipitation_probability") == true)
     #expect(items["daily"]?.contains("sunrise") == true)
+    #expect(items["past_days"] == "7")
+    #expect(items["forecast_days"] == "10")
+    #expect(items["hourly"]?.contains("cloud_cover") == true)
+    #expect(items["hourly"]?.contains("wind_gusts_10m") == true)
   }
 
   @Test func buildsThePlaceSearchRequest() throws {
@@ -99,6 +110,13 @@ struct WeatherTests {
     // The hour with no temperature is dropped, not guessed.
     #expect(forecast.hourly.count == 3)
     #expect(forecast.hourly[2].precipitationProbability == 40)
+    #expect(forecast.hourly[2].cloudCover == 80)
+    #expect(forecast.hourly[2].humidity == 62)
+    #expect(forecast.hourly[2].precipitation == 0.2)
+    #expect(forecast.hourly[2].pressure == 1015.2)
+    #expect(forecast.hourly[2].windGusts == 32.0)
+    #expect(forecast.hourly[2].windDirection == 255)
+    #expect(forecast.daily[1].windGustsMax == 40.0)
     #expect(forecast.daily.count == 2)
     #expect(forecast.daily[0].date == LocalDate(year: 2026, month: 10, day: 18))
     #expect(forecast.daily[0].maxTemperature == 13.4)
@@ -114,6 +132,31 @@ struct WeatherTests {
       forecast.hours(from: now, count: 2).map(\.time) == [moment("2026-10-18T14:00"), moment("2026-10-18T15:00")])
     #expect(forecast.today(at: now)?.maxTemperature == 13.4)
     #expect(forecast.today(at: moment("2026-10-30T10:00")) == nil)
+  }
+
+  @Test func findsTheHoursAndTheSummaryOfADay() throws {
+    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .madison, fetchedAt: .now)
+    let today = LocalDate(year: 2026, month: 10, day: 18)
+    #expect(forecast.hours(on: today).count == 3)
+    #expect(forecast.hours(on: LocalDate(year: 2026, month: 10, day: 19)).isEmpty)
+    #expect(forecast.day(today)?.maxTemperature == 13.4)
+    #expect(forecast.day(LocalDate(year: 2026, month: 10, day: 30)) == nil)
+  }
+
+  @Test func readsAnOldCachedForecastWithoutTheNewFields() throws {
+    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .madison, fetchedAt: .now)
+    var object = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(forecast)) as? [String: Any])
+    var hours = try #require(object["hourly"] as? [[String: Any]])
+    for index in hours.indices {
+      for key in ["humidity", "precipitation", "cloudCover", "windGusts", "windDirection", "pressure"] {
+        hours[index][key] = nil
+      }
+    }
+    object["hourly"] = hours
+    let old = try JSONSerialization.data(withJSONObject: object)
+    let decoded = try JSONDecoder().decode(Forecast.self, from: old)
+    #expect(decoded.hourly[0].cloudCover == nil)
+    #expect(decoded.hourly[0].temperature == forecast.hourly[0].temperature)
   }
 
   @Test func readsTheTimesInThePlacesZoneNotThePhones() throws {

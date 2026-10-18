@@ -18,9 +18,9 @@ adds what is specific to this project.
   icon, which tools and which parts of Today are shown and in what order), the tools Timetable (grid in the
   look of a printed UW–Madison timetable as an A4 page, a PDF export, terms with dates, credits and course details), GPA
   (grades, term and cumulative GPA, what-if and target calculators), Calendar (deadlines with reminders,
-  month page and list), Notes (search, course, pin) and Weather (one screen, Open-Meteo), and Headway and Mantissa as
-  guests. Next: a denser weather screen with past data, calendar import, export and subscription, richer notes
-  (formatting, photos, files), a Kitbag-wide language setting. Nothing in it is a placeholder for an
+  month page and list), Notes (search, course, pin) and Weather (one dense screen: now, a strip of days from a week back to ten ahead, a chart and an hourly table with twelve measures, the day's totals; Open-Meteo), and Headway and Mantissa as
+  guests. Next: calendar import, export and subscription, richer notes (formatting, photos, files), a Kitbag-wide
+  language setting. Nothing in it is a placeholder for an
   unbuilt feature.
 - Out of scope for now: features that cross tools (for example bus times for the next class), accounts, the App Store
   (it needs the paid Developer Program), anything that needs a paid account (WeatherKit, remote push, iCloud: the weather comes from the free Open-Meteo service instead).
@@ -57,9 +57,9 @@ adds what is specific to this project.
     (all the terms; which one is in force today), `GradeScale` and `GPA` (UW–Madison, US plus/minus and Japanese scales;
     averages by credits; the average a target needs), `HomeLayout` (a saved order and hidden items, merged with what
     exists), `Deadline` and `DeadlineBook` (reminder dates, grouping by how soon), `Note` and `NoteBook` (title from the first
-    line, pinned first, search), `Weather` (`Place`, `WeatherKind` from WMO codes, `Forecast`, and `OpenMeteo`: the
-    request URLs and the decoding of the service's answers). Every user file has a `version`.
-    `Tests/KitbagCoreTests/` uses invented data only (96 tests).
+    line, pinned first, search), `Weather` (`Place`, `WeatherKind` from WMO codes, `Forecast` with a week of past hours, and
+    `OpenMeteo`: the request URLs and the decoding of the service's answers). Every user file has a `version`.
+    `Tests/KitbagCoreTests/` uses invented data only (98 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
     `NoteStore`, `WeatherStore`) at launch, and refreshes the weather when the app becomes active.
   - `App/Theme/`: `Theme` (five themes: Ivory, Slate, Midnight, Forest, System; each has a light and a dark palette,
@@ -84,9 +84,10 @@ adds what is specific to this project.
     (row and editor), `DeadlineStyle` (symbols, colours, names).
   - `App/Notes/`: `NoteStore` (writes shortly after typing stops, drops empty notes), `NotesView` (list, search,
     editor with a bottom toolbar), `NoteStyle` (the sticky-note colour).
-  - `App/Weather/`: `WeatherStore` (fetch, cache in `weather.json`, chosen place or the phone's location),
-    `WeatherView` (now, hours, days, details, credit), `PlacePicker` and `WeatherCard` (the Today card),
-    `WeatherFormat` (units, condition names, symbol colours).
+  - `App/Weather/`: `WeatherStore` (fetch, cache in `weather-v2.json`, chosen place or the phone's location),
+    `WeatherView` (header and now figures, `DayStrip`, `HourChart` with Swift Charts, `HourlyTable` with the measures as
+    rows and hours as columns, day totals, credit), `PlacePicker` and `WeatherCard` (the Today card), `WeatherFormat`
+    (units for text and for numbers, condition names, symbol colours).
   - `App/Timetable/`: `TimetableStore` (all terms in `timetables.json`; the first version's `timetable.json` becomes the
     first term and is left in place; an unreadable file is moved aside, never overwritten; `store.timetable` is the term
     in force today, which Today, the calendar and the notes use), `TimetablePage` (the A4 page: `.paper` is the printed

@@ -121,6 +121,15 @@ public struct Forecast: Codable, Hashable, Sendable {
     public var windSpeed: Double
     public var uvIndex: Double?
     public var visibility: Double?
+    public var humidity: Double?
+    /// Rain and snowfall in the hour, in mm of water.
+    public var precipitation: Double?
+    /// Share of the sky covered by cloud, 0 to 100.
+    public var cloudCover: Double?
+    public var windGusts: Double?
+    /// Degrees the wind comes from, 0 = north.
+    public var windDirection: Double?
+    public var pressure: Double?
 
     public var id: Date { time }
     public var kind: WeatherKind { WeatherKind(code: code) }
@@ -138,6 +147,7 @@ public struct Forecast: Codable, Hashable, Sendable {
     public var sunrise: Date?
     public var sunset: Date?
     public var windSpeedMax: Double?
+    public var windGustsMax: Double?
 
     public var id: LocalDate { date }
     public var kind: WeatherKind { WeatherKind(code: code) }
@@ -162,6 +172,17 @@ public struct Forecast: Codable, Hashable, Sendable {
   public func hours(from now: Date, count: Int) -> [Hour] {
     let upcoming = hourly.filter { $0.time.addingTimeInterval(3600) > now }
     return Array(upcoming.prefix(count))
+  }
+
+  /// The hours of a day at the place, earliest first. Past days hold what happened, the rest what is expected.
+  public func hours(on day: LocalDate) -> [Hour] {
+    let calendar = self.calendar
+    return hourly.filter { LocalDate($0.time, calendar: calendar) == day }
+  }
+
+  /// The summary of a day at the place.
+  public func day(_ day: LocalDate) -> Day? {
+    daily.first { $0.date == day }
   }
 
   /// The forecast for the day that contains `now` at the place.
@@ -194,15 +215,16 @@ public enum OpenMeteo {
       URLQueryItem(
         name: "hourly",
         value:
-          "temperature_2m,apparent_temperature,weather_code,precipitation_probability,is_day,uv_index,visibility,wind_speed_10m"
+          "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weather_code,cloud_cover,pressure_msl,visibility,wind_speed_10m,wind_gusts_10m,wind_direction_10m,uv_index,is_day"
       ),
       URLQueryItem(
         name: "daily",
         value:
-          "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,uv_index_max,sunrise,sunset,wind_speed_10m_max"
+          "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,uv_index_max,sunrise,sunset,wind_speed_10m_max,wind_gusts_10m_max"
       ),
       URLQueryItem(name: "timezone", value: "auto"),
-      URLQueryItem(name: "forecast_days", value: "8"),
+      URLQueryItem(name: "past_days", value: "7"),
+      URLQueryItem(name: "forecast_days", value: "10"),
     ]
     return components.url!
   }
@@ -261,6 +283,12 @@ public enum OpenMeteo {
       let uvIndex: [Double?]?
       let visibility: [Double?]?
       let windSpeed10m: [Double?]?
+      let relativeHumidity2m: [Double?]?
+      let precipitation: [Double?]?
+      let cloudCover: [Double?]?
+      let pressureMsl: [Double?]?
+      let windGusts10m: [Double?]?
+      let windDirection10m: [Double?]?
 
       enum CodingKeys: String, CodingKey {
         case time
@@ -272,6 +300,12 @@ public enum OpenMeteo {
         case uvIndex = "uv_index"
         case visibility
         case windSpeed10m = "wind_speed_10m"
+        case relativeHumidity2m = "relative_humidity_2m"
+        case precipitation
+        case cloudCover = "cloud_cover"
+        case pressureMsl = "pressure_msl"
+        case windGusts10m = "wind_gusts_10m"
+        case windDirection10m = "wind_direction_10m"
       }
     }
     struct Daily: Decodable {
@@ -285,6 +319,7 @@ public enum OpenMeteo {
       let sunrise: [String?]?
       let sunset: [String?]?
       let windSpeed10mMax: [Double?]?
+      let windGusts10mMax: [Double?]?
 
       enum CodingKeys: String, CodingKey {
         case time
@@ -297,6 +332,7 @@ public enum OpenMeteo {
         case sunrise
         case sunset
         case windSpeed10mMax = "wind_speed_10m_max"
+        case windGusts10mMax = "wind_gusts_10m_max"
       }
     }
     let timezone: String
@@ -334,7 +370,11 @@ public enum OpenMeteo {
         precipitationProbability: hourly.precipitationProbability?[safe: index] ?? nil, code: code,
         isDay: ((hourly.isDay?[safe: index] ?? nil) ?? 1) == 1,
         windSpeed: (hourly.windSpeed10m?[safe: index] ?? nil) ?? 0,
-        uvIndex: hourly.uvIndex?[safe: index] ?? nil, visibility: hourly.visibility?[safe: index] ?? nil)
+        uvIndex: hourly.uvIndex?[safe: index] ?? nil, visibility: hourly.visibility?[safe: index] ?? nil,
+        humidity: hourly.relativeHumidity2m?[safe: index] ?? nil,
+        precipitation: hourly.precipitation?[safe: index] ?? nil,
+        cloudCover: hourly.cloudCover?[safe: index] ?? nil, windGusts: hourly.windGusts10m?[safe: index] ?? nil,
+        windDirection: hourly.windDirection10m?[safe: index] ?? nil, pressure: hourly.pressureMsl?[safe: index] ?? nil)
     }
 
     let daily = answer.daily
@@ -349,7 +389,8 @@ public enum OpenMeteo {
         uvIndexMax: daily.uvIndexMax?[safe: index] ?? nil,
         sunrise: (daily.sunrise?[safe: index] ?? nil).flatMap { parse($0) },
         sunset: (daily.sunset?[safe: index] ?? nil).flatMap { parse($0) },
-        windSpeedMax: daily.windSpeed10mMax?[safe: index] ?? nil)
+        windSpeedMax: daily.windSpeed10mMax?[safe: index] ?? nil,
+        windGustsMax: daily.windGusts10mMax?[safe: index] ?? nil)
     }
     guard !hours.isEmpty, !days.isEmpty else { throw OpenMeteoError.missingData }
     return Forecast(
