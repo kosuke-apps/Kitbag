@@ -459,41 +459,41 @@ struct MarkdownEditor: UIViewRepresentable {
       let headings = UIMenu(
         children: (1...3).map { level in
           UIAction(
-            title: String(localized: "Heading \(level)", table: "Notes"), image: UIImage(systemName: "\(level).circle")
+            title: L10n.string("Heading \(level)", table: "Notes"), image: UIImage(systemName: "\(level).circle")
           ) {
             [weak self] _ in self?.toggleLine(.heading(level))
           }
         })
-      let headingButton = button("textformat.size", String(localized: "Heading", table: "Notes")) {}
+      let headingButton = button("textformat.size", L10n.string("Heading", table: "Notes")) {}
       headingButton.menu = headings
       headingButton.showsMenuAsPrimaryAction = true
 
-      let bold = button("bold", String(localized: "Bold", table: "Notes")) { [weak self] in self?.toggleInline("**") }
-      let italic = button("italic", String(localized: "Italic", table: "Notes")) { [weak self] in
+      let bold = button("bold", L10n.string("Bold", table: "Notes")) { [weak self] in self?.toggleInline("**") }
+      let italic = button("italic", L10n.string("Italic", table: "Notes")) { [weak self] in
         self?.toggleInline("*")
       }
-      let strike = button("strikethrough", String(localized: "Strikethrough", table: "Notes")) { [weak self] in
+      let strike = button("strikethrough", L10n.string("Strikethrough", table: "Notes")) { [weak self] in
         self?.toggleInline("~~")
       }
-      let code = button("chevron.left.forwardslash.chevron.right", String(localized: "Code", table: "Notes")) {
+      let code = button("chevron.left.forwardslash.chevron.right", L10n.string("Code", table: "Notes")) {
         [weak self] in self?.toggleInline("`")
       }
-      let bullets = button("list.bullet", String(localized: "Bulleted list", table: "Notes")) { [weak self] in
+      let bullets = button("list.bullet", L10n.string("Bulleted list", table: "Notes")) { [weak self] in
         self?.toggleLine(.bullet)
       }
-      let numbers = button("list.number", String(localized: "Numbered list", table: "Notes")) { [weak self] in
+      let numbers = button("list.number", L10n.string("Numbered list", table: "Notes")) { [weak self] in
         self?.toggleLine(.numbered)
       }
-      let checks = button("checklist", String(localized: "Checklist", table: "Notes")) { [weak self] in
+      let checks = button("checklist", L10n.string("Checklist", table: "Notes")) { [weak self] in
         self?.toggleLine(.checkbox)
       }
-      let quote = button("text.quote", String(localized: "Quote", table: "Notes")) { [weak self] in
+      let quote = button("text.quote", L10n.string("Quote", table: "Notes")) { [weak self] in
         self?.toggleLine(.quote)
       }
-      let photo = button("photo", String(localized: "Add a photo", table: "Notes")) { [weak self] in
+      let photo = button("photo", L10n.string("Add a photo", table: "Notes")) { [weak self] in
         self?.parent.onPhoto()
       }
-      let file = button("paperclip", String(localized: "Attach a file", table: "Notes")) { [weak self] in
+      let file = button("paperclip", L10n.string("Attach a file", table: "Notes")) { [weak self] in
         self?.parent.onFile()
       }
       // The ones used most come first; the bar scrolls for the rest.
@@ -505,7 +505,7 @@ struct MarkdownEditor: UIViewRepresentable {
       scroll.translatesAutoresizingMaskIntoConstraints = false
       scroll.addSubview(stack)
 
-      let hide = button("keyboard.chevron.compact.down", String(localized: "Hide the keyboard", table: "Notes")) {
+      let hide = button("keyboard.chevron.compact.down", L10n.string("Hide the keyboard", table: "Notes")) {
         [weak self] in
         self?.textView?.resignFirstResponder()
       }

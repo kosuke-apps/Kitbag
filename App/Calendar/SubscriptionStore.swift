@@ -156,11 +156,11 @@ final class SubscriptionStore {
 
   static func describe(_ error: Error) -> String {
     switch error as? SubscriptionError {
-    case .notACalendarAddress: String(localized: "That is not a calendar address.", table: "Calendar")
-    case .server(let code): String(localized: "The server answered \(code).", table: "Calendar")
+    case .notACalendarAddress: L10n.string("That is not a calendar address.", table: "Calendar")
+    case .server(let code): L10n.string("The server answered \(code).", table: "Calendar")
     case .network(let message): message
-    case .noEvents: String(localized: "There are no events in that calendar.", table: "Calendar")
-    case .keychain: String(localized: "The address could not be read from the keychain.", table: "Calendar")
+    case .noEvents: L10n.string("There are no events in that calendar.", table: "Calendar")
+    case .keychain: L10n.string("The address could not be read from the keychain.", table: "Calendar")
     case nil: error.localizedDescription
     }
   }

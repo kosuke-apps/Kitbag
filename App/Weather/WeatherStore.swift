@@ -148,7 +148,7 @@ final class LocationProvider: NSObject, CLLocationManagerDelegate {
     }
     let marks = try? await CLGeocoder().reverseGeocodeLocation(location)
     let mark = marks?.first
-    let name = mark?.locality ?? mark?.name ?? String(localized: "Current location", table: "Weather")
+    let name = mark?.locality ?? mark?.name ?? L10n.string("Current location", table: "Weather")
     let detail = [mark?.administrativeArea, mark?.country].compactMap { $0 }.joined(separator: ", ")
     return Place(
       name: name, detail: detail, latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)

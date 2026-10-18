@@ -67,6 +67,7 @@ struct DeadlinesWidgetView: View {
       }
     }
     .widgetURL(URL(string: "kitbag://calendar"))
+    .environment(\.locale, entry.locale)
   }
 
   @ViewBuilder private func small(_ open: [Deadline]) -> some View {

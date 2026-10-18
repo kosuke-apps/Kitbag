@@ -24,9 +24,12 @@ enum SigningStatus {
 
   static var expiresAt: Date? { profile?.expiresAt }
 
-  /// "6d 23h 41m", in the phone's language, for the time between two moments.
+  /// "6d 23h 41m" or "6日 23時間 41分", in the language chosen for Kitbag, for the time between two moments.
   static func left(from start: Date, to end: Date) -> String {
+    var calendar = Calendar.current
+    calendar.locale = LanguageStore.shared.locale
     let formatter = DateComponentsFormatter()
+    formatter.calendar = calendar
     formatter.allowedUnits = [.day, .hour, .minute]
     formatter.unitsStyle = .abbreviated
     formatter.maximumUnitCount = 3

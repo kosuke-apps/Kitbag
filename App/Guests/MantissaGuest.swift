@@ -1,3 +1,4 @@
+import KitbagCore
 import SwiftUI
 import UIKit
 
@@ -9,6 +10,17 @@ import UIKit
 @MainActor
 final class MantissaRuntime {
   let model = AppModel()
+
+  /// Makes Mantissa speak the language chosen for the whole of Kitbag (it has a setting of its own, which this overwrites).
+  func setLanguage(_ choice: LanguageChoice) {
+    let language: AppLanguage
+    switch choice {
+    case .system: language = .system
+    case .english: language = .english
+    case .japanese: language = .japanese
+    }
+    if model.language != language { model.language = language }
+  }
 }
 
 /// Mantissa's window content: what `MantissaApp.body` puts in its `WindowGroup`.

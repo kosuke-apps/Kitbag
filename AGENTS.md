@@ -19,7 +19,7 @@ adds what is specific to this project.
   look of a printed UW–Madison timetable as an A4 page, a PDF export, terms with dates, credits and course details), GPA
   (grades, term and cumulative GPA, what-if and target calculators), Calendar (deadlines with reminders,
   month page and list, import and export of calendar files, subscription to Canvas or Google calendars), Notes (Markdown with live formatting, photos and files, search, course, pin) and Weather (one dense screen: now, a strip of days from a week back to ten ahead, a chart and an hourly table with twelve measures, the day's totals; Open-Meteo), and Headway and Mantissa as
-  guests. Next: a Kitbag-wide language setting. Nothing in it is a placeholder for an
+  guests.  Nothing in it is a placeholder for an
   unbuilt feature.
 - Out of scope for now: features that cross tools (for example bus times for the next class), accounts, the App Store
   (it needs the paid Developer Program), anything that needs a paid account (WeatherKit, remote push, iCloud: the weather comes from the free Open-Meteo service instead).
@@ -75,7 +75,7 @@ adds what is specific to this project.
     events, VTODO, daily, weekly, monthly and yearly rules with count, until and exceptions; a rule it cannot read
     becomes a single event), `ICSWriter` (deadlines with an alarm, a term's classes as weekly events with an end date)
     and `DeadlineImport` (what an imported file adds or updates, matched by `Deadline.sourceUID`). Every user file has a
-    `version`. `Tests/KitbagCoreTests/` uses invented data only (178 tests).
+    `version`. `Tests/KitbagCoreTests/` uses invented data only (181 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
     `NoteStore`, `WeatherStore`, `SubscriptionStore`) at launch, and refreshes the weather and the stale subscriptions when
     the app becomes active.
@@ -136,6 +136,12 @@ adds what is specific to this project.
     warning are set in Settings > Notifications > Choose what to be reminded of (`NotificationPreferencesView`, stored in
     UserDefaults so that a backup carries it). Class reminders are dated for the coming days, not a weekly repeat, so they
     stop at the end of a term.
+  - Language: `LanguageChoice` (KitbagCore: system, English, 日本語) and `LanguageStore` (`App/Support/Language.swift`) hold
+    the choice for the whole of Kitbag, set in Settings > Language. SwiftUI text follows it through the environment locale
+    (`LanguageRoot`); text built in code goes through `L10n.string` and dates through `formattedInLanguage` or a style with
+    `.locale(...)`, because `String(localized:)` and `formatted(date:time:)` would follow the phone. The choice is passed to
+    the guests (`GuestRuntimes.applyLanguage` writes it into Headway's and Mantissa's own language settings, so the two
+    never disagree) and to the widgets (through `WidgetSettings`). Never use `String(localized:)` in Kitbag's own sources.
   - `App/Backup/`: `BackupManager` writes everything into one `.kitbag` file (timetable, deadlines, notes with their
     attachments, and the `kitbag.*` and `weather.*` settings from UserDefaults; not the weather cache, not the calendar
     subscriptions or their secret addresses, not the guests' own data) using `BackupArchive` from KitbagCore (a header, a

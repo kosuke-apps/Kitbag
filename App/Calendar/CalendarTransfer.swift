@@ -211,7 +211,7 @@ struct SubscriptionsView: View {
         Text("Events: \(subscription.eventCount)", tableName: "Calendar")
         if let fetched = subscription.lastFetched {
           Text("·")
-          Text("Updated \(fetched.formatted(date: .abbreviated, time: .shortened))", tableName: "Calendar")
+          Text("Updated \(fetched.formattedInLanguage(date: .abbreviated, time: .shortened))", tableName: "Calendar")
         }
       }
       .font(.footnote)

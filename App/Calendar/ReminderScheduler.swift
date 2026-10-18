@@ -87,8 +87,8 @@ struct ReminderScheduler {
   func sendTest() async -> Bool {
     guard await authorize() else { return false }
     let content = UNMutableNotificationContent()
-    content.title = String(localized: "Notifications are working", table: "Settings")
-    content.body = String(localized: "Kitbag can remind you of deadlines on this iPhone.", table: "Settings")
+    content.title = L10n.string("Notifications are working", table: "Settings")
+    content.body = L10n.string("Kitbag can remind you of deadlines on this iPhone.", table: "Settings")
     content.sound = .default
     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
     do {
@@ -121,8 +121,9 @@ struct ReminderScheduler {
     let due = deadline.dueInstant(calendar: calendar)
     let when =
       deadline.time == nil
-      ? due.formatted(date: .abbreviated, time: .omitted) : due.formatted(date: .abbreviated, time: .shortened)
-    let dueText = String(localized: "Due \(when)", table: "Calendar")
+      ? due.formattedInLanguage(date: .abbreviated, time: .omitted)
+      : due.formattedInLanguage(date: .abbreviated, time: .shortened)
+    let dueText = L10n.string("Due \(when)", table: "Calendar")
     content.body = [courseCode, dueText].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
     content.sound = .default
     return content
@@ -130,8 +131,8 @@ struct ReminderScheduler {
 
   private func classContent(_ reminder: ClassReminder, lead: Int) -> UNNotificationContent {
     let content = UNMutableNotificationContent()
-    content.title = String(localized: "\(reminder.code) starts in \(lead) min", table: "Settings")
-    let time = reminder.start.formatted(date: .omitted, time: .shortened)
+    content.title = L10n.string("\(reminder.code) starts in \(lead) min", table: "Settings")
+    let time = reminder.start.formattedInLanguage(date: .omitted, time: .shortened)
     content.body = [reminder.title, reminder.location, time].filter { !$0.isEmpty }.joined(separator: " · ")
     content.sound = .default
     return content
@@ -140,11 +141,11 @@ struct ReminderScheduler {
   private func signingContent(_ kind: SigningReminder.Kind, expiresAt: Date) -> UNNotificationContent {
     let content = UNMutableNotificationContent()
     switch kind {
-    case .twoDays: content.title = String(localized: "Kitbag stops opening in 2 days", table: "Settings")
-    case .oneDay: content.title = String(localized: "Kitbag stops opening tomorrow", table: "Settings")
+    case .twoDays: content.title = L10n.string("Kitbag stops opening in 2 days", table: "Settings")
+    case .oneDay: content.title = L10n.string("Kitbag stops opening tomorrow", table: "Settings")
     case .today:
-      let time = expiresAt.formatted(date: .omitted, time: .shortened)
-      content.title = String(localized: "Kitbag stops opening today at \(time)", table: "Settings")
+      let time = expiresAt.formattedInLanguage(date: .omitted, time: .shortened)
+      content.title = L10n.string("Kitbag stops opening today at \(time)", table: "Settings")
     }
     content.body = String(
       localized: "Connect your iPhone to your Mac and install Kitbag again to renew it.", table: "Settings")

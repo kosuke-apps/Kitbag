@@ -144,7 +144,7 @@ struct NoteRow: View {
     let course = note.courseID.flatMap { timetable.course(id: $0) }
     VStack(alignment: .leading, spacing: 3) {
       HStack {
-        Text(note.title.isEmpty ? String(localized: "New note", table: "Notes") : note.title)
+        Text(note.title.isEmpty ? L10n.string("New note", table: "Notes") : note.title)
           .font(.headline)
           .lineLimit(1)
         if note.isPinned {

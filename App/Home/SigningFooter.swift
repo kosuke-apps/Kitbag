@@ -37,7 +37,8 @@ struct SigningFooter: View {
   }
 
   @ViewBuilder private func text(for remaining: SignatureRemaining, expires: Date) -> some View {
-    let when = expires.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day().hour().minute())
+    let when = expires.formatted(
+      .dateTime.weekday(.abbreviated).month(.abbreviated).day().hour().minute().locale(LanguageStore.shared.locale))
     if remaining == .expired {
       Text("Signature expired \(when)", tableName: "Settings")
     } else {

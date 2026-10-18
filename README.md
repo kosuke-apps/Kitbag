@@ -35,12 +35,11 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
   way to move to another iPhone, since iCloud sync needs a paid developer account.
 - Widgets: the class on now or next, the day's list and the whole week as a timetable, and what is due next (tap a circle
   to mark one done), on the home screen and the lock screen.
-- Settings: five themes, light or dark, five app icons, and which tools and which parts of Today are shown and in what
+- Settings: a language (system, English, 日本語) for Kitbag, its tools and the apps inside it, five themes, light or dark, five app icons, and which tools and which parts of Today are shown and in what
   order.
 - Headway (live Madison bus map) and Mantissa (offline exact calculator) run inside it as guests, from their own
   repositories, unchanged.
 
-Next: richer notes (formatting, photos, files).
 
 ## Getting started
 

@@ -233,7 +233,7 @@ struct WeatherView: View {
 
   private func footer(_ forecast: Forecast) -> some View {
     HStack(spacing: 4) {
-      Text("Updated \(forecast.fetchedAt.formatted(date: .omitted, time: .shortened))", tableName: "Weather")
+      Text("Updated \(forecast.fetchedAt.formattedInLanguage(date: .omitted, time: .shortened))", tableName: "Weather")
       Text("·")
       Link(destination: URL(string: "https://open-meteo.com/")!) {
         Text("Weather data by Open-Meteo.com", tableName: "Weather")
@@ -319,8 +319,9 @@ private struct DayStrip: View {
     return VStack(spacing: 1) {
       Text(
         day.date == today
-          ? String(localized: "Today", table: "Weather")
-          : day.date.date(calendar: .current).formatted(.dateTime.weekday(.abbreviated))
+          ? L10n.string("Today", table: "Weather")
+          : day.date.date(calendar: .current).formatted(
+            .dateTime.weekday(.abbreviated).locale(LanguageStore.shared.locale))
       )
       .font(.system(size: 10, weight: day == forecast.day(today) ? .bold : .medium))
       .lineLimit(1)

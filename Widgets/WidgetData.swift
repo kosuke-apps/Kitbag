@@ -7,6 +7,7 @@ struct KitbagSnapshot {
   var library = TimetableLibrary()
   var deadlines = DeadlineBook()
   var theme = ThemeID.ivory
+  var language = LanguageChoice.system
 
   static func load() -> KitbagSnapshot {
     var snapshot = KitbagSnapshot()
@@ -25,6 +26,7 @@ struct KitbagSnapshot {
       let id = ThemeID(rawValue: settings.theme)
     {
       snapshot.theme = id
+      snapshot.language = LanguageChoice(rawValue: settings.language) ?? .system
     }
     return snapshot
   }
@@ -60,6 +62,13 @@ struct KitbagEntry: TimelineEntry {
   let snapshot: KitbagSnapshot
 
   var calendar: Calendar { .current }
+
+  /// The language chosen in Kitbag, with the phone's region, for the widget's text, dates and numbers.
+  var locale: Locale {
+    let code = snapshot.language.resolved(preferred: Locale.preferredLanguages)
+    let region = Locale.autoupdatingCurrent.region?.identifier
+    return Locale(identifier: region.map { "\(code)_\($0)" } ?? code)
+  }
 
   /// The term in force on this entry's day.
   var term: Timetable? { snapshot.library.active(on: date, calendar: calendar) }

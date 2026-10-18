@@ -216,7 +216,7 @@ private struct NextClassCard: View {
       if !slot.course.title.isEmpty { Text(slot.course.title).font(.subheadline) }
       HStack(spacing: 14) {
         Label(
-          "\(upcoming.start.formatted(date: .omitted, time: .shortened))–\(upcoming.end.formatted(date: .omitted, time: .shortened))",
+          "\(upcoming.start.formattedInLanguage(date: .omitted, time: .shortened))–\(upcoming.end.formattedInLanguage(date: .omitted, time: .shortened))",
           systemImage: "clock")
         if !slot.meeting.location.isEmpty {
           Label(slot.meeting.location, systemImage: "mappin.and.ellipse").lineLimit(1)
@@ -245,7 +245,7 @@ private struct NextClassCard: View {
 
   @ViewBuilder private var timing: some View {
     if upcoming.isInProgress(at: now) {
-      Text("until \(upcoming.end.formatted(date: .omitted, time: .shortened))", tableName: "Today")
+      Text("until \(upcoming.end.formattedInLanguage(date: .omitted, time: .shortened))", tableName: "Today")
     } else if calendar.isDate(upcoming.start, inSameDayAs: now) {
       Text("in \(Text(upcoming.start, style: .relative))", tableName: "Today")
     } else {
@@ -304,7 +304,7 @@ private struct PinnedNoteCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
-      Text(note.title.isEmpty ? String(localized: "New note", table: "Notes") : note.title)
+      Text(note.title.isEmpty ? L10n.string("New note", table: "Notes") : note.title)
         .font(.subheadline.weight(.semibold))
         .lineLimit(1)
       if !note.preview.isEmpty {

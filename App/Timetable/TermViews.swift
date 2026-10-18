@@ -34,26 +34,29 @@ extension Season {
 extension Timetable {
   /// `2026 Fall`, or the heading when there is no year and season, or a plain word.
   var termName: String {
-    if let year, let season { return "\(year) \(String(localized: season.title))" }
-    return title.isEmpty ? String(localized: "Untitled term", table: "Timetable") : title
+    if let year, let season { return "\(year) \(L10n.string(season.title))" }
+    return title.isEmpty ? L10n.string("Untitled term", table: "Timetable") : title
   }
 
   /// The heading of the printed page: the one that was written, or one made from the term's name.
   var pageHeading: String {
-    title.isEmpty ? String(localized: "\(termName) Timetable", table: "Timetable") : title
+    title.isEmpty ? L10n.string("\(termName) Timetable", table: "Timetable") : title
   }
 
   /// `Sep 2 – Dec 9, 2026`, or nil when the term has no dates.
   func dateRangeText(calendar: Calendar = .current) -> String? {
     guard let startDate, let endDate else {
-      return (startDate ?? endDate).map { $0.date(calendar: calendar).formatted(.dateTime.year().month().day()) }
+      return (startDate ?? endDate).map {
+        $0.date(calendar: calendar).formatted(.dateTime.year().month().day().locale(LanguageStore.shared.locale))
+      }
     }
     let start = startDate.date(calendar: calendar)
     let end = endDate.date(calendar: calendar)
     let sameYear = startDate.year == endDate.year
     let first = start.formatted(
-      sameYear ? .dateTime.month(.abbreviated).day() : .dateTime.year().month(.abbreviated).day())
-    return "\(first) – \(end.formatted(.dateTime.year().month(.abbreviated).day()))"
+      (sameYear ? Date.FormatStyle.dateTime.month(.abbreviated).day() : .dateTime.year().month(.abbreviated).day())
+        .locale(LanguageStore.shared.locale))
+    return "\(first) – \(end.formatted(.dateTime.year().month(.abbreviated).day().locale(LanguageStore.shared.locale)))"
   }
 }
 
@@ -163,8 +166,8 @@ struct TermHeader: View {
     let credits = term.totalCredits
     let creditText = credits == credits.rounded() ? "\(Int(credits))" : String(format: "%.1f", credits)
     return credits > 0
-      ? String(localized: "Courses: \(courses) · Credits: \(creditText)", table: "Timetable")
-      : String(localized: "Courses: \(courses)", table: "Timetable")
+      ? L10n.string("Courses: \(courses) · Credits: \(creditText)", table: "Timetable")
+      : L10n.string("Courses: \(courses)", table: "Timetable")
   }
 }
 

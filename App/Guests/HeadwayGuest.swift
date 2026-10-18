@@ -1,3 +1,4 @@
+import KitbagCore
 import SwiftUI
 import UserNotifications
 
@@ -17,6 +18,19 @@ final class HeadwayRuntime {
     LanguageState.shared.apply(model.settings.values.language)
     UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
     WatchBackground.register(model)
+  }
+
+  /// Makes Headway speak the language chosen for the whole of Kitbag. Headway has a language setting of its own; Kitbag's
+  /// choice is written into it, so the two never disagree.
+  func setLanguage(_ choice: LanguageChoice) {
+    let language: AppLanguage
+    switch choice {
+    case .system: language = .system
+    case .english: language = .english
+    case .japanese: language = .japanese
+    }
+    if model.settings.values.language != language { model.settings.values.language = language }
+    LanguageState.shared.apply(language)
   }
 }
 

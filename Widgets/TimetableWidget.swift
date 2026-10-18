@@ -58,13 +58,17 @@ struct TimetableWidgetView: View {
   let entry: KitbagEntry
 
   var body: some View {
-    switch family {
-    case .systemSmall: small.widgetURL(URL(string: "kitbag://timetable"))
-    case .systemLarge: large.widgetURL(URL(string: "kitbag://timetable"))
-    case .accessoryRectangular: rectangular.widgetURL(URL(string: "kitbag://timetable"))
-    case .accessoryInline: inline.widgetURL(URL(string: "kitbag://timetable"))
-    default: medium.widgetURL(URL(string: "kitbag://timetable"))
+    Group {
+      switch family {
+      case .systemSmall: small
+      case .systemLarge: large
+      case .accessoryRectangular: rectangular
+      case .accessoryInline: inline
+      default: medium
+      }
     }
+    .widgetURL(URL(string: "kitbag://timetable"))
+    .environment(\.locale, entry.locale)
   }
 
   // MARK: Home screen
@@ -98,7 +102,9 @@ struct TimetableWidgetView: View {
   @ViewBuilder private var large: some View {
     if let term = entry.term, term.courses.contains(where: { !$0.meetings.isEmpty }) {
       GeometryReader { proxy in
-        TimetablePage(timetable: term, heading: term.widgetHeading, style: .screen, size: proxy.size)
+        TimetablePage(
+          timetable: term, heading: term.widgetHeading(language: entry.snapshot.language), style: .screen,
+          size: proxy.size)
       }
       .themedWidget(entry.snapshot.theme, padding: 6)
     } else {
@@ -113,7 +119,7 @@ struct TimetableWidgetView: View {
       VStack(alignment: .leading, spacing: 1) {
         Text(upcoming.slot.course.code).font(.headline).lineLimit(1)
         Text(
-          "\(upcoming.start.formatted(date: .omitted, time: .shortened))–\(upcoming.end.formatted(date: .omitted, time: .shortened))"
+          "\(upcoming.start.formatted(.dateTime.hour().minute().locale(entry.locale)))–\(upcoming.end.formatted(.dateTime.hour().minute().locale(entry.locale)))"
         )
         .font(.caption)
         if !upcoming.slot.meeting.location.isEmpty {
@@ -129,7 +135,7 @@ struct TimetableWidgetView: View {
 
   @ViewBuilder private var inline: some View {
     if let upcoming = entry.upcoming {
-      Text("\(upcoming.slot.course.code) \(upcoming.start.formatted(date: .omitted, time: .shortened))")
+      Text("\(upcoming.slot.course.code) \(upcoming.start.formatted(.dateTime.hour().minute().locale(entry.locale)))")
     } else {
       Text("No more classes")
     }
@@ -139,6 +145,7 @@ struct TimetableWidgetView: View {
 /// The class that is on now or comes next: its code, title, time and place, with a bar while it is on.
 private struct NextClassBlock: View {
   @Environment(\.titleDesign) private var design
+  @Environment(\.locale) private var locale
   let upcoming: Timetable.Upcoming
   let now: Date
   let compact: Bool
@@ -165,7 +172,7 @@ private struct NextClassBlock: View {
       }
       Spacer(minLength: 2)
       Label(
-        "\(upcoming.start.formatted(date: .omitted, time: .shortened))–\(upcoming.end.formatted(date: .omitted, time: .shortened))",
+        "\(upcoming.start.formatted(.dateTime.hour().minute().locale(locale)))–\(upcoming.end.formatted(.dateTime.hour().minute().locale(locale)))",
         systemImage: "clock"
       )
       .font(.caption)
@@ -180,7 +187,7 @@ private struct NextClassBlock: View {
 
   @ViewBuilder private var timing: some View {
     if upcoming.isInProgress(at: now) {
-      Text("until \(upcoming.end.formatted(date: .omitted, time: .shortened))")
+      Text("until \(upcoming.end.formatted(.dateTime.hour().minute().locale(locale)))")
     } else if Calendar.current.isDate(upcoming.start, inSameDayAs: now) {
       Text("in \(Text(upcoming.start, style: .relative))")
     } else {
@@ -191,6 +198,7 @@ private struct NextClassBlock: View {
 
 /// Today's classes in a list; the one that is on is marked, and the ones that are over are dimmed.
 private struct TodayList: View {
+  @Environment(\.locale) private var locale
   @Environment(\.palette) private var palette
   @Environment(\.titleDesign) private var design
   let classes: [(slot: Timetable.Slot, start: Date, end: Date)]
@@ -213,7 +221,7 @@ private struct TodayList: View {
         let on = item.start <= now && now < item.end
         HStack(spacing: 8) {
           Circle().fill(item.slot.course.color.strongColor).frame(width: 9, height: 9)
-          Text(item.start.formatted(date: .omitted, time: .shortened))
+          Text(item.start.formatted(.dateTime.hour().minute().locale(locale)))
             .font(.caption.monospacedDigit())
             .foregroundStyle(.secondary)
             .frame(width: 62, alignment: .leading)
@@ -244,14 +252,16 @@ private struct EmptyClasses: View {
 
 extension Timetable {
   /// `2026 Fall`, or the term's own title.
-  var widgetHeading: String {
+  func widgetHeading(language: LanguageChoice) -> String {
     guard let year, let season else { return title }
+    let code = language.resolved(preferred: Locale.preferredLanguages)
+    let bundle = Bundle.main.path(forResource: code, ofType: "lproj").flatMap { Bundle(path: $0) } ?? .main
     let name: String
     switch season {
-    case .spring: name = String(localized: "Spring")
-    case .summer: name = String(localized: "Summer")
-    case .fall: name = String(localized: "Fall")
-    case .winter: name = String(localized: "Winter")
+    case .spring: name = String(localized: "Spring", bundle: bundle)
+    case .summer: name = String(localized: "Summer", bundle: bundle)
+    case .fall: name = String(localized: "Fall", bundle: bundle)
+    case .winter: name = String(localized: "Winter", bundle: bundle)
     }
     return "\(year) \(name)"
   }

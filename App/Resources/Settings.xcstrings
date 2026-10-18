@@ -130,6 +130,17 @@
         }
       }
     },
+    "Applies to Kitbag, its tools and the apps inside it.": {
+      "comment": "Footer under the language picker.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag，各ツール，中で動くアプリに適用されます．"
+          }
+        }
+      }
+    },
     "Cancel": {
       "comment": "Button that dismisses a confirmation.",
       "localizations": {
@@ -428,6 +439,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kitbag は明日開けなくなります"
+          }
+        }
+      }
+    },
+    "Language": {
+      "comment": "Settings section title and row label for the app language.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "言語"
           }
         }
       }

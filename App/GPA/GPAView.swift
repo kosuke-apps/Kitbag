@@ -251,9 +251,9 @@ struct GPAView: View {
   private func termNote(_ term: Timetable) -> String? {
     var notes: [String] = []
     if let id = term.gradeScaleID {
-      notes.append(String(localized: "Graded on \(gradeScales.scale(id: id).displayName)", table: "GPA"))
+      notes.append(L10n.string("Graded on \(gradeScales.scale(id: id).displayName)", table: "GPA"))
     }
-    if !term.countsInCumulativeGPA { notes.append(String(localized: "Not in the cumulative GPA", table: "GPA")) }
+    if !term.countsInCumulativeGPA { notes.append(L10n.string("Not in the cumulative GPA", table: "GPA")) }
     return notes.isEmpty ? nil : notes.joined(separator: " · ")
   }
 

@@ -134,8 +134,8 @@ struct NotificationPreferencesView: View {
     let courses = timetable.timetable.courses
     let muted = courses.filter { store.preferences.mutedCourseIDs.contains($0.id) }.count
     return muted == 0
-      ? String(localized: "All", table: "Settings")
-      : String(localized: "\(courses.count - muted) of \(courses.count)", table: "Settings")
+      ? L10n.string("All", table: "Settings")
+      : L10n.string("\(courses.count - muted) of \(courses.count)", table: "Settings")
   }
 }
 

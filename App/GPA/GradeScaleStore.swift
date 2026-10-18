@@ -5,7 +5,7 @@ import SwiftUI
 extension GradeScale {
   /// What to call the scale: its own name for one the person wrote, else the app's name for a built-in one.
   var displayName: String {
-    name ?? String(localized: title)
+    name ?? L10n.string(title)
   }
 }
 

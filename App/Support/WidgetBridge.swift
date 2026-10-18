@@ -19,7 +19,7 @@ enum WidgetBridge {
         changed = true
       }
     }
-    let settings = WidgetSettings(theme: theme.rawValue)
+    let settings = WidgetSettings(theme: theme.rawValue, language: LanguageStore.shared.choice.rawValue)
     if let data = try? JSONEncoder().encode(settings), let url = AppGroup.url(AppGroup.settingsFile),
       (try? Data(contentsOf: url)) != data
     {

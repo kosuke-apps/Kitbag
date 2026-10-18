@@ -1,3 +1,4 @@
+import KitbagCore
 import SwiftUI
 import UIKit
 import UserNotifications
@@ -5,12 +6,29 @@ import UserNotifications
 /// Settings: the theme and appearance, the app icon, and what the home screen shows and in what order.
 struct SettingsView: View {
   @Environment(ThemeStore.self) private var themes
+  @Environment(GuestRuntimes.self) private var guests
+  @Environment(DeadlineStore.self) private var deadlines
   @Environment(\.palette) private var palette
 
   var body: some View {
     @Bindable var themes = themes
     NavigationStack {
       List {
+        Section {
+          Picker(selection: languageBinding) {
+            Text("System", tableName: "Settings").tag(LanguageChoice.system)
+            Text(verbatim: "English").tag(LanguageChoice.english)
+            Text(verbatim: "日本語").tag(LanguageChoice.japanese)
+          } label: {
+            Text("Language", tableName: "Settings")
+          }
+        } header: {
+          Text("Language", tableName: "Settings")
+        } footer: {
+          Text("Applies to Kitbag, its tools and the apps inside it.", tableName: "Settings")
+        }
+        .listRowBackground(palette.card)
+
         Section {
           ThemePicker()
             .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
@@ -95,6 +113,19 @@ struct SettingsView: View {
     }
   }
 
+  /// The language chosen for the whole of Kitbag. Changing it redraws at once, tells the guests, and plans the reminders
+  /// again (their text is in the chosen language) and the widgets.
+  private var languageBinding: Binding<LanguageChoice> {
+    Binding(
+      get: { LanguageStore.shared.choice },
+      set: { choice in
+        LanguageStore.shared.apply(choice)
+        guests.applyLanguage(choice)
+        deadlines.syncReminders()
+        WidgetBridge.sync(theme: themes.themeID)
+      })
+  }
+
   private var versionText: String {
     let info = Bundle.main.infoDictionary
     let version = info?["CFBundleShortVersionString"] as? String ?? "?"
@@ -117,7 +148,7 @@ private struct SignatureSettings: View {
               Text(
                 expires > context.date
                   ? SigningStatus.left(from: context.date, to: expires)
-                  : String(localized: "Expired", table: "Settings"))
+                  : L10n.string("Expired", table: "Settings"))
             )
             if let created = profile.createdAt {
               Divider().padding(.vertical, 8)

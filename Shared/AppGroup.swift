@@ -21,4 +21,18 @@ enum AppGroup {
 struct WidgetSettings: Codable, Equatable {
   /// A `ThemeID` raw value.
   var theme: String
+  /// A `LanguageChoice` raw value: the language chosen for Kitbag, which the widgets follow.
+  var language: String
+
+  init(theme: String, language: String) {
+    self.theme = theme
+    self.language = language
+  }
+
+  /// A file from before the language was kept has none.
+  init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    theme = try container.decode(String.self, forKey: .theme)
+    language = try container.decodeIfPresent(String.self, forKey: .language) ?? "system"
+  }
 }

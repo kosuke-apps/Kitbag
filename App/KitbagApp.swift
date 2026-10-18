@@ -19,8 +19,10 @@ struct KitbagApp: App {
 
   var body: some Scene {
     WindowGroup {
-      ThemeRoot {
-        HomeView()
+      LanguageRoot {
+        ThemeRoot {
+          HomeView()
+        }
       }
       .environment(guests)
       .environment(timetable)

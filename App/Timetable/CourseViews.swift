@@ -63,7 +63,7 @@ struct CourseCard: View {
 
 func creditsText(_ credits: Double) -> String {
   let number = credits == credits.rounded() ? "\(Int(credits))" : String(format: "%.1f", credits)
-  return String(localized: "\(number) cr", table: "Timetable")
+  return L10n.string("\(number) cr", table: "Timetable")
 }
 
 /// Everything about one course: credits, instructors, when it meets, its grade, and the deadlines and notes that belong
@@ -272,7 +272,7 @@ struct CourseDetailView: View {
           openModule(ModuleRoute(.notes, noteID: note.id))
         } label: {
           VStack(alignment: .leading, spacing: 2) {
-            Text(note.title.isEmpty ? String(localized: "New note", table: "Notes") : note.title).foregroundStyle(
+            Text(note.title.isEmpty ? L10n.string("New note", table: "Notes") : note.title).foregroundStyle(
               .primary)
             if !note.preview.isEmpty {
               Text(note.preview).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
@@ -476,7 +476,7 @@ private struct MeetingFields: View {
         Text("Delete this class", tableName: "Timetable")
       }
     } header: {
-      Text(meeting.label.isEmpty ? String(localized: "Class", table: "Timetable") : meeting.label)
+      Text(meeting.label.isEmpty ? L10n.string("Class", table: "Timetable") : meeting.label)
     }
   }
 

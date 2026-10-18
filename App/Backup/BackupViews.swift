@@ -108,6 +108,7 @@ private struct RestoreBackupModifier: ViewModifier {
   @Environment(LayoutStore.self) private var layout
   @Environment(NotificationPreferencesStore.self) private var notifications
   @Environment(GradeScaleStore.self) private var gradeScales
+  @Environment(GuestRuntimes.self) private var guests
 
   @State private var summary: BackupSummary?
   @State private var accessing: URL?
@@ -147,7 +148,7 @@ private struct RestoreBackupModifier: ViewModifier {
       } message: {
         if let summary {
           Text(
-            "Made \(summary.createdAt.formatted(date: .abbreviated, time: .shortened)). It replaces the timetable, deadlines, notes and settings that are in Kitbag now. What is here now is saved first in a backup of its own, so this can be undone.",
+            "Made \(summary.createdAt.formattedInLanguage(date: .abbreviated, time: .shortened)). It replaces the timetable, deadlines, notes and settings that are in Kitbag now. What is here now is saved first in a backup of its own, so this can be undone.",
             tableName: "Settings")
         }
       }
@@ -176,7 +177,7 @@ private struct RestoreBackupModifier: ViewModifier {
       summary = try BackupManager().summary(of: file)
     } catch {
       finish()
-      outcome = .failed(String(localized: "This is not a Kitbag backup, or it is damaged.", table: "Settings"))
+      outcome = .failed(L10n.string("This is not a Kitbag backup, or it is damaged.", table: "Settings"))
     }
   }
 
@@ -203,6 +204,8 @@ private struct RestoreBackupModifier: ViewModifier {
       layout.reload()
       notifications.reload()
       gradeScales.reload()
+      LanguageStore.shared.reload()
+      guests.applyLanguage(LanguageStore.shared.choice)
       WidgetBridge.sync(theme: themes.themeID)
       outcome = .restored
     } catch {
