@@ -5,6 +5,8 @@ struct HomeView: View {
   @Environment(GuestRuntimes.self) private var guests
   @Environment(LayoutStore.self) private var layout
   @State private var route: ModuleRoute?
+  /// A backup file that was opened in Kitbag (AirDrop, Files); the person is asked before it is restored.
+  @State private var backupToRestore: URL?
 
   private let columns = [GridItem(.adaptive(minimum: 84), spacing: 16, alignment: .top)]
 
@@ -25,10 +27,17 @@ struct HomeView: View {
     }
     .themedScreen()
     .onOpenURL { url in
+      if url.isFileURL {
+        // A backup sent to Kitbag. Close any open tool first, so that the question can be shown.
+        route = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { backupToRestore = url }
+        return
+      }
       // kitbag://timetable, kitbag://calendar: the widgets open a tool this way.
       guard url.scheme == "kitbag", let host = url.host, let module = ModuleID(rawValue: host) else { return }
       route = ModuleRoute(module)
     }
+    .restoreBackup($backupToRestore)
     .fullScreenCover(item: $route) { route in
       ModuleScreen(placement: route.module.homeButtonPlacement, close: { self.route = nil }) {
         route.module.content(guests: guests, route: route)

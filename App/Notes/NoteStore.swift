@@ -16,17 +16,28 @@ final class NoteStore {
 
   init(url: URL = AppFiles.url("notes.json")) {
     self.url = url
+    (book, setAsideUnreadableFile) = Self.load(url: url)
+  }
+
+  /// Reads the file again, after a backup was restored over it.
+  func reload() {
+    pendingSave?.cancel()
+    (book, setAsideUnreadableFile) = Self.load(url: url)
+  }
+
+  private static func load(url: URL) -> (NoteBook, Bool) {
     var loaded = NoteBook()
+    var setAside = false
     if let data = try? Data(contentsOf: url) {
       do {
         loaded = try NoteBook(fileData: data)
         if let normalized = try? loaded.fileData(), normalized != data { try? AppFiles.write(normalized, to: url) }
       } catch {
         AppFiles.setAside(url)
-        setAsideUnreadableFile = true
+        setAside = true
       }
     }
-    book = loaded
+    return (loaded, setAside)
   }
 
   /// A new, empty note. It is kept only once it has text (see `finish`).

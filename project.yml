@@ -155,6 +155,21 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSHumanReadableCopyright: Copyright © 2026 Kosuke Satake. MIT License.
         UILaunchScreen: {}
+        # A backup file (.kitbag) that Kitbag can open, so that one sent by AirDrop offers to restore itself.
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: dev.kosuke.kitbag.backup
+            UTTypeDescription: Kitbag backup
+            UTTypeConformsTo:
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - kitbag
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Kitbag backup
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Owner
+            LSItemContentTypes:
+              - dev.kosuke.kitbag.backup
         # kitbag://timetable and kitbag://calendar open a tool; the widgets use them.
         CFBundleURLTypes:
           - CFBundleURLName: dev.kosuke.kitbag

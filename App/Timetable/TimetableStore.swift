@@ -12,10 +12,22 @@ final class TimetableStore {
   private(set) var setAsideUnreadableFile = false
   private(set) var saveFailed = false
   private let url: URL
+  private let legacyURL: URL
 
   init(url: URL = AppFiles.url("timetables.json"), legacyURL: URL = AppFiles.url("timetable.json")) {
     self.url = url
+    self.legacyURL = legacyURL
+    (library, setAsideUnreadableFile) = Self.load(url: url, legacyURL: legacyURL)
+  }
+
+  /// Reads the file again, after a backup was restored over it.
+  func reload() {
+    (library, setAsideUnreadableFile) = Self.load(url: url, legacyURL: legacyURL)
+  }
+
+  private static func load(url: URL, legacyURL: URL) -> (TimetableLibrary, Bool) {
     var loaded = TimetableLibrary()
+    var setAside = false
     if let data = try? Data(contentsOf: url) {
       do {
         loaded = try TimetableLibrary(fileData: data)
@@ -23,14 +35,14 @@ final class TimetableStore {
         if let normalized = try? loaded.fileData(), normalized != data { try? AppFiles.write(normalized, to: url) }
       } catch {
         AppFiles.setAside(url)
-        setAsideUnreadableFile = true
+        setAside = true
       }
     } else if let data = try? Data(contentsOf: legacyURL), let old = try? Timetable(fileData: data) {
       // The first version kept a single timetable; it becomes the first term. The old file is left where it is.
       loaded = TimetableLibrary(timetables: [old])
       try? AppFiles.write((try? loaded.fileData()) ?? Data(), to: url)
     }
-    library = loaded
+    return (loaded, setAside)
   }
 
   // MARK: Reading

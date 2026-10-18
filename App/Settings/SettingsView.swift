@@ -67,6 +67,9 @@ struct SettingsView: View {
         NotificationSettings()
           .listRowBackground(palette.card)
 
+        DataSettings()
+          .listRowBackground(palette.card)
+
         Section {
           LabeledContent {
             Text(versionText)

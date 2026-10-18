@@ -50,6 +50,12 @@ final class LayoutStore {
     sections = Self.load("kitbag.layout.sections", from: defaults)
   }
 
+  /// Reads the saved order and visibility again, after a backup was restored.
+  func reload() {
+    tools = Self.load("kitbag.layout.tools", from: defaults)
+    sections = Self.load("kitbag.layout.sections", from: defaults)
+  }
+
   private static func load(_ key: String, from defaults: UserDefaults) -> HomeLayout {
     defaults.data(forKey: key).flatMap { try? JSONDecoder().decode(HomeLayout.self, from: $0) } ?? HomeLayout()
   }

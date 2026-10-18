@@ -42,6 +42,17 @@
         }
       }
     },
+    "Cancel": {
+      "comment": "Button that dismisses a confirmation.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キャンセル"
+          }
+        }
+      }
+    },
     "Connect your iPhone to your Mac and install Kitbag again to renew it.": {
       "comment": "Body of the signature warning notification.",
       "localizations": {
@@ -70,6 +81,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "ダーク"
+          }
+        }
+      }
+    },
+    "Data": {
+      "comment": "Settings section title for backup and restore.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "データ"
           }
         }
       }
@@ -111,6 +133,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "もうすぐ期限"
+          }
+        }
+      }
+    },
+    "Export everything…": {
+      "comment": "Button that sends a backup file of all data.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべて書き出す…"
           }
         }
       }
@@ -164,6 +197,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kitbag"
+          }
+        }
+      }
+    },
+    "Kitbag backup": {
+      "comment": "Name of the backup file in the share sheet.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag バックアップ"
           }
         }
       }
@@ -222,6 +266,17 @@
         }
       }
     },
+    "Made %@. It replaces the timetable, deadlines, notes and settings that are in Kitbag now. What is here now is saved first in a backup of its own, so this can be undone.": {
+      "comment": "Message of the confirmation; the placeholder is the backup's date and time.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ に作成．いま Kitbag にある時間割，締め切り，メモ，設定が置き換わります．いまの内容は先に別のバックアップとして保存されるので，元に戻せます．"
+          }
+        }
+      }
+    },
     "Midnight": {
       "comment": "A deep navy theme.",
       "localizations": {
@@ -274,6 +329,17 @@
         }
       }
     },
+    "Nothing was lost: what was in Kitbag before is kept in a backup of its own.": {
+      "comment": "Alert text after a failed restore.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失われたものはありません．復元前の内容は別のバックアップとして保存されています．"
+          }
+        }
+      }
+    },
     "Notifications": {
       "comment": "Settings section title and row label for notification permission.",
       "localizations": {
@@ -314,6 +380,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "オン"
+          }
+        }
+      }
+    },
+    "One file with the timetable, deadlines, notes with their photos and files, and the settings. Send it to yourself by AirDrop or keep it in Files; opening it on another iPhone offers to restore it. Calendar subscriptions are left out because their addresses are secret.": {
+      "comment": "Footer under the backup buttons.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時間割，締め切り，写真やファイルを含むメモ，設定をひとつのファイルにまとめます．AirDrop で自分に送るか「ファイル」に保存してください．別の iPhone で開くと復元できます．カレンダーの購読は，アドレスが秘密のため含まれません．"
           }
         }
       }
@@ -366,6 +443,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "iOS の設定で通知を許可するまで，リマインダーは表示されません．"
+          }
+        }
+      }
+    },
+    "Replace what is in Kitbag": {
+      "comment": "Destructive button that restores a backup.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag の内容を置き換える"
+          }
+        }
+      }
+    },
+    "Restore from a backup…": {
+      "comment": "Button that picks a backup file to restore.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップから復元…"
+          }
+        }
+      }
+    },
+    "Restore this backup?": {
+      "comment": "Title of the confirmation before a restore.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このバックアップを復元しますか？"
+          }
+        }
+      }
+    },
+    "Restored.": {
+      "comment": "Alert title after a successful restore.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "復元しました．"
           }
         }
       }
@@ -446,6 +567,39 @@
         }
       }
     },
+    "That file could not be opened.": {
+      "comment": "Alert when a picked file cannot be read.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "そのファイルを開けませんでした．"
+          }
+        }
+      }
+    },
+    "The backup could not be made.": {
+      "comment": "Alert when exporting everything fails.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップを作成できませんでした．"
+          }
+        }
+      }
+    },
+    "The backup could not be restored.": {
+      "comment": "Alert title after a failed restore.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップを復元できませんでした．"
+          }
+        }
+      }
+    },
     "The icon could not be changed.": {
       "localizations": {
         "ja": {
@@ -462,6 +616,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "テーマ"
+          }
+        }
+      }
+    },
+    "This is not a Kitbag backup, or it is damaged.": {
+      "comment": "Alert text when a file cannot be read as a backup.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag のバックアップではないか，ファイルが壊れています．"
           }
         }
       }

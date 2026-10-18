@@ -75,7 +75,7 @@ adds what is specific to this project.
     events, VTODO, daily, weekly, monthly and yearly rules with count, until and exceptions; a rule it cannot read
     becomes a single event), `ICSWriter` (deadlines with an alarm, a term's classes as weekly events with an end date)
     and `DeadlineImport` (what an imported file adds or updates, matched by `Deadline.sourceUID`). Every user file has a
-    `version`. `Tests/KitbagCoreTests/` uses invented data only (152 tests).
+    `version`. `Tests/KitbagCoreTests/` uses invented data only (164 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
     `NoteStore`, `WeatherStore`, `SubscriptionStore`) at launch, and refreshes the weather and the stale subscriptions when
     the app becomes active.
@@ -123,6 +123,14 @@ adds what is specific to this project.
     viewer), `TermViews` (term name and dates, header, editor), `CourseViews` (card, detail with grade, deadlines and
     notes of the course, editor with credits), `CourseColor+Style` (pastel, dark and strong tones).
   - `App/GPA/GPAView.swift`: the cumulative and per-term GPA, grade menus, the what-if calculator and the target.
+  - `App/Backup/`: `BackupManager` writes everything into one `.kitbag` file (timetable, deadlines, notes with their
+    attachments, and the `kitbag.*` and `weather.*` settings from UserDefaults; not the weather cache, not the calendar
+    subscriptions or their secret addresses, not the guests' own data) using `BackupArchive` from KitbagCore (a header, a
+    JSON list, then the bytes of each file one after the other, read and written in chunks, names checked so that none can
+    leave the folder). A restore unpacks first, saves what is there now as `Backups/Before restore <time>.kitbag` (never
+    deleted), then replaces the files and settings and has the stores `reload()`. `.kitbag` is a registered file type, so
+    a backup sent by AirDrop opens in Kitbag and asks before restoring (`HomeView.onOpenURL`). The share sheet is
+    presented from the top view controller: inside a SwiftUI sheet it closed again at once.
   - `Widgets/` and `Shared/`: the WidgetKit extension (`dev.kosuke.kitbag.widgets`) with a Timetable widget (small,
     medium, and lock screen rectangular and inline: the class on or next, and the day's list, which moves on to the next
     class day once today is over) and a Deadlines widget (small, medium, lock screen). A widget cannot read the app's

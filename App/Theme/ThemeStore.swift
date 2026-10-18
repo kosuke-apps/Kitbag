@@ -44,6 +44,12 @@ final class ThemeStore {
     appearance = AppearanceMode(rawValue: defaults.string(forKey: "kitbag.appearance") ?? "") ?? .system
   }
 
+  /// Reads the choices again, after a backup was restored.
+  func reload() {
+    themeID = ThemeID(rawValue: defaults.string(forKey: "kitbag.theme") ?? "") ?? .ivory
+    appearance = AppearanceMode(rawValue: defaults.string(forKey: "kitbag.appearance") ?? "") ?? .system
+  }
+
   var theme: KitbagTheme { .theme(themeID) }
 
   /// The scheme to force: the theme's own (a dark theme), or else the person's choice; nil follows the system.

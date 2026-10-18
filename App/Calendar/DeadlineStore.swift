@@ -18,17 +18,28 @@ final class DeadlineStore {
 
   init(url: URL = AppFiles.url("deadlines.json")) {
     self.url = url
+    (book, setAsideUnreadableFile) = Self.load(url: url)
+  }
+
+  /// Reads the file again, after a backup was restored over it.
+  func reload() {
+    (book, setAsideUnreadableFile) = Self.load(url: url)
+    syncReminders()
+  }
+
+  private static func load(url: URL) -> (DeadlineBook, Bool) {
     var loaded = DeadlineBook()
+    var setAside = false
     if let data = try? Data(contentsOf: url) {
       do {
         loaded = try DeadlineBook(fileData: data)
         if let normalized = try? loaded.fileData(), normalized != data { try? AppFiles.write(normalized, to: url) }
       } catch {
         AppFiles.setAside(url)
-        setAsideUnreadableFile = true
+        setAside = true
       }
     }
-    book = loaded
+    return (loaded, setAside)
   }
 
   /// Adds a deadline, or replaces the one with the same id, and schedules its reminder.

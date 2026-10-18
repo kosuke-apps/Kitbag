@@ -38,6 +38,7 @@ struct KitbagApp: App {
       .task { await subscriptions.refreshStale() }
       #if DEBUG
         .task { exportPDFIfAsked() }
+        .task { backupIfAsked() }
       #endif
       .task { WidgetBridge.sync(theme: themes.themeID) }
       .onChange(of: themes.themeID) { _, id in WidgetBridge.sync(theme: id) }
@@ -57,6 +58,27 @@ struct KitbagApp: App {
 
 #if DEBUG
   extension KitbagApp {
+    /// For checking backups from the command line: `-kitbagBackupTo <path>` writes a backup there, and
+    /// `-kitbagRestoreFrom <path>` restores one. Only in debug builds.
+    @MainActor fileprivate func backupIfAsked() {
+      if let path = UserDefaults.standard.string(forKey: "kitbagBackupTo"),
+        let file = try? BackupManager().makeTemporaryBackup()
+      {
+        try? FileManager.default.removeItem(atPath: path)
+        try? FileManager.default.copyItem(at: file, to: URL(fileURLWithPath: path))
+      }
+      if let path = UserDefaults.standard.string(forKey: "kitbagRestoreFrom"),
+        (try? BackupManager().restore(from: URL(fileURLWithPath: path))) != nil
+      {
+        timetable.reload()
+        deadlines.reload()
+        notes.reload()
+        themes.reload()
+        layout.reload()
+        WidgetBridge.sync(theme: themes.themeID)
+      }
+    }
+
     /// For checking the PDF from the command line: launch with `-kitbagExportPDF <path>` and the current term's page is
     /// written there. Only in debug builds.
     @MainActor fileprivate func exportPDFIfAsked() {
