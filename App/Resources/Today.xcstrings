@@ -1,0 +1,71 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "in %@": {
+      "comment": "Time until a class starts; %@ is a duration such as '2 hr, 10 min'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@後"
+          }
+        }
+      }
+    },
+    "Next": {
+      "comment": "Label on the card of the class that starts next.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次"
+          }
+        }
+      }
+    },
+    "No classes in the next week.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この先1週間に授業はありません．"
+          }
+        }
+      }
+    },
+    "Now": {
+      "comment": "Label on the card of the class that is in progress.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今"
+          }
+        }
+      }
+    },
+    "Today": {
+      "comment": "Heading above the list of today's classes.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日"
+          }
+        }
+      }
+    },
+    "until %@": {
+      "comment": "When the class in progress ends; %@ is a time such as '9:40 AM'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@まで"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

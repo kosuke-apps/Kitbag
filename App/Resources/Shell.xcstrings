@@ -1,18 +1,39 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "Headway" : {
-      "comment" : "Name of the bus app on the home screen. A proper noun, the same in every language.",
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Headway" } }
+  "sourceLanguage": "en",
+  "strings": {
+    "Headway": {
+      "comment": "Name of the bus app on the home screen. A proper noun, the same in every language.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headway"
+          }
+        }
       }
     },
-    "Home" : {
-      "comment" : "Accessibility label of the house button that closes a tool and returns to the home screen.",
-      "localizations" : {
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ホーム" } }
+    "Home": {
+      "comment": "Accessibility label of the house button that closes a tool and returns to the home screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ホーム"
+          }
+        }
+      }
+    },
+    "Timetable": {
+      "comment": "Name of the timetable tool on the home screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時間割"
+          }
+        }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

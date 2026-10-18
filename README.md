@@ -10,11 +10,13 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
 
 ## Features
 
-- A home screen of app icons; each tool opens inside Kitbag.
+- A home screen with today's date, the class that is on or comes next, and the day's classes, above a grid of app icons;
+  each tool opens inside Kitbag.
+- Timetable: the week as a grid in the look of a printed school timetable (pastel blocks as tall as the class, a legend
+  of courses), a course editor, and import and export as a readable JSON file.
 - Headway (live Madison bus map) runs inside it as a guest, from its own repository, unchanged.
 
-Next: a Today screen (weather, next class, pinned notes, deadlines) and tools made for Kitbag (timetable, deadlines and
-calendar, notes, weather).
+Next: deadlines and calendar, notes, weather, pinned notes on the Today screen.
 
 ## Getting started
 
@@ -37,8 +39,9 @@ Guests are pinned release tags of other repositories, built as separate modules 
 
 ## Quality checks
 
-- Format: `xcrun swift-format format -i -r App`
-- Lint: `xcrun swift-format lint --strict -r App`
+- Test: `swift test`
+- Format: `xcrun swift-format format -i -r App Sources Tests Package.swift`
+- Lint: `xcrun swift-format lint --strict -r App Sources Tests Package.swift`
 - Build: the `xcodebuild` command above
 - Visual: run in the iOS Simulator, open each guest, tap the house button
 

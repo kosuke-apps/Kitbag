@@ -13,16 +13,19 @@ adds what is specific to this project.
 - Intended users: the author first (an exchange student at UW–Madison); anyone who builds the project themselves.
 - Core user journey: open Kitbag, see the Today screen, tap an app icon below it, the tool opens full screen inside
   Kitbag, tap the house button at the top right to come back.
-- Status: a trial prototype. Home screen with one guest (Headway) works; the Today screen and the Kitbag-made tools
-  are next. Nothing in it is a placeholder for an unbuilt feature.
+- Status: a trial prototype. Working: the home screen with a Today section (date, the class that is on or comes next,
+  today's classes), the Timetable tool (grid in the look of a printed UW–Madison timetable, course editor, JSON import
+  and export) and Headway as a guest. Next: deadlines and calendar, notes, weather, pinned notes on the Today screen,
+  Mantissa as the second guest. Nothing in it is a placeholder for an unbuilt feature.
 - Out of scope for now: features that cross tools (for example bus times for the next class), accounts, the App Store
   (it needs the paid Developer Program), anything that needs a paid account (WeatherKit, remote push, iCloud).
 - The university timetable and deadlines are the author's personal data: they never go into the repository.
 
 ## Technical context
 
-- Stack: Swift 5 mode, SwiftUI, iOS 17+, XcodeGen (`project.yml`; the `.xcodeproj` is not committed). Kitbag itself has
-  no third-party dependency; the guests bring theirs (Headway: MapLibre, SwiftProtobuf, ZIPFoundation).
+- Stack: SwiftUI, iOS 17+, XcodeGen (`project.yml`; the `.xcodeproj` is not committed). The app is in Swift 5 mode and
+  the logic package `KitbagCore` in Swift 6, as in Mantissa and Headway. Kitbag itself has no third-party dependency;
+  the guests bring theirs (Headway: MapLibre, SwiftProtobuf, ZIPFoundation).
 - Bundle identifier `dev.kosuke.kitbag`. Free Apple ID: `Config/Local.xcconfig` holds the team (not committed).
 - How a guest runs inside Kitbag (details and the upgrade steps are in `docs/guests.md`):
   - `tools/guests.txt` pins each guest to a release tag of its own repository (a sibling folder).
@@ -34,15 +37,29 @@ adds what is specific to this project.
   - `App/Guests/<Name>Guest.swift` is the adapter: what the guest's `@main` does at launch, and its window content as a
     view. It is the only code that knows the guest's internals.
 - Layout:
-  - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` at launch.
+  - `Package.swift`, `Sources/KitbagCore/`: the logic, tested on the Mac with `swift test` and linked into the app.
+    `Weekday` (ISO numbering, written as names), `TimeOfDay` (minutes, written as `"13:20"`), `Course` and `Meeting`
+    (hand-writable JSON; id, location and instructor may be left out), `Timetable` (slots of a day, `upcoming(after:)`
+    for the class on now or next, `hourRange` and `visibleDays` for the grid, the file format with a `version`).
+    `Tests/KitbagCoreTests/` uses invented courses only.
+  - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and `TimetableStore` at launch.
   - `App/Guests/`: `GuestRuntimes.swift` (one runtime per guest, created at launch because background-task
     registration must happen before the app has finished launching), `HeadwayGuest.swift` (the adapter).
   - `App/Modules/ModuleID.swift`: the tools on the home screen: title, icon, content.
-  - `App/Home/`: `HomeView` (icon grid, full-screen cover), `ModuleTile` (icon and name), `ModuleScreen` (the container
-    with the house button at the top right).
-  - `App/Resources/`: `Shell.xcstrings` (Kitbag's own strings, table "Shell"; the default table "Localizable" belongs
-    to Headway's catalog, which is copied into the same bundle), `en.lproj`/`ja.lproj/InfoPlist.strings`, `Assets.xcassets`
-    (the app icon, drawn by `tools/make_icon.swift`).
+  - `App/Home/`: `HomeView` (Today section, icon grid, full-screen cover), `ModuleTile` (icon and name; a guest's
+    icon image or an SF Symbol square), `ModuleScreen` (the container with the house button at the top right: a tool
+    keeps the top-right corner free, so its own toolbar uses the leading side).
+  - `App/Today/TodayView.swift`: date, the next-class card (tap opens the timetable), today's classes.
+  - `App/Timetable/`: `TimetableStore` (the timetable as `timetable.json` in Application Support; an unreadable file
+    is moved aside, never overwritten), `TimetableView` (screen, menu, import and export), `TimetableGrid` (the grid
+    and legend: blocks as tall as the class, details dropped level by level when a block is small), `CourseEditing`
+    (detail sheet, course list, course form), `CourseColor+Style` (pastel and dark variants).
+  - `App/Resources/`: String Catalogs `Shell`, `Today` and `Timetable` (Kitbag's own strings, always
+    `Text("…", tableName: "…")`; the default table "Localizable" belongs to Headway's catalog, which is copied into the
+    same bundle), `en.lproj`/`ja.lproj/InfoPlist.strings`, `Assets.xcassets` (the app icon, drawn by
+    `tools/make_icon.swift`).
+  - `Local/` (not committed): the author's own files, for example `timetable-2026-fall.json`, the author's real
+    timetable. Put it on a device through Timetable > menu > Import a file; into a simulator with the command below.
   - `tools/`: `sync_guests.sh`, `guests.txt`, `make_icon.swift`.
 - Constraints: never edit anything under `Guests/` and never write to a guest's repository. Strings are localized
   (English base, Japanese); Kitbag's own strings live in the "Shell" table. The guest Headway keeps its own in-app
@@ -56,8 +73,12 @@ adds what is specific to this project.
   `xcodegen generate`, then
   `xcodebuild -project Kitbag.xcodeproj -scheme Kitbag -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -derivedDataPath build/DerivedData build CODE_SIGNING_ALLOWED=NO`
   (another thread may be using a booted simulator; boot a different one).
-- Format: `xcrun swift-format format -i -r App`; lint: `xcrun swift-format lint --strict -r App` (config in
-  `.swift-format`).
+- Test the logic: `swift test`.
+- Format: `xcrun swift-format format -i -r App Sources Tests Package.swift`; lint:
+  `xcrun swift-format lint --strict -r App Sources Tests Package.swift` (config in `.swift-format`).
+- Load the author's timetable into a simulator: terminate the app, then
+  `C=$(xcrun simctl get_app_container <udid> dev.kosuke.kitbag data); mkdir -p "$C/Library/Application Support/Kitbag"; cp Local/timetable-2026-fall.json "$C/Library/Application Support/Kitbag/timetable.json"`
+  and launch it again.
 - Icon: `swift tools/make_icon.swift App/Resources/Assets.xcassets/AppIcon.appiconset`.
 - If a command fails because `xcode-select` points at the Command Line Tools, prefix it with
   `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`.
@@ -67,7 +88,7 @@ adds what is specific to this project.
 ## Definition of done
 
 - The requested behaviour is complete, including edge and error states.
-- Formatting and linting pass and the app builds; logic that is added gets Swift Testing tests (the shell has none yet).
+- Formatting and linting pass, `swift test` passes and the app builds; logic that is added gets Swift Testing tests.
 - UI is checked in the iOS Simulator at representative sizes, in light and dark mode, with Dynamic Type and VoiceOver.
 - Guests are checked after every sync: the guest opens, shows its map or data, and the house button returns home.
 - The Headway repository is unchanged afterwards (`git status` clean there).

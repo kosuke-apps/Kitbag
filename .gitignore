@@ -20,3 +20,6 @@ Config/Local.xcconfig
 
 # Private notes of the author's tooling
 .label.toml
+
+# The author's own timetable and other personal files used while developing (never committed)
+/Local/
