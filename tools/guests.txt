@@ -1,0 +1,11 @@
+# The guest apps that Kitbag embeds, pinned to a release tag. Read by tools/sync_guests.sh.
+#
+# Fields, separated by spaces:
+#   name   repository   tag   icon   extras...
+# - repository: the guest's checkout, relative to this folder. It is only read (git archive); never written.
+# - icon: a file inside the guest that is shown as its tile on the home screen.
+# - extras: files the guest needs but does not commit (data fetched or built by the guest's own tools). They are
+#   copied from the guest's working tree.
+#
+# To upgrade a guest, change its tag, run tools/sync_guests.sh, then follow docs/guests.md.
+Headway ../Headway v0.6.2 App/Resources/Assets.xcassets/AppIcon.appiconset/icon-light.png data/maps/madison.pmtiles data/seed/mmt_gtfs.zip data/punctuality/punctuality.json

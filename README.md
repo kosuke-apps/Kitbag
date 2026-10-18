@@ -1,0 +1,47 @@
+# Kitbag
+
+One iPhone app that holds a student's everyday tools behind a Today screen, and runs other apps inside itself.
+
+A free Apple ID lets you install three apps on a device, and each stops launching after 7 days. Kitbag takes one slot:
+tap an app icon on its home screen and the app opens full screen inside Kitbag; tap the house button at the top right to
+come back.
+
+This is a trial prototype for the author's own use at UW–Madison. It was built with AI assistance.
+
+## Features
+
+- A home screen of app icons; each tool opens inside Kitbag.
+- Headway (live Madison bus map) runs inside it as a guest, from its own repository, unchanged.
+
+Next: a Today screen (weather, next class, pinned notes, deadlines) and tools made for Kitbag (timetable, deadlines and
+calendar, notes, weather).
+
+## Getting started
+
+Requires Xcode 27 and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
+
+1. Check out [Headway](https://github.com/kosuke-apps/Headway) next to this folder, and build its data once with its own
+   tools (see its README).
+2. `tools/sync_guests.sh`
+3. `xcodegen generate`
+4. Open `Kitbag.xcodeproj`, or:
+   `xcodebuild -project Kitbag.xcodeproj -scheme Kitbag -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -derivedDataPath build/DerivedData build CODE_SIGNING_ALLOWED=NO`
+
+To run on an iPhone with a free Apple ID, copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig` and put your team
+in it.
+
+## Architecture
+
+Guests are pinned release tags of other repositories, built as separate modules inside Kitbag without changing them.
+`docs/guests.md` explains how, what a guest needs from the host, and how to upgrade one.
+
+## Quality checks
+
+- Format: `xcrun swift-format format -i -r App`
+- Lint: `xcrun swift-format lint --strict -r App`
+- Build: the `xcodebuild` command above
+- Visual: run in the iOS Simulator, open each guest, tap the house button
+
+## Licence
+
+MIT, Copyright (c) 2026 Kosuke Satake. Third-party material is listed in `THIRD_PARTY.md`.
