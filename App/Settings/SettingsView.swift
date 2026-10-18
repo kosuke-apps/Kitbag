@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import UserNotifications
 
 /// Settings: the theme and appearance, the app icon, and what the home screen shows and in what order.
 struct SettingsView: View {
@@ -63,11 +64,21 @@ struct SettingsView: View {
         }
         .listRowBackground(palette.card)
 
+        NotificationSettings()
+          .listRowBackground(palette.card)
+
         Section {
           LabeledContent {
             Text(versionText)
           } label: {
             Text("Version", tableName: "Settings")
+          }
+          if let expires = SigningStatus.expiresAt {
+            LabeledContent {
+              Text(expires, format: .dateTime.month(.abbreviated).day().hour().minute())
+            } label: {
+              Text("Signature expires", tableName: "Settings")
+            }
           }
           Link(destination: URL(string: "https://open-meteo.com/")!) {
             Text("Weather data by Open-Meteo.com", tableName: "Weather")
@@ -89,6 +100,82 @@ struct SettingsView: View {
     let version = info?["CFBundleShortVersionString"] as? String ?? "?"
     let build = info?["CFBundleVersion"] as? String ?? "?"
     return "\(version) (\(build))"
+  }
+}
+
+/// Whether notifications are allowed, and a button that sends one, so that it is clear on this phone that they arrive.
+private struct NotificationSettings: View {
+  @Environment(\.scenePhase) private var scenePhase
+  @State private var status: UNAuthorizationStatus = .notDetermined
+  @State private var testSent = false
+
+  private let scheduler = ReminderScheduler()
+
+  var body: some View {
+    Section {
+      LabeledContent {
+        Text(statusText, tableName: "Settings").foregroundStyle(allowed ? Color.secondary : Color.red)
+      } label: {
+        Text("Notifications", tableName: "Settings")
+      }
+      switch status {
+      case .notDetermined:
+        Button {
+          Task {
+            _ = await scheduler.authorize()
+            status = await scheduler.status()
+          }
+        } label: {
+          Text("Allow notifications", tableName: "Settings")
+        }
+      case .denied:
+        Button {
+          if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+        } label: {
+          Text("Open iOS Settings", tableName: "Settings")
+        }
+      default:
+        Button {
+          Task {
+            testSent = await scheduler.sendTest()
+            status = await scheduler.status()
+          }
+        } label: {
+          Text("Send a test notification", tableName: "Settings")
+        }
+      }
+    } header: {
+      Text("Notifications", tableName: "Settings")
+    } footer: {
+      if testSent {
+        Text("It arrives in 5 seconds. Lock the screen to see how it looks there.", tableName: "Settings")
+      } else if status == .denied {
+        Text("Reminders cannot be shown until notifications are allowed in iOS Settings.", tableName: "Settings")
+      } else {
+        Text(
+          "Deadline reminders and the warning before the signature runs out are local notifications: they need no internet and arrive even when Kitbag is closed.",
+          tableName: "Settings")
+      }
+    }
+    .task { status = await scheduler.status() }
+    .onChange(of: scenePhase) { _, phase in
+      if phase == .active { Task { status = await scheduler.status() } }
+    }
+  }
+
+  private var allowed: Bool {
+    switch status {
+    case .authorized, .provisional, .ephemeral: true
+    default: false
+    }
+  }
+
+  private var statusText: LocalizedStringKey {
+    switch status {
+    case .authorized, .provisional, .ephemeral: "On"
+    case .denied: "Off"
+    default: "Not set up yet"
+    }
   }
 }
 

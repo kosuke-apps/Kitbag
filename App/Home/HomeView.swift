@@ -17,6 +17,7 @@ struct HomeView: View {
             ModuleTile(module: module) { route = ModuleRoute(module) }
           }
         }
+        SigningFooter()
       }
       .padding(.horizontal, 20)
       .padding(.top, 12)

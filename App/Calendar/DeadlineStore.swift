@@ -12,6 +12,9 @@ final class DeadlineStore {
   private(set) var saveFailed = false
   private let url: URL
   private let reminders = ReminderScheduler()
+  private var syncing: Task<Void, Never>?
+  /// The code of a course (`ME 101`), for a reminder's text; set once the timetable is loaded.
+  var courseCode: (UUID) -> String? = { _ in nil }
 
   init(url: URL = AppFiles.url("deadlines.json")) {
     self.url = url
@@ -32,19 +35,14 @@ final class DeadlineStore {
   func upsert(_ deadline: Deadline, courseCode: String?) {
     book.upsert(deadline)
     save()
-    reminders.schedule(deadline, courseCode: courseCode)
+    syncReminders()
   }
 
-  /// Adds or replaces many deadlines at once (an import) and schedules the reminders of the nearest ones. iOS keeps at
-  /// most 64 pending notifications, so only the soonest few are scheduled.
+  /// Adds or replaces many deadlines at once (an import).
   func importDeadlines(_ imported: [Deadline], courseCode: (UUID) -> String?) {
     for deadline in imported { book.upsert(deadline) }
     save()
-    let now = Date()
-    let soonest = imported.filter { !$0.isDone && $0.dueInstant(calendar: .current) >= now }
-      .sorted { $0.dueInstant(calendar: .current) < $1.dueInstant(calendar: .current) }
-      .prefix(40)
-    for deadline in soonest { reminders.schedule(deadline, courseCode: deadline.courseID.flatMap(courseCode)) }
+    syncReminders()
   }
 
   func setDone(id: UUID, _ done: Bool, courseCode: String?) {
@@ -56,13 +54,21 @@ final class DeadlineStore {
   func remove(id: UUID) {
     book.remove(id: id)
     save()
-    reminders.cancel(id: id)
+    syncReminders()
   }
 
-  /// Schedules every reminder again, for example after the timetable changed a course's code.
-  func rescheduleReminders(timetable: Timetable) {
-    for deadline in book.deadlines {
-      reminders.schedule(deadline, courseCode: deadline.courseID.flatMap { timetable.course(id: $0)?.code })
+  /// Makes the phone's pending notifications match the deadlines (and the signature's warnings) as they are now. Called
+  /// after every change and whenever Kitbag opens, so that a reinstall or a changed course code cannot leave them stale.
+  /// One run follows another, so that two changes in a row do not interleave.
+  func syncReminders() {
+    let snapshot = book
+    let lookup = courseCode
+    let expiry = SigningStatus.expiresAt
+    let reminders = reminders
+    let previous = syncing
+    syncing = Task {
+      await previous?.value
+      await reminders.sync(deadlines: snapshot, courseCode: lookup, signatureExpiry: expiry)
     }
   }
 

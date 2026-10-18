@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 @main
 struct KitbagApp: App {
@@ -27,13 +28,21 @@ struct KitbagApp: App {
       .environment(subscriptions)
       .environment(themes)
       .environment(layout)
+      .task {
+        // Kitbag's own handler comes after the guests', which set theirs when they start.
+        UNUserNotificationCenter.current().delegate = KitbagNotificationDelegate.shared
+        deadlines.courseCode = { [timetable] in timetable.course(id: $0)?.code }
+        deadlines.syncReminders()
+      }
       .task { await weather.refresh() }
       .task { await subscriptions.refreshStale() }
       #if DEBUG
         .task { exportPDFIfAsked() }
       #endif
+      .onChange(of: timetable.timetable.courses.map(\.code)) { _, _ in deadlines.syncReminders() }
       .onChange(of: scenePhase) { _, phase in
         if phase == .active {
+          deadlines.syncReminders()
           Task { await weather.refresh() }
           Task { await subscriptions.refreshStale() }
         }

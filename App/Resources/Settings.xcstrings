@@ -11,6 +11,17 @@
         }
       }
     },
+    "Allow notifications": {
+      "comment": "Button that asks iOS for permission to show notifications.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知を許可"
+          }
+        }
+      }
+    },
     "App icon": {
       "localizations": {
         "ja": {
@@ -31,12 +42,45 @@
         }
       }
     },
+    "Connect your iPhone to your Mac and install Kitbag again to renew it.": {
+      "comment": "Body of the signature warning notification.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone を Mac につないで Kitbag をもう一度インストールすると，期限が延びます．"
+          }
+        }
+      }
+    },
+    "Connect your iPhone to your Mac and install Kitbag again.": {
+      "comment": "Shown when the signature is about to run out.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone を Mac につないで，Kitbag をもう一度インストールしてください．"
+          }
+        }
+      }
+    },
     "Dark": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "ダーク"
+          }
+        }
+      }
+    },
+    "Deadline reminders and the warning before the signature runs out are local notifications: they need no internet and arrive even when Kitbag is closed.": {
+      "comment": "Footer under the notification settings.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切りのリマインダーと署名切れの警告はローカル通知です．ネット接続は不要で，Kitbag を閉じていても届きます．"
           }
         }
       }
@@ -92,6 +136,17 @@
         }
       }
     },
+    "It arrives in 5 seconds. Lock the screen to see how it looks there.": {
+      "comment": "Footer under the test button.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 秒後に届きます．画面をロックすると，ロック画面での見え方を確認できます．"
+          }
+        }
+      }
+    },
     "Ivory": {
       "comment": "A warm paper theme.",
       "localizations": {
@@ -109,6 +164,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kitbag"
+          }
+        }
+      }
+    },
+    "Kitbag can remind you of deadlines on this iPhone.": {
+      "comment": "Body of the test notification.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone で Kitbag が締め切りをお知らせできます．"
+          }
+        }
+      }
+    },
+    "Kitbag stops opening in 2 days": {
+      "comment": "Notification title two days before the signature runs out.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag は 2 日後に開けなくなります"
+          }
+        }
+      }
+    },
+    "Kitbag stops opening today at %@": {
+      "comment": "Notification title on the day the signature runs out; the placeholder is a time.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag は今日 %@ に開けなくなります"
+          }
+        }
+      }
+    },
+    "Kitbag stops opening tomorrow": {
+      "comment": "Notification title the day before the signature runs out.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag は明日開けなくなります"
           }
         }
       }
@@ -164,12 +263,78 @@
         }
       }
     },
+    "Not set up yet": {
+      "comment": "Notification permission has not been asked yet.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未設定"
+          }
+        }
+      }
+    },
+    "Notifications": {
+      "comment": "Settings section title and row label for notification permission.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        }
+      }
+    },
+    "Notifications are working": {
+      "comment": "Title of the test notification.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知は正常に動作しています"
+          }
+        }
+      }
+    },
+    "Off": {
+      "comment": "Notifications are not allowed.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オフ"
+          }
+        }
+      }
+    },
+    "On": {
+      "comment": "Notifications are allowed.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オン"
+          }
+        }
+      }
+    },
     "Open book": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "開いた本"
+          }
+        }
+      }
+    },
+    "Open iOS Settings": {
+      "comment": "Button that opens the iOS Settings app.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS の設定を開く"
           }
         }
       }
@@ -194,6 +359,28 @@
         }
       }
     },
+    "Reminders cannot be shown until notifications are allowed in iOS Settings.": {
+      "comment": "Footer shown when notifications are denied.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS の設定で通知を許可するまで，リマインダーは表示されません．"
+          }
+        }
+      }
+    },
+    "Send a test notification": {
+      "comment": "Button that sends a notification to the phone after a few seconds.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "テスト通知を送る"
+          }
+        }
+      }
+    },
     "Settings": {
       "comment": "Title of the settings screen.",
       "localizations": {
@@ -201,6 +388,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "設定"
+          }
+        }
+      }
+    },
+    "Signature expired %@": {
+      "comment": "Footer on the home screen; the placeholder is a relative time such as '2 hours ago'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "署名は%@に切れました"
+          }
+        }
+      }
+    },
+    "Signature expires": {
+      "comment": "Settings row: the date this build stops opening.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "署名の期限"
+          }
+        }
+      }
+    },
+    "Signature expires %@": {
+      "comment": "Footer on the home screen; the placeholder is a relative time such as 'in 6 days'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "署名は%@に切れます"
           }
         }
       }
