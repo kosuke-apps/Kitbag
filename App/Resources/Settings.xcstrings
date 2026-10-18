@@ -1,12 +1,45 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ left": {
+      "comment": "Time left on the signature, such as '6d 23h 41m left'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残り%@"
+          }
+        }
+      }
+    },
+    "A build signed with a free Apple ID stops opening when this runs out, and is renewed by installing it again from the Mac.": {
+      "comment": "Footer under the signature details.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無料の Apple ID で署名したビルドは，これが切れると開けなくなります．Mac からもう一度インストールすると更新されます．"
+          }
+        }
+      }
+    },
     "About": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "情報"
+          }
+        }
+      }
+    },
+    "Account": {
+      "comment": "Settings row: the developer account's name.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウント"
           }
         }
       }
@@ -133,6 +166,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "もうすぐ期限"
+          }
+        }
+      }
+    },
+    "Expired": {
+      "comment": "Shown instead of a time left when the signature has run out.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "期限切れ"
           }
         }
       }
@@ -436,6 +480,17 @@
         }
       }
     },
+    "Profile": {
+      "comment": "Settings row: the provisioning profile's name.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロファイル"
+          }
+        }
+      }
+    },
     "Reminders cannot be shown until notifications are allowed in iOS Settings.": {
       "comment": "Footer shown when notifications are denied.",
       "localizations": {
@@ -513,6 +568,17 @@
         }
       }
     },
+    "Signature": {
+      "comment": "Settings section title.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "署名"
+          }
+        }
+      }
+    },
     "Signature expired %@": {
       "comment": "Footer on the home screen; the placeholder is a relative time such as '2 hours ago'.",
       "localizations": {
@@ -541,7 +607,18 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "署名は%@に切れます"
+            "value": "署名の期限は%@です"
+          }
+        }
+      }
+    },
+    "Signed on": {
+      "comment": "Settings row: when the provisioning profile was made.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "署名した日時"
           }
         }
       }
@@ -637,6 +714,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "このテーマは常にダークです．"
+          }
+        }
+      }
+    },
+    "Time left": {
+      "comment": "Settings row: how long the signature lasts.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残り時間"
           }
         }
       }

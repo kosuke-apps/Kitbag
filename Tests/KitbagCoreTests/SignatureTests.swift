@@ -22,7 +22,8 @@ struct SignatureTests {
       <plist version="1.0"><dict>
       <key>CreationDate</key><date>2026-10-17T21:54:41Z</date>
       <key>ExpirationDate</key><date>2026-10-24T21:54:41Z</date>
-      <key>Name</key><string>iOS Team Provisioning Profile</string>
+      <key>Name</key><string>iOS Team Provisioning Profile: dev.example.app</string>
+      <key>TeamName</key><string>Example Person</string>
       </dict></plist>
       """
     var data = Data([0x30, 0x82, 0x01, 0xFF, 0x06, 0x09])  // the start of a signed envelope
@@ -32,6 +33,8 @@ struct SignatureTests {
     let expected = ISO8601DateFormatter().date(from: "2026-10-24T21:54:41Z")
     #expect(profile?.expiresAt == expected)
     #expect(profile?.createdAt == ISO8601DateFormatter().date(from: "2026-10-17T21:54:41Z"))
+    #expect(profile?.name == "iOS Team Provisioning Profile: dev.example.app")
+    #expect(profile?.teamName == "Example Person")
   }
 
   @Test func hasNoProfileWithoutAPropertyList() {
@@ -47,6 +50,13 @@ struct SignatureTests {
     #expect(SignatureRemaining(expiresAt: date(19, 9), now: now) == .hours(21))
     #expect(SignatureRemaining(expiresAt: date(20, 12), now: now) == .days(2))
     #expect(SignatureRemaining(expiresAt: date(24, 21, 54), now: now) == .days(6))
+  }
+
+  @Test func splitsTheTimeLeft() {
+    let start = date(18, 12)
+    #expect(SignatureRemaining.parts(from: start, to: date(25, 11, 41)) == (6, 23, 41))
+    #expect(SignatureRemaining.parts(from: start, to: date(18, 12, 5)) == (0, 0, 5))
+    #expect(SignatureRemaining.parts(from: start, to: date(17, 12)) == (0, 0, 0))
   }
 
   @Test func warnsInStages() {

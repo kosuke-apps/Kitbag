@@ -70,19 +70,16 @@ struct SettingsView: View {
         DataSettings()
           .listRowBackground(palette.card)
 
+        SignatureSettings()
+          .listRowBackground(palette.card)
+
         Section {
           LabeledContent {
             Text(versionText)
           } label: {
             Text("Version", tableName: "Settings")
           }
-          if let expires = SigningStatus.expiresAt {
-            LabeledContent {
-              Text(expires, format: .dateTime.month(.abbreviated).day().hour().minute())
-            } label: {
-              Text("Signature expires", tableName: "Settings")
-            }
-          }
+
           Link(destination: URL(string: "https://open-meteo.com/")!) {
             Text("Weather data by Open-Meteo.com", tableName: "Weather")
           }
@@ -103,6 +100,59 @@ struct SettingsView: View {
     let version = info?["CFBundleShortVersionString"] as? String ?? "?"
     let build = info?["CFBundleVersion"] as? String ?? "?"
     return "\(version) (\(build))"
+  }
+}
+
+/// What the provisioning profile says about this build, down to the minute: a free Apple ID's signature lasts seven days.
+private struct SignatureSettings: View {
+  var body: some View {
+    if let profile = SigningStatus.profile, let expires = profile.expiresAt {
+      Section {
+        TimelineView(.everyMinute) { context in
+          VStack(spacing: 0) {
+            row("Signature expires", Text(expires, format: dateStyle))
+            Divider().padding(.vertical, 8)
+            row(
+              "Time left",
+              Text(
+                expires > context.date
+                  ? SigningStatus.left(from: context.date, to: expires)
+                  : String(localized: "Expired", table: "Settings"))
+            )
+            if let created = profile.createdAt {
+              Divider().padding(.vertical, 8)
+              row("Signed on", Text(created, format: dateStyle))
+            }
+            if let name = profile.name {
+              Divider().padding(.vertical, 8)
+              row("Profile", Text(name.replacingOccurrences(of: "iOS Team Provisioning Profile: ", with: "")))
+            }
+            if let team = profile.teamName {
+              Divider().padding(.vertical, 8)
+              row("Account", Text(team))
+            }
+          }
+        }
+      } header: {
+        Text("Signature", tableName: "Settings")
+      } footer: {
+        Text(
+          "A build signed with a free Apple ID stops opening when this runs out, and is renewed by installing it again from the Mac.",
+          tableName: "Settings")
+      }
+    }
+  }
+
+  private var dateStyle: Date.FormatStyle {
+    .dateTime.year().month(.abbreviated).day().hour().minute()
+  }
+
+  private func row(_ title: LocalizedStringKey, _ value: Text) -> some View {
+    LabeledContent {
+      value
+    } label: {
+      Text(title, tableName: "Settings")
+    }
   }
 }
 

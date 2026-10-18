@@ -6,10 +6,16 @@ import Foundation
 public struct ProvisioningProfile: Equatable, Sendable {
   public var createdAt: Date?
   public var expiresAt: Date?
+  /// `iOS Team Provisioning Profile: dev.kosuke.kitbag`.
+  public var name: String?
+  /// The developer account's name, as Apple shows it.
+  public var teamName: String?
 
-  public init(createdAt: Date? = nil, expiresAt: Date? = nil) {
+  public init(createdAt: Date? = nil, expiresAt: Date? = nil, name: String? = nil, teamName: String? = nil) {
     self.createdAt = createdAt
     self.expiresAt = expiresAt
+    self.name = name
+    self.teamName = teamName
   }
 
   /// Nil when the data holds no property list (the simulator and the App Store have no profile).
@@ -20,7 +26,9 @@ public struct ProvisioningProfile: Equatable, Sendable {
       let plist = try? PropertyListSerialization.propertyList(
         from: data.subdata(in: start.lowerBound..<end.upperBound), options: [], format: nil) as? [String: Any]
     else { return nil }
-    self.init(createdAt: plist["CreationDate"] as? Date, expiresAt: plist["ExpirationDate"] as? Date)
+    self.init(
+      createdAt: plist["CreationDate"] as? Date, expiresAt: plist["ExpirationDate"] as? Date,
+      name: plist["Name"] as? String, teamName: plist["TeamName"] as? String)
   }
 }
 
@@ -39,6 +47,12 @@ public enum SignatureRemaining: Equatable, Sendable {
     } else {
       self = .days(Int(seconds / (24 * 3600)))
     }
+  }
+
+  /// The time between two moments as whole days, hours and minutes, for a precise reading ("6 d 23 h 12 min").
+  public static func parts(from start: Date, to end: Date) -> (days: Int, hours: Int, minutes: Int) {
+    let minutes = max(0, Int(end.timeIntervalSince(start) / 60))
+    return (minutes / 1440, (minutes % 1440) / 60, minutes % 60)
   }
 
   public enum Level: Equatable, Sendable {
