@@ -6,6 +6,7 @@ import SwiftUI
 struct HomeView: View {
   @Environment(GuestRuntimes.self) private var guests
   @Environment(\.kitbagStyle) private var style
+  @Environment(DeadlineStore.self) private var deadlines
   @State private var route: ModuleRoute?
   /// A backup file that was opened in Kitbag (AirDrop, Files); the person is asked before it is restored.
   @State private var backupToRestore: URL?
@@ -59,7 +60,13 @@ struct HomeView: View {
       route = ModuleRoute(module)
     }
     .restoreBackup($backupToRestore)
-    .fullScreenCover(item: $route) { route in
+    .fullScreenCover(
+      item: $route,
+      onDismiss: {
+        // A reminder set in Headway is waiting by now; give it Headway's icon.
+        Task { await deadlines.decorateGuestNotifications() }
+      }
+    ) { route in
       ModuleScreen(placement: route.module.homeButtonPlacement, close: { self.route = nil }) {
         route.module.content(guests: guests, route: route)
       }

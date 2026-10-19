@@ -119,6 +119,11 @@ final class DeadlineStore {
     return task
   }
 
+  /// Puts the icon of Headway on the notifications it has scheduled (see `ReminderScheduler.decorateGuestNotifications`).
+  func decorateGuestNotifications() async {
+    await reminders.decorateGuestNotifications()
+  }
+
   // MARK: Buttons on a notification
 
   /// Carries out a button of a deadline's notification. Kitbag may have been started just for this, with no screen yet, so

@@ -60,3 +60,10 @@ whatever was there, and the last one wins. Kitbag needs its own delegate (the bu
 Kitbag's. A notification from a guest still shows as a banner because Kitbag's `willPresent` answers for every
 notification; its own tap action needs no handler of Kitbag's, but a guest whose notifications need a handler on tap
 would have to be forwarded to from `KitbagNotificationDelegate`.
+
+**Icon on a guest's notifications.** iOS draws the icon of the app on the left of every notification and an app cannot
+change it, so a notification from Headway shows Kitbag's icon. Kitbag adds what it can: Headway's reminders are made by
+Headway's own code with no picture, so `ReminderScheduler.decorateGuestNotifications` finds the waiting ones by the
+`headway.` their identifiers start with and sets each again (same identifier, text, sound and moment) with Headway's icon
+attached and "Headway" as the subtitle. It runs after every plan, when a tool is closed and when the app goes to the
+background. If a release of Headway names its notifications differently this quietly stops working; nothing else breaks.

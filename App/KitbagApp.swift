@@ -72,6 +72,7 @@ struct KitbagApp: App {
         .task { backupIfAsked() }
         .task { importTimetableIfAsked() }
         .task { await backupFolderIfAsked() }
+        .task { await fakeHeadwayReminderIfAsked() }
       #endif
       .task {
         deadlines.applyWidgetActions()
@@ -92,6 +93,15 @@ struct KitbagApp: App {
         }
         // The automatic backup into the chosen folder, at most once a day (see BackupNaming.isDue).
         if phase == .active || phase == .background { Task { await backupFolder.backUpIfDue() } }
+        // A reminder set in Headway just before leaving gets its icon while the app is still allowed to run.
+        if phase == .inactive || phase == .background {
+          var task = UIBackgroundTaskIdentifier.invalid
+          task = UIApplication.shared.beginBackgroundTask { UIApplication.shared.endBackgroundTask(task) }
+          Task {
+            await deadlines.decorateGuestNotifications()
+            UIApplication.shared.endBackgroundTask(task)
+          }
+        }
       }
     }
   }
@@ -105,6 +115,33 @@ struct KitbagApp: App {
       guard let name = UserDefaults.standard.string(forKey: "kitbagImportTimetable") else { return }
       _ = try? timetable.importFile(at: URL.documentsDirectory.appending(path: name))
       WidgetBridge.sync(theme: themes.themeID)
+    }
+
+    /// For checking the icon on Headway's notifications without setting a reminder in Headway: launch with
+    /// `-kitbagFakeHeadwayReminder YES` and a notification named like Headway's comes in 25 seconds, after Kitbag has given it
+    /// Headway's icon. Only in debug builds.
+    @MainActor fileprivate func fakeHeadwayReminderIfAsked() async {
+      guard UserDefaults.standard.bool(forKey: "kitbagFakeHeadwayReminder") else { return }
+      let content = UNMutableNotificationContent()
+      content.title = "Time to leave"
+      content.body = "The 80 leaves in 10 minutes"
+      content.sound = .default
+      content.interruptionLevel = .timeSensitive
+      let request = UNNotificationRequest(
+        identifier: "headway.reminder.test", content: content,
+        trigger: UNTimeIntervalNotificationTrigger(timeInterval: 25, repeats: false))
+      try? await UNUserNotificationCenter.current().add(request)
+      await deadlines.decorateGuestNotifications()
+      // And one of Kitbag's own, with the calendar's icon, to compare how an attached picture is drawn.
+      let own = UNMutableNotificationContent()
+      own.title = "Calendar icon test"
+      own.body = "A deadline reminder looks like this"
+      own.sound = .default
+      own.attachments = [NotificationIcon.attachment(for: .calendar)].compactMap { $0 }
+      try? await UNUserNotificationCenter.current().add(
+        UNNotificationRequest(
+          identifier: "kitbag.test.icon", content: own,
+          trigger: UNTimeIntervalNotificationTrigger(timeInterval: 25, repeats: false)))
     }
 
     /// For checking the backup folder without the picker: `-kitbagBackupFolder <name>` makes a folder of that name in the app's

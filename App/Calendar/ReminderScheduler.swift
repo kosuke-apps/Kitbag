@@ -103,8 +103,42 @@ struct ReminderScheduler {
         || $0.hasPrefix(Self.classPrefix)
     }
     center.removePendingNotificationRequests(withIdentifiers: ours.filter { !wantedIDs.contains($0) })
-    guard !wanted.isEmpty, await authorize() else { return }
+    guard !wanted.isEmpty, await authorize() else {
+      await decorateGuestNotifications()
+      return
+    }
     for request in wanted { try? await center.add(request) }
+    await decorateGuestNotifications()
+  }
+
+  // MARK: Notifications of the apps inside Kitbag
+
+  private static let decoratedKey = "kitbag.decorated"
+
+  /// Puts the icon of the app on the notifications that Headway has scheduled. Headway's code, which Kitbag does not change,
+  /// makes them with no picture; Kitbag finds the waiting ones by the `headway.` its identifiers start with and sets each
+  /// one again with the same identifier, the same text and sound, and the same moment (a trigger of "in so many seconds" is
+  /// worked out again from when it would have come), with Headway's icon attached and its name as the subtitle. One that is
+  /// already done is left alone. If Headway changes how it names them, this quietly does nothing.
+  func decorateGuestNotifications() async {
+    for request in await center.pendingNotificationRequests()
+    where request.identifier.hasPrefix("headway.") && request.content.userInfo[Self.decoratedKey] == nil {
+      guard let content = request.content.mutableCopy() as? UNMutableNotificationContent,
+        let icon = NotificationIcon.attachment(for: .headway)
+      else { continue }
+      content.attachments = [icon]
+      if content.subtitle.isEmpty { content.subtitle = L10n.string(ModuleID.headway.title) }
+      var info = content.userInfo
+      info[Self.decoratedKey] = true
+      content.userInfo = info
+      var trigger = request.trigger
+      if let interval = trigger as? UNTimeIntervalNotificationTrigger, let next = interval.nextTriggerDate() {
+        trigger = UNTimeIntervalNotificationTrigger(timeInterval: max(1, next.timeIntervalSinceNow), repeats: false)
+      }
+      try? await center.add(UNNotificationRequest(identifier: request.identifier, content: content, trigger: trigger))
+      let after = await center.pendingNotificationRequests().first { $0.identifier == request.identifier }
+      log.info("decorated a guest notification, attachments now: \(after?.content.attachments.count ?? -1)")
+    }
   }
 
   // MARK: Actions on a notification
@@ -251,6 +285,7 @@ struct ReminderScheduler {
     content.sound = .default
     content.categoryIdentifier = Self.categoryID
     content.threadIdentifier = deadline.courseID?.uuidString ?? "kitbag.deadlines"
+    content.attachments = [NotificationIcon.attachment(for: .calendar)].compactMap { $0 }
     content.userInfo = [
       "deadlineID": deadline.id.uuidString, "morning": preferences.allDayTime.minutes,
     ]
@@ -281,6 +316,7 @@ struct ReminderScheduler {
     let time = reminder.start.formattedInLanguage(date: .omitted, time: .shortened)
     content.body = [reminder.title, reminder.location, time].filter { !$0.isEmpty }.joined(separator: " · ")
     content.sound = .default
+    content.attachments = [NotificationIcon.attachment(for: .timetable)].compactMap { $0 }
     return content
   }
 
