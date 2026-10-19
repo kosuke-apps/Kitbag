@@ -92,6 +92,9 @@ struct WeatherView: View {
   }
 
   @ViewBuilder private var banners: some View {
+    if let reason = store.blocked {
+      banner(Text(SubscriptionStore.describe(reason)))
+    }
     if store.phase == .failed {
       banner(Text("Could not refresh. Showing the last forecast.", tableName: "Weather"))
     }

@@ -29,6 +29,10 @@ below). The apps that run inside Kitbag, Headway and Mantissa, are covered at th
 | `geocoding-api.open-meteo.com` ([Open-Meteo](https://open-meteo.com/)) | the text you type when you search for a place, and the app language | finding a place by name |
 | the address of each calendar you subscribe to | an ordinary web request for that file, with no account and no identifier from Kitbag | showing that calendar's events |
 
+Kitbag counts what these requests cost (bytes, by Wi-Fi or mobile data, by month) and keeps the count on the phone only, in
+the app's settings; a backup leaves it out. Settings > Data usage shows it and lets you choose how often the weather and your
+calendars are updated on each kind of connection.
+
 Open-Meteo can see your phone's network address, as any web server can, and says in its terms that it keeps no personal
 data. The calendar's host (Canvas, Google, ...) sees the request for your calendar as it does for any calendar app.
 Kitbag sends the weather and calendar requests through a session that keeps nothing on disk.

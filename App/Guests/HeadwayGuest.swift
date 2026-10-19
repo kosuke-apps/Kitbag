@@ -20,6 +20,13 @@ final class HeadwayRuntime {
     WatchBackground.register(model)
   }
 
+  /// What Headway has downloaded since its meter was last reset, from its own data meter (Headway > Settings > Live buses
+  /// > Mobile data), for the data usage screen to show next to Kitbag's own. Headway's meter is not Kitbag's.
+  func dataUsed() -> (wifi: Int, mobile: Int, since: Date) {
+    let usage = DataMeter.shared.usage
+    return (usage.bytes(metered: false), usage.bytes(metered: true), usage.since)
+  }
+
   /// Makes Headway speak the language chosen for the whole of Kitbag. Headway has a language setting of its own; Kitbag's
   /// choice is written into it, so the two never disagree.
   func setLanguage(_ choice: LanguageChoice) {

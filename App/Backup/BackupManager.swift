@@ -32,6 +32,7 @@ struct BackupManager {
   /// Settings that mean something only on this device (the chosen backup folder is a bookmark into this phone's files).
   private static let deviceOnlyKeys: Set<String> = [
     BackupFolderStore.bookmarkKey, BackupFolderStore.lastBackupKey, BackupFolderStore.nameKey,
+    DataUseStore.usageKey,
   ]
 
   private let fileManager = FileManager.default

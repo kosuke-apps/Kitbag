@@ -161,6 +161,18 @@ adds what is specific to this project.
     entered only for its grades (`Timetable.gradesOnly`: no grid, never the term in force), use its own scale (study abroad)
     or stay out of the cumulative GPA. All of it is KitbagCore: `GradeScale` (Codable, with which grades earn credit),
     `GPAMode`, `GPA.cumulative`, `GPA.earnedCredits`.
+  - Data use: everything Kitbag downloads goes through `DataUseStore.fetch` (`App/Settings/DataUseStore.swift`), which counts
+    what a request cost on the wire (the system's `URLSessionTaskMetrics`: headers and compressed body) into `DataUsage`
+    (KitbagCore: bytes and requests by source, by Wi-Fi or mobile, by month, 13 months) and, for "not on mobile data", also
+    forbids cellular and constrained access on the request itself. `DataUsePolicy.decide` (KitbagCore, tested) says whether
+    to fetch now from the connection (`NetworkCondition`: Wi-Fi, mobile data or a hotspot, or Low Data Mode), the person's
+    `DataUseSettings` (a rhythm per source for Wi-Fi and for mobile data, "save mobile data" which waits twice as long on
+    mobile and four times in Low Data Mode, a monthly mobile limit) and what this month has used; what the person asked for
+    (pull to refresh, a button, a new place or calendar) skips the rhythm and the limit but not "not on mobile data".
+    `WeatherStore` and `SubscriptionStore` take the store; a new network call must too. The settings are in UserDefaults
+    (`kitbag.dataUse.settings`, in a backup); the count is device-only (`kitbag.dataUse.usage`, listed in
+    `BackupManager.deviceOnlyKeys`). `DataUseView` (Settings > Data usage) shows and changes it, and reads Headway's own meter
+    through `HeadwayRuntime.dataUsed()`; Headway keeps its own choices. Both weather and calendars use ephemeral sessions.
   - Reminders: `NotificationPreferences` and `NotificationPlanner` (KitbagCore) decide what is scheduled; `ReminderScheduler`
     makes the requests and keeps to a budget, because iOS holds at most 64 per app and the guests' own count too (the
     signature's three, up to 28 class reminders for the next week, the rest of 54 for deadlines, soonest first). A deadline

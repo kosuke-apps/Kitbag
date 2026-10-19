@@ -21,6 +21,8 @@ enum SubscriptionError: Error {
   case noEvents
   /// The address could not be stored in, or found in, the keychain.
   case keychain
+  /// The choices about data keep it from being fetched on this connection.
+  case blocked(FetchBlock)
 }
 
 /// The subscriptions and the events fetched from them, kept in files in Application Support.
@@ -34,9 +36,7 @@ final class SubscriptionStore {
   private let metaURL = AppFiles.url("subscriptions.json")
   private let eventsURL = AppFiles.url("subscription-events.json")
   private let session: URLSession
-
-  /// How old a calendar may be before it is fetched again.
-  private let freshFor: TimeInterval = 60 * 60
+  private let dataUse: DataUseStore
 
   /// A session that keeps nothing on disk: a feed's address is a secret and so are its events, and a refresh must ask
   /// the server rather than reuse an answer it was given earlier.
@@ -47,8 +47,9 @@ final class SubscriptionStore {
     return URLSession(configuration: configuration)
   }
 
-  init(session: URLSession = SubscriptionStore.makeSession()) {
+  init(dataUse: DataUseStore, session: URLSession = SubscriptionStore.makeSession()) {
     self.session = session
+    self.dataUse = dataUse
     subscriptions =
       (try? Data(contentsOf: AppFiles.url("subscriptions.json")))
       .flatMap { try? JSONDecoder().decode([CalendarSubscription].self, from: $0) } ?? []
@@ -64,6 +65,9 @@ final class SubscriptionStore {
   /// Adds a calendar and fetches it at once, so that a wrong address is reported now.
   func add(name: String, address: String) async throws {
     guard let url = Self.url(from: address) else { throw SubscriptionError.notACalendarAddress }
+    if case .blocked(let reason) = dataUse.decide(.calendars, byRequest: true, lastFetched: nil) {
+      throw SubscriptionError.blocked(reason)
+    }
     let fetched = try await fetch(url)
     guard !fetched.isEmpty else { throw SubscriptionError.noEvents }
     var subscription = CalendarSubscription(name: name.trimmingCharacters(in: .whitespaces))
@@ -91,8 +95,20 @@ final class SubscriptionStore {
 
   // MARK: Fetching
 
-  func refresh(_ id: UUID) async {
-    guard subscriptions.contains(where: { $0.id == id }) else { return }
+  /// Fetches one calendar. `byRequest` is for a tap on its refresh button, which skips the rhythm; the automatic refresh
+  /// (`refreshStale`) leaves a calendar alone until the choices about data say it is time.
+  func refresh(_ id: UUID, byRequest: Bool = true) async {
+    guard let subscription = subscriptions.first(where: { $0.id == id }) else { return }
+    switch dataUse.decide(.calendars, byRequest: byRequest, lastFetched: subscription.lastFetched) {
+    case .tooSoon:
+      return
+    case .blocked(let reason):
+      // An automatic refresh that is held back is not an error; one that was asked for says why it did not happen.
+      if byRequest { markFailed(id, SubscriptionError.blocked(reason)) }
+      return
+    case .fetch:
+      break
+    }
     guard let address = Keychain.get(id.uuidString), let url = URL(string: address) else {
       markFailed(id, SubscriptionError.keychain)
       return
@@ -120,17 +136,16 @@ final class SubscriptionStore {
     save()
   }
 
-  /// Fetches the calendars that have not been fetched for a while.
+  /// Fetches the calendars that are due, by the choices about data for the connection the phone is on.
   func refreshStale() async {
-    for subscription in subscriptions
-    where subscription.lastFetched.map({ Date().timeIntervalSince($0) > freshFor }) ?? true {
-      await refresh(subscription.id)
+    for subscription in subscriptions {
+      await refresh(subscription.id, byRequest: false)
     }
   }
 
   private func fetch(_ url: URL) async throws -> [CalendarEvent] {
     do {
-      let (data, response) = try await session.data(from: url)
+      let (data, response) = try await dataUse.fetch(URLRequest(url: url), source: .calendars, session: session)
       if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
         throw SubscriptionError.server(http.statusCode)
       }
@@ -161,7 +176,19 @@ final class SubscriptionStore {
     case .network(let message): message
     case .noEvents: L10n.string("There are no events in that calendar.", table: "Calendar")
     case .keychain: L10n.string("The address could not be read from the keychain.", table: "Calendar")
+    case .blocked(let reason): describe(reason)
     case nil: error.localizedDescription
+    }
+  }
+
+  /// What the choices about data did, in words.
+  static func describe(_ block: FetchBlock) -> String {
+    switch block {
+    case .manualOnly: L10n.string("Updates are manual on mobile data. Pull down or tap refresh.", table: "DataUse")
+    case .notOnMobile:
+      L10n.string("Not on mobile data: this waits for Wi-Fi (Settings > Data usage).", table: "DataUse")
+    case .monthlyLimit:
+      L10n.string("The monthly mobile data limit is reached (Settings > Data usage).", table: "DataUse")
     }
   }
 

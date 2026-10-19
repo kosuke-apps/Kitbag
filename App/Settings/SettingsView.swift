@@ -8,7 +8,14 @@ struct SettingsView: View {
   @Environment(ThemeStore.self) private var themes
   @Environment(GuestRuntimes.self) private var guests
   @Environment(DeadlineStore.self) private var deadlines
+  @Environment(DataUseStore.self) private var dataUse
   @Environment(\.palette) private var palette
+
+  /// What this month has cost on mobile data, for the row that opens the data usage screen.
+  private var dataUseSummary: String {
+    let bytes = dataUse.usage.mobileBytes(inMonthOf: Date(), calendar: .current)
+    return L10n.string("Mobile: \(DataUseView.size(bytes))", table: "DataUse")
+  }
 
   var body: some View {
     @Bindable var themes = themes
@@ -95,6 +102,27 @@ struct SettingsView: View {
 
         NotificationSettings()
           .listRowBackground(palette.card)
+
+        Section {
+          NavigationLink {
+            DataUseView()
+          } label: {
+            LabeledContent {
+              Text(dataUseSummary)
+            } label: {
+              Label {
+                Text("Data usage", tableName: "DataUse")
+              } icon: {
+                Image(systemName: "chart.bar.doc.horizontal")
+              }
+            }
+          }
+        } footer: {
+          Text(
+            "How much Kitbag downloads, and how often the weather and your calendars are updated on Wi-Fi and on mobile data.",
+            tableName: "DataUse")
+        }
+        .listRowBackground(palette.card)
 
         DataSettings()
           .listRowBackground(palette.card)

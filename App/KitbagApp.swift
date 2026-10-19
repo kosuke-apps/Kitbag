@@ -9,8 +9,9 @@ struct KitbagApp: App {
   @State private var timetable: TimetableStore
   @State private var deadlines: DeadlineStore
   @State private var notes = NoteStore()
-  @State private var weather = WeatherStore()
-  @State private var subscriptions = SubscriptionStore()
+  @State private var dataUse: DataUseStore
+  @State private var weather: WeatherStore
+  @State private var subscriptions: SubscriptionStore
   @State private var themes = ThemeStore()
   @State private var layout = LayoutStore()
   @State private var notificationPreferences: NotificationPreferencesStore
@@ -25,6 +26,8 @@ struct KitbagApp: App {
   /// wins; `@State` would make them later, when the first view is drawn, and Headway's would replace Kitbag's.
   init() {
     let guests = GuestRuntimes()
+    // What is downloaded is counted and decided by one store, which watches the connection from the start.
+    let dataUse = DataUseStore()
     let timetable = TimetableStore()
     let deadlines = DeadlineStore()
     let preferences = NotificationPreferencesStore()
@@ -32,6 +35,9 @@ struct KitbagApp: App {
     deadlines.library = { [timetable] in timetable.library }
     deadlines.preferences = { [preferences] in preferences.preferences }
     _guests = State(initialValue: guests)
+    _dataUse = State(initialValue: dataUse)
+    _weather = State(initialValue: WeatherStore(dataUse: dataUse))
+    _subscriptions = State(initialValue: SubscriptionStore(dataUse: dataUse))
     _timetable = State(initialValue: timetable)
     _deadlines = State(initialValue: deadlines)
     _notificationPreferences = State(initialValue: preferences)
@@ -55,6 +61,7 @@ struct KitbagApp: App {
       .environment(themes)
       .environment(layout)
       .environment(notificationPreferences)
+      .environment(dataUse)
       .environment(gradeScales)
       .environment(backupFolder)
       .task { deadlines.syncReminders() }
@@ -128,6 +135,7 @@ struct KitbagApp: App {
         themes.reload()
         layout.reload()
         notificationPreferences.reload()
+        dataUse.reload()
         gradeScales.reload()
         WidgetBridge.sync(theme: themes.themeID)
       }

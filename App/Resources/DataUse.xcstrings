@@ -1,0 +1,516 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ a month": {
+      "comment": "A monthly limit of mobile data, such as '25 MB a month'.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "月 %@"
+          }
+        }
+      }
+    },
+    "%lld updates": {
+      "comment": "How many times something was fetched.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld update"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld updates"
+                }
+              }
+            }
+          }
+        },
+        "ja": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 回"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "A search for a place is fetched when you ask, and follows the choice for mobile data.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "場所の検索は操作したときだけ通信し，モバイルデータ通信の設定に従います．"
+          }
+        }
+      }
+    },
+    "About %@ each time, measured.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1回あたり約 %@（実測）．"
+          }
+        }
+      }
+    },
+    "Apps inside Kitbag": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag の中のアプリ"
+          }
+        }
+      }
+    },
+    "Automatic": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動"
+          }
+        }
+      }
+    },
+    "Automatic: every %@ on Wi-Fi, every %@ on mobile data, every %@ in Low Data Mode.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動: Wi-Fi では %@ごと，モバイルデータ通信では %@ごと，低データモードでは %@ごと．"
+          }
+        }
+      }
+    },
+    "Automatic: every %@, on any connection.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動: どの回線でも %@ごと．"
+          }
+        }
+      }
+    },
+    "Calendar subscriptions": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カレンダー購読"
+          }
+        }
+      }
+    },
+    "Connection now": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の接続"
+          }
+        }
+      }
+    },
+    "Counted by Kitbag from what the network reports, headers included. iOS Settings > Cellular shows a little more and covers every app.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ネットワークが報告した量を，ヘッダーも含めて Kitbag が数えています．iOS の「設定」>「モバイル通信」にはやや多く，すべてのアプリ分が表示されます．"
+          }
+        }
+      }
+    },
+    "Data usage": {
+      "comment": "Title of the screen about how much Kitbag downloads.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "データ使用量"
+          }
+        }
+      }
+    },
+    "Every 15 minutes": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15分ごと"
+          }
+        }
+      }
+    },
+    "Every 3 hours": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3時間ごと"
+          }
+        }
+      }
+    },
+    "Every 30 minutes": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30分ごと"
+          }
+        }
+      }
+    },
+    "Every 6 hours": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6時間ごと"
+          }
+        }
+      }
+    },
+    "Every hour": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1時間ごと"
+          }
+        }
+      }
+    },
+    "Headway": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headway"
+          }
+        }
+      }
+    },
+    "Headway keeps its own meter and its own choices: open Headway, then Settings > Live buses > Mobile data. Mantissa uses no network.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headway は独自のメーターと設定を持っています．Headway を開き，設定 > Live buses > モバイルデータ で確認・変更できます．Mantissa は通信しません．"
+          }
+        }
+      }
+    },
+    "How much Kitbag downloads, and how often the weather and your calendars are updated on Wi-Fi and on mobile data.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitbag の通信量と，Wi-Fi・モバイルデータ通信ごとの天気とカレンダーの更新頻度を設定します．"
+          }
+        }
+      }
+    },
+    "Last month: Wi-Fi %@ · mobile %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "先月: Wi-Fi %@ ・ モバイル %@"
+          }
+        }
+      }
+    },
+    "Low Data Mode": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低データモード"
+          }
+        }
+      }
+    },
+    "Mobile data": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルデータ通信"
+          }
+        }
+      }
+    },
+    "Mobile data limit": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルデータの上限"
+          }
+        }
+      }
+    },
+    "Mobile: %@": {
+      "comment": "This month's mobile data used, in the row that opens the data usage screen.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイル: %@"
+          }
+        }
+      }
+    },
+    "No limit": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "制限なし"
+          }
+        }
+      }
+    },
+    "Not on mobile data": {
+      "comment": "Never fetch on mobile data, not even when asked.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルデータ通信では更新しない"
+          }
+        }
+      }
+    },
+    "Not on mobile data: this waits for Wi-Fi (Settings > Data usage).": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルデータ通信では更新しません．Wi-Fi になるまで待ちます（設定 > データ使用量）．"
+          }
+        }
+      }
+    },
+    "On mobile data": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルデータ通信のとき"
+          }
+        }
+      }
+    },
+    "On Wi-Fi": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wi-Fi のとき"
+          }
+        }
+      }
+    },
+    "Only when I refresh": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手動で更新したときだけ"
+          }
+        }
+      }
+    },
+    "Place search": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "場所の検索"
+          }
+        }
+      }
+    },
+    "Reset": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リセット"
+          }
+        }
+      }
+    },
+    "Reset the data meter?": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "データ使用量のカウンターをリセットしますか？"
+          }
+        }
+      }
+    },
+    "Reset the meter": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カウンターをリセット"
+          }
+        }
+      }
+    },
+    "Save mobile data": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルデータを節約"
+          }
+        }
+      }
+    },
+    "Since %@: Wi-Fi %@ · mobile %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ から: Wi-Fi %@ ・ モバイル %@"
+          }
+        }
+      }
+    },
+    "The monthly mobile data limit is reached (Settings > Data usage).": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今月のモバイルデータの上限に達しました（設定 > データ使用量）．"
+          }
+        }
+      }
+    },
+    "Total": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合計"
+          }
+        }
+      }
+    },
+    "Updates are manual on mobile data. Pull down or tap refresh.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルデータ通信では手動更新です．画面を引き下げるか，更新ボタンを押してください．"
+          }
+        }
+      }
+    },
+    "Used this month": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今月の使用量"
+          }
+        }
+      }
+    },
+    "Used this month on mobile data: %@ of %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今月のモバイルデータ使用量: %@ / %@"
+          }
+        }
+      }
+    },
+    "Weather forecast": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天気予報"
+          }
+        }
+      }
+    },
+    "When this month's mobile data reaches the limit, Kitbag stops updating by itself on mobile data until next month. Updating by hand (pulling a screen down, a refresh button) still works.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今月のモバイルデータが上限に達すると，来月まで，モバイルデータ通信では自動更新を止めます．手動の更新（画面を引き下げる，更新ボタン）は使えます．"
+          }
+        }
+      }
+    },
+    "Where the rhythm is Automatic, Kitbag waits twice as long between updates on mobile data and four times as long in Low Data Mode. A personal hotspot counts as mobile data.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "頻度が「自動」のものは，モバイルデータ通信では更新の間隔を2倍，低データモードでは4倍にします．インターネット共有（テザリング）はモバイルデータ通信として扱います．"
+          }
+        }
+      }
+    },
+    "Wi-Fi": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wi-Fi"
+          }
+        }
+      }
+    },
+    "Wi-Fi %@ · mobile %@": {
+      "comment": "What one source used on Wi-Fi and on mobile data; the number of updates follows.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wi-Fi %@ ・ モバイル %@"
+          }
+        }
+      }
+    },
+    "Wi-Fi %@ · mobile %@ since %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wi-Fi %@ ・ モバイル %@（%@ から）"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

@@ -194,6 +194,7 @@ private struct RestoreBackupModifier: ViewModifier {
   @Environment(ThemeStore.self) private var themes
   @Environment(LayoutStore.self) private var layout
   @Environment(NotificationPreferencesStore.self) private var notifications
+  @Environment(DataUseStore.self) private var dataUse
   @Environment(GradeScaleStore.self) private var gradeScales
   @Environment(GuestRuntimes.self) private var guests
 
@@ -290,6 +291,7 @@ private struct RestoreBackupModifier: ViewModifier {
       themes.reload()
       layout.reload()
       notifications.reload()
+      dataUse.reload()
       gradeScales.reload()
       LanguageStore.shared.reload()
       guests.applyLanguage(LanguageStore.shared.choice)

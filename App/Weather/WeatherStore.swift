@@ -25,13 +25,29 @@ final class WeatherStore {
   private let defaults: UserDefaults
   private let location = LocationProvider()
   private let session: URLSession
+  private let dataUse: DataUseStore
 
-  /// How long a forecast counts as fresh.
+  /// Why the forecast was not brought up to date by itself, when the choices about data kept it from being (shown on the
+  /// weather screen, with how to update it anyway).
+  private(set) var blocked: FetchBlock?
+  /// The same for a search for a place.
+  private(set) var searchBlocked: FetchBlock?
+
+  /// The shortest a forecast is called fresh, whatever the rhythm.
   private let freshFor: TimeInterval = 15 * 60
 
-  init(defaults: UserDefaults = .standard, session: URLSession = .shared) {
+  /// A session that keeps nothing on disk and always asks the server: a forecast must not come from an old answer.
+  nonisolated static func makeSession() -> URLSession {
+    let configuration = URLSessionConfiguration.ephemeral
+    configuration.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+    configuration.timeoutIntervalForRequest = 20
+    return URLSession(configuration: configuration)
+  }
+
+  init(dataUse: DataUseStore, defaults: UserDefaults = .standard, session: URLSession = WeatherStore.makeSession()) {
     self.defaults = defaults
     self.session = session
+    self.dataUse = dataUse
     if let data = defaults.data(forKey: "weather.place"), let saved = try? JSONDecoder().decode(Place.self, from: data)
     {
       place = saved
@@ -48,14 +64,25 @@ final class WeatherStore {
 
   // MARK: Fetching
 
-  /// Fetches the forecast unless the one we have is fresh (or `force`). A failure keeps the old forecast.
+  /// Fetches the forecast when the choices about data say it is time (see `DataUsePolicy`), or when asked (`force`: pulling
+  /// the screen down, a button, a new place). A failure keeps the old forecast.
   func refresh(force: Bool = false) async {
     if followsLocation && (force || forecast == nil) { await updateLocation() }
-    if !force, let forecast, forecast.place == place, Date().timeIntervalSince(forecast.fetchedAt) < freshFor { return }
+    let last = forecast.flatMap { $0.place == place ? $0.fetchedAt : nil }
+    switch dataUse.decide(.weather, byRequest: force, lastFetched: last) {
+    case .tooSoon:
+      return
+    case .blocked(let reason):
+      blocked = reason
+      return
+    case .fetch:
+      blocked = nil
+    }
     guard phase != .loading else { return }
     phase = .loading
     do {
-      let (data, _) = try await session.data(from: OpenMeteo.forecastURL(for: place))
+      let (data, _) = try await dataUse.fetch(
+        URLRequest(url: OpenMeteo.forecastURL(for: place)), source: .weather, session: session)
       let fetched = try OpenMeteo.decodeForecast(data, place: place, fetchedAt: Date())
       forecast = fetched
       phase = .idle
@@ -65,10 +92,11 @@ final class WeatherStore {
     }
   }
 
-  /// The age of the forecast, for "Updated" text.
+  /// The age of the forecast, for "Updated" text: old by the rhythm of the connection now (never, when updates are manual).
   var isStale: Bool {
     guard let forecast else { return true }
-    return Date().timeIntervalSince(forecast.fetchedAt) > freshFor
+    let limit = max(dataUse.interval(.weather) ?? .infinity, freshFor)
+    return Date().timeIntervalSince(forecast.fetchedAt) > limit
   }
 
   // MARK: Places
@@ -104,8 +132,13 @@ final class WeatherStore {
 
   func search(_ query: String) async -> [Place] {
     let language = Locale.current.language.languageCode?.identifier ?? "en"
+    if case .blocked(let reason) = dataUse.decide(.places, byRequest: true, lastFetched: nil) {
+      searchBlocked = reason
+      return []
+    }
+    searchBlocked = nil
     guard let url = OpenMeteo.searchURL(query: query, language: language),
-      let (data, _) = try? await session.data(from: url)
+      let (data, _) = try? await dataUse.fetch(URLRequest(url: url), source: .places, session: session)
     else { return [] }
     return (try? OpenMeteo.decodePlaces(data)) ?? []
   }
