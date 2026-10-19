@@ -87,8 +87,11 @@ private struct CompactWeatherRow: View {
       Text(forecast.current.kind.title).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
       Spacer(minLength: 6)
       if let today {
-        Text("H \(format.temperature(today.maxTemperature))  L \(format.temperature(today.minTemperature))", tableName: "Weather")
-          .font(.caption)
+        Text(
+          "H \(format.temperature(today.maxTemperature))  L \(format.temperature(today.minTemperature))",
+          tableName: "Weather"
+        )
+        .font(.caption)
       }
       Text(forecast.place.name).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
     }

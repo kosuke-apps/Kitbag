@@ -159,16 +159,6 @@
         }
       }
     },
-    "Daily forecast": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "日ごとの予報"
-          }
-        }
-      }
-    },
     "Daily high": {
       "comment": "Weather screen.",
       "localizations": {
@@ -454,16 +444,6 @@
         }
       }
     },
-    "Hourly forecast": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1時間ごとの予報"
-          }
-        }
-      }
-    },
     "Hours with rain or snow": {
       "comment": "Weather screen.",
       "localizations": {
@@ -665,16 +645,6 @@
         }
       }
     },
-    "Precipitation": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "降水"
-          }
-        }
-      }
-    },
     "Pressure": {
       "localizations": {
         "ja": {
@@ -723,16 +693,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "雨・雪"
-          }
-        }
-      }
-    },
-    "Rain chance": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "降水確率"
           }
         }
       }

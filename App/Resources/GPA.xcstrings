@@ -89,16 +89,6 @@
         }
       }
     },
-    "Add a term and its courses in the timetable first.": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "まず時間割で学期と科目を追加してください．"
-          }
-        }
-      }
-    },
     "Add a term you took, or a course, with the plus button.": {
       "comment": "Hint on the GPA screen when nothing is entered.",
       "localizations": {
@@ -342,16 +332,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "残りの単位数を入力してください．"
-          }
-        }
-      }
-    },
-    "Every course of this term has a grade.": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "この学期の全科目に成績があります．"
           }
         }
       }
@@ -679,16 +659,6 @@
         }
       }
     },
-    "Overall": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "通算"
-          }
-        }
-      }
-    },
     "Pass / fail": {
       "comment": "Course treatment.",
       "localizations": {
@@ -825,16 +795,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "学期は学校名で名づけられ，その評価方式（東北: AA, A, B, C, D）で採点されます．成績表にある氏名と学籍番号は保存されません．"
-          }
-        }
-      }
-    },
-    "This term": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "この学期"
           }
         }
       }

@@ -306,9 +306,12 @@ struct NextClassCard: View {
       in: RoundedRectangle(cornerRadius: radius, style: .continuous)
     )
     .overlay(
-      RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(Color.primary.opacity(0.10), lineWidth: 0.75)
+      RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(
+        Color.primary.opacity(0.10), lineWidth: 0.75)
     )
-    .shadow(color: color.opacity(0.35 * min(style.shadowScale, 1)), radius: 14 * style.shadowScale, y: 6 * style.shadowScale)
+    .shadow(
+      color: color.opacity(0.35 * min(style.shadowScale, 1)), radius: 14 * style.shadowScale, y: 6 * style.shadowScale
+    )
     .contentShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
     .accessibilityElement(children: .combine)
   }
@@ -394,7 +397,9 @@ struct PinnedNoteCard: View {
     .padding(14 * style.paddingScale)
     .frame(maxWidth: .infinity, maxHeight: fillsHeight ? .infinity : nil, alignment: .topLeading)
     .background(Color.stickyNote, in: RoundedRectangle(cornerRadius: 16 * style.radiusScale, style: .continuous))
-    .shadow(color: .black.opacity(0.10 * min(style.shadowScale, 1)), radius: 8 * style.shadowScale, y: 3 * style.shadowScale)
+    .shadow(
+      color: .black.opacity(0.10 * min(style.shadowScale, 1)), radius: 8 * style.shadowScale, y: 3 * style.shadowScale
+    )
     .contentShape(RoundedRectangle(cornerRadius: 16 * style.radiusScale, style: .continuous))
     .accessibilityElement(children: .combine)
   }

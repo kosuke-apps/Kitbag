@@ -78,7 +78,7 @@ adds what is specific to this project.
     events, VTODO, daily, weekly, monthly and yearly rules with count, until and exceptions; a rule it cannot read
     becomes a single event), `ICSWriter` (deadlines with an alarm, a term's classes as weekly events with an end date)
     and `DeadlineImport` (what an imported file adds or updates, matched by `Deadline.sourceUID`). Every user file has a
-    `version`. `Tests/KitbagCoreTests/` uses invented data only (191 tests).
+    `version`. `Tests/KitbagCoreTests/` uses invented data only (209 tests).
   - `App/KitbagApp.swift`: entry point; creates `GuestRuntimes` and the stores (`TimetableStore`, `DeadlineStore`,
     `NoteStore`, `WeatherStore`, `SubscriptionStore`) at launch, and refreshes the weather and the stale subscriptions when
     the app becomes active.

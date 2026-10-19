@@ -244,7 +244,8 @@ struct ICSWriterTests {
 
   @Test func addsAnAlarmForEachAlertAndLeavesThemOutWhenDone() {
     let text = ICSWriter.deadlines(sample(), courseCode: { _ in nil }, calendar: chicago, now: moment(10, 1))
-    #expect(text.components(separatedBy: "BEGIN:VALARM").count == 3)  // two alarms for the lab report, none for the exam
+    // Two alarms for the lab report, none for the exam.
+    #expect(text.components(separatedBy: "BEGIN:VALARM").count == 3)
     #expect(text.contains("TRIGGER;VALUE=DATE-TIME:20261021T193000Z"))  // one day before 14:30 Chicago
     #expect(text.contains("TRIGGER;VALUE=DATE-TIME:20261022T183000Z"))  // one hour before
     var done = sample()

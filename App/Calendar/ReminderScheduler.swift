@@ -50,8 +50,11 @@ struct ReminderScheduler {
     var used = 0
     let pending = await center.pendingNotificationRequests()
 
-    // A snooze the person asked for stays while its deadline is open; it counts against the budget.
-    let open = Set(deadlines.deadlines.filter { !$0.isDone }.map(\.id))
+    // A snooze the person asked for stays while its deadline is open and reminders of it are on; it counts against the budget.
+    let open = Set(
+      deadlines.deadlines
+        .filter { !$0.isDone && preferences.deadlinesEnabled && preferences.deadlineKinds.contains($0.kind) }
+        .map(\.id))
     let snoozes = pending.map(\.identifier).filter { identifier in
       identifier.hasPrefix(Self.snoozePrefix)
         && UUID(uuidString: String(identifier.dropFirst(Self.snoozePrefix.count))).map(open.contains) == true
@@ -181,7 +184,8 @@ struct ReminderScheduler {
         others += 1
         continue
       }
-      let date = (request.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate()
+      let date =
+        (request.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate()
         ?? (request.trigger as? UNTimeIntervalNotificationTrigger)?.nextTriggerDate()
       mine.append(
         PendingReminder(

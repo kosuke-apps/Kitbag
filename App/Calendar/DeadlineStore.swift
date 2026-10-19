@@ -123,7 +123,9 @@ final class DeadlineStore {
 
   /// Carries out a button of a deadline's notification. Kitbag may have been started just for this, with no screen yet, so
   /// the stores are the ones the app made at launch, and the work is finished before iOS is told it is over.
-  static func perform(_ action: DeadlineAction, deadline id: UUID, content: UNNotificationContent, morning: TimeOfDay) async {
+  static func perform(
+    _ action: DeadlineAction, deadline id: UUID, content: UNNotificationContent, morning: TimeOfDay
+  ) async {
     let store = live ?? DeadlineStore()
     switch action {
     case .done:

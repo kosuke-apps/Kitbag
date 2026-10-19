@@ -19,7 +19,9 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
   needed), the cumulative GPA over the terms that count, a term graded on its own scale (study abroad) or left out of the
   cumulative GPA, courses left out or taken pass/fail, your own grading systems, credits earned, and a what-if
   calculator (imagined grades, imagined courses, courses left out) and the average a target GPA needs.
-- Calendar: deadlines (assignments, exams, quizzes, projects) with local-notification reminders, a month page with the
+- Calendar: deadlines (assignments, exams, quizzes, projects) with as many local-notification reminders as you like (a day
+  before, three hours before, on the morning...), set per kind of deadline and shown with the exact moment each will come,
+  with Done and Snooze buttons on the notification itself, a month page with the
   day's classes and deadlines, and a list grouped by how soon each is due. Import a calendar file (`.ics`) after a
   preview, export deadlines or a term's classes as `.ics`, and subscribe to a Canvas or Google calendar by its address:
   its events show beside yours and on Today (the address stays in the keychain).
@@ -37,7 +39,8 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
   restore.
 - Widgets: the class on now or next, the day's list and the whole week as a timetable, and what is due next (tap a circle
   to mark one done), on the home screen and the lock screen.
-- Settings: a language (system, English, 日本語) for Kitbag, its tools and the apps inside it, five themes, light or dark, five app icons, and which tools and which parts of Today are shown and in what
+- Settings: a language (system, English, 日本語) for Kitbag, its tools and the apps inside it, five colour themes and five styles (Classic, Glass, Bento, Editorial, Compact: the shapes and layout of Today and of every
+  card, apart from the colours), light or dark, five app icons, and which tools and which parts of Today are shown and in what
   order.
 - Headway (live Madison bus map) and Mantissa (offline exact calculator) run inside it as guests, from their own
   repositories, unchanged.

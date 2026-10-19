@@ -111,10 +111,13 @@ public struct Deadline: Hashable, Codable, Identifiable, Sendable {
 
   /// The moment each alert fires, the earliest first. A deadline with a time is reminded that long before it. One with no
   /// time is reminded on the day it counts back to, at the alert's own time or else `defaultTime`.
-  public func alertDates(defaultTime: TimeOfDay = .usualReminder, calendar: Calendar) -> [(alert: DeadlineAlert, fire: Date)] {
+  public func alertDates(
+    defaultTime: TimeOfDay = .usualReminder, calendar: Calendar
+  ) -> [(alert: DeadlineAlert, fire: Date)] {
     let start = date.date(calendar: calendar)
     let due = time.flatMap { calendar.date(byAdding: .minute, value: $0.minutes, to: start) } ?? start
-    return alerts
+    return
+      alerts
       .compactMap { alert in
         alert.fireDate(due: due, hasTime: time != nil, defaultTime: defaultTime, calendar: calendar).map { (alert, $0) }
       }

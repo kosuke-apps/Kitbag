@@ -11,8 +11,8 @@ configFiles:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "0.3.0"
-    CURRENT_PROJECT_VERSION: "3"
+    MARKETING_VERSION: "0.3.1"
+    CURRENT_PROJECT_VERSION: "4"
 packages:
   # Kitbag's own logic (timetable model and queries), tested on the Mac with `swift test`.
   Kitbag:
@@ -159,6 +159,8 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSHumanReadableCopyright: Copyright © 2026 Kosuke Satake. MIT License.
+        # A backup that is opened in Kitbag is copied, not edited where it is.
+        LSSupportsOpeningDocumentsInPlace: false
         UILaunchScreen: {}
         # A backup file (.kitbag) that Kitbag can open, so that one sent by AirDrop offers to restore itself.
         UTExportedTypeDeclarations:

@@ -132,7 +132,8 @@ struct NotificationPlannerTests {
 
   private func multi(_ alerts: [DeadlineAlert], day: Int = 22, hour: Int? = 12, done: Bool = false) -> Deadline {
     Deadline(
-      title: "multi", date: LocalDate(year: 2026, month: 10, day: day), time: hour.map { TimeOfDay(hour: $0, minute: 0) },
+      title: "multi", date: LocalDate(year: 2026, month: 10, day: day),
+      time: hour.map { TimeOfDay(hour: $0, minute: 0) },
       isDone: done, alerts: alerts)
   }
 
@@ -167,8 +168,10 @@ struct NotificationPlannerTests {
     preferences.followUpDays = 2
     let book = DeadlineBook(deadlines: [multi([]), multi([.days(1)], done: true)])
     #expect(
-      NotificationPlanner.deadlineReminders(book, preferences: preferences, now: date(18, 12), calendar: chicago, limit: 10)
-        .isEmpty)
+      NotificationPlanner.deadlineReminders(
+        book, preferences: preferences, now: date(18, 12), calendar: chicago, limit: 10
+      )
+      .isEmpty)
   }
 
   @Test func collapsesAlertsThatWouldComeAtTheSameMinute() {

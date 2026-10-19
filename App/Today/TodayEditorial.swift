@@ -114,7 +114,9 @@ private struct EditorialWeatherLine: View {
           .font(.system(.body, design: .serif).weight(.semibold))
         HStack(spacing: 6) {
           if let today {
-            Text("H \(format.temperature(today.maxTemperature))  L \(format.temperature(today.minTemperature))", tableName: "Weather")
+            Text(
+              "H \(format.temperature(today.maxTemperature))  L \(format.temperature(today.minTemperature))",
+              tableName: "Weather")
           }
           Text(verbatim: "·")
           Text(forecast.place.name)

@@ -332,8 +332,11 @@ private struct PendingRemindersView: View {
           }
         }
         if status == .denied {
-          Text("Notifications are turned off for Kitbag in iOS Settings, so none of these will be shown.", tableName: "Settings")
-            .foregroundStyle(.red)
+          Text(
+            "Notifications are turned off for Kitbag in iOS Settings, so none of these will be shown.",
+            tableName: "Settings"
+          )
+          .foregroundStyle(.red)
         }
       }
       .listRowBackground(palette.card)

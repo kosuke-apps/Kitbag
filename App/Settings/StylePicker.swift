@@ -65,7 +65,8 @@ private struct StyleThumbnail: View {
   private var date: some View {
     VStack(alignment: .leading, spacing: 2) {
       Capsule().fill(palette.heading).frame(width: 18, height: 3)
-      Capsule().fill(Color.primary.opacity(0.85)).frame(width: style == .compact ? 30 : 42, height: style == .compact ? 5 : 8)
+      Capsule().fill(Color.primary.opacity(0.85)).frame(
+        width: style == .compact ? 30 : 42, height: style == .compact ? 5 : 8)
       if style == .editorial { Rectangle().fill(palette.accent).frame(height: 1.5).padding(.top, 2) }
     }
   }
@@ -73,7 +74,9 @@ private struct StyleThumbnail: View {
   private func card(radius: CGFloat, height: CGFloat) -> some View {
     RoundedRectangle(cornerRadius: radius, style: .continuous)
       .fill(palette.card)
-      .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(palette.cardStroke, lineWidth: 0.5))
+      .overlay(
+        RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(palette.cardStroke, lineWidth: 0.5)
+      )
       .frame(height: height)
   }
 
@@ -99,7 +102,8 @@ private struct StyleThumbnail: View {
       .overlay(shape.fill(palette.card.opacity(0.4)))
       .overlay(
         shape.strokeBorder(
-          LinearGradient(colors: [.white.opacity(0.5), .white.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing),
+          LinearGradient(
+            colors: [.white.opacity(0.5), .white.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing),
           lineWidth: 0.8)
       )
       .frame(height: height)

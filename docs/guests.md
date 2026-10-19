@@ -52,3 +52,11 @@ a guest reads `UserDefaults.standard` with its own keys, so Kitbag's keys are pr
    with a compile error; fix the adapter.
 5. Run the app in the simulator: open the guest, check it shows its data, tap the house button.
 6. Confirm the guest's repository is unchanged: `git -C ../Headway status`.
+
+**Notification handler.** A guest that sets `UNUserNotificationCenter.current().delegate` in its launch work replaces
+whatever was there, and the last one wins. Kitbag needs its own delegate (the buttons on a deadline's notification), so
+`KitbagApp.init` creates `GuestRuntimes` first and sets Kitbag's delegate after it. Do not move the guests back into a
+`@State` default: that makes them when the first view is drawn, after `init`, and the guest's delegate then replaces
+Kitbag's. A notification from a guest still shows as a banner because Kitbag's `willPresent` answers for every
+notification; its own tap action needs no handler of Kitbag's, but a guest whose notifications need a handler on tap
+would have to be forwarded to from `KitbagNotificationDelegate`.

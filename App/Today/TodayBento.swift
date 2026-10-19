@@ -132,8 +132,11 @@ private struct BentoWeatherTile: View {
         .minimumScaleFactor(0.7)
       Text(forecast.current.kind.title).font(.footnote).foregroundStyle(.secondary)
       if let today {
-        Text("H \(format.temperature(today.maxTemperature))  L \(format.temperature(today.minTemperature))", tableName: "Weather")
-          .font(.caption.weight(.medium))
+        Text(
+          "H \(format.temperature(today.maxTemperature))  L \(format.temperature(today.minTemperature))",
+          tableName: "Weather"
+        )
+        .font(.caption.weight(.medium))
         if let chance = today.precipitationProbability, chance >= 10 {
           Label(format.percent(chance), systemImage: "drop.fill")
             .font(.caption)

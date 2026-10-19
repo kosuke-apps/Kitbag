@@ -90,12 +90,12 @@ public enum GradeReportParser {
     var semester: ReportedCourse.Semester
   }
 
-  nonisolated(unsafe) private static let creditExpression =
+  private static let creditExpression =
     try! NSRegularExpression(
       pattern: #"^(.*?)(\d+\.\d)\s+([A-Z]{1,2})\s*(○)?\s*(20\d\d)\s+(First|Second)\s+sem"#)
-  nonisolated(unsafe) private static let openExpression =
+  private static let openExpression =
     try! NSRegularExpression(pattern: #"^\*\s*(\d+\.\d)\s+(.+)$"#)
-  nonisolated(unsafe) private static let termExpression =
+  private static let termExpression =
     try! NSRegularExpression(pattern: #"^(20\d\d)\s+(First|Second)\s+sem"#)
 
   private static func creditLine(_ line: String) -> CreditLine? {

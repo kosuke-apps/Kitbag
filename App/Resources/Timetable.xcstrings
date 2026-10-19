@@ -87,6 +87,17 @@
         }
       }
     },
+    "Add a deadline": {
+      "comment": "Button in a course's page that adds a deadline for that course.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "締め切りを追加"
+          }
+        }
+      }
+    },
     "Add a term": {
       "localizations": {
         "ja": {
@@ -103,16 +114,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "学期と科目を追加するか，時間割ファイルを読み込んでください．"
-          }
-        }
-      }
-    },
-    "Add your courses, or import a timetable file.": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "科目を追加するか，時間割ファイルを読み込んでください．"
           }
         }
       }
@@ -260,6 +261,16 @@
         }
       }
     },
+    "Delete": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除"
+          }
+        }
+      }
+    },
     "Delete this class": {
       "localizations": {
         "ja": {
@@ -341,16 +352,6 @@
         }
       }
     },
-    "Edit courses…": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "科目を編集…"
-          }
-        }
-      }
-    },
     "Edit term": {
       "localizations": {
         "ja": {
@@ -381,7 +382,8 @@
         }
       }
     },
-    "Export a file…": {
+    "Export file…": {
+      "comment": "Menu item that shares the term as a Kitbag file.",
       "localizations": {
         "ja": {
           "stringUnit": {
@@ -588,6 +590,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "未評価"
+          }
+        }
+      }
+    },
+    "Notes": {
+      "comment": "Heading of a course's notes.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモ"
           }
         }
       }
@@ -853,16 +866,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "時間割のメニュー"
-          }
-        }
-      }
-    },
-    "Timetable title": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "時間割のタイトル"
           }
         }
       }

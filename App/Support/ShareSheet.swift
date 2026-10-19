@@ -20,6 +20,7 @@ enum ShareSheet {
   /// Returns false when the file could not be written.
   @discardableResult
   static func present(data: Data, name: String) -> Bool {
+    removeOldFolders()
     let folder = FileManager.default.temporaryDirectory.appending(path: "KitbagShare-\(UUID().uuidString)")
     let safe = name.map { "/:\\".contains($0) ? "-" : $0 }
     let url = folder.appending(path: String(safe))
@@ -31,5 +32,20 @@ enum ShareSheet {
     }
     present(url)
     return true
+  }
+
+  /// The folders of earlier shares are left behind for the system to clear; take away the ones from before today, which
+  /// are certainly not on screen any more.
+  private static func removeOldFolders() {
+    let manager = FileManager.default
+    let cutoff = Date().addingTimeInterval(-24 * 3600)
+    let folders =
+      (try? manager.contentsOfDirectory(
+        at: manager.temporaryDirectory, includingPropertiesForKeys: [.contentModificationDateKey])) ?? []
+    for folder in folders where folder.lastPathComponent.hasPrefix("KitbagShare-") {
+      let modified =
+        (try? folder.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
+      if modified < cutoff { try? manager.removeItem(at: folder) }
+    }
   }
 }

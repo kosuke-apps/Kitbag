@@ -136,7 +136,8 @@ struct DeadlineTests {
       alerts: [.minutes(0), .minutes(15), .hours(1), .days(1), .weeks(1)])
     let fires = item.alertDates(calendar: calendar).map(\.fire)
     // The earliest first.
-    #expect(fires == [moment(15, 14, 30), moment(21, 14, 30), moment(22, 13, 30), moment(22, 14, 15), moment(22, 14, 30)])
+    #expect(
+      fires == [moment(15, 14, 30), moment(21, 14, 30), moment(22, 13, 30), moment(22, 14, 15), moment(22, 14, 30)])
   }
 
   @Test func remindsAtTheUsualTimeForADeadlineWithoutATime() {
@@ -194,6 +195,14 @@ struct DeadlineAlertTests {
     let allDay = DeadlineAlert.normalized([.days(1, at: evening), .days(1)], hasTime: false)
     #expect(allDay.count == 2)  // 9:00 and 18:00 are two different reminders
     #expect(allDay.map { $0.timeOfDay?.hour } == [nil, 18])
+  }
+
+  @Test func keepsEverythingForTheAlertsAKindStartsWith() {
+    let evening = TimeOfDay(hour: 18, minute: 0)
+    let list = DeadlineAlert.normalized([.hours(2), .days(1, at: evening), .hours(2)], hasTime: nil)
+    #expect(list.map(\.leadMinutes) == [1440, 120])
+    #expect(list[0].timeOfDay == evening)
+    #expect(list[1].unit == .hours)
   }
 
   @Test func readsTheChoiceOfAnEarlierVersion() throws {

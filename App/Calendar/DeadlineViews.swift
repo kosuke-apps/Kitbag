@@ -211,7 +211,8 @@ struct DeadlineEditor: View {
   /// whether it has a time; otherwise the reminders stay and only what cannot apply is turned into what can.
   private func refreshAlerts() {
     if isNew, !alertsEdited {
-      deadline.alerts = DeadlineAlert.normalized(preferencesStore.preferences.alerts(for: deadline.kind), hasTime: hasTime)
+      deadline.alerts = DeadlineAlert.normalized(
+        preferencesStore.preferences.alerts(for: deadline.kind), hasTime: hasTime)
     } else {
       deadline.alerts = DeadlineAlert.normalized(deadline.alerts, hasTime: hasTime)
     }

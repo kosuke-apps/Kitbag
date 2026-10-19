@@ -90,16 +90,17 @@ public struct DeadlineAlert: Hashable, Codable, Identifiable, Sendable {
   }
 
   /// The alerts in the order they fire (the farthest first), without two that fire at the same moment, and, for a deadline
-  /// with no time, with the ones counted in hours or minutes turned into "on the day" (they cannot mean anything else).
-  public static func normalized(_ alerts: [DeadlineAlert], hasTime: Bool) -> [DeadlineAlert] {
+  /// with no time, with the ones counted in hours or minutes turned into "on the day" (they cannot mean anything else). With
+  /// `hasTime` nil (the alerts a kind of deadline starts with, which serve both) nothing is turned into anything else.
+  public static func normalized(_ alerts: [DeadlineAlert], hasTime: Bool?) -> [DeadlineAlert] {
     var seen = Set<String>()
     var list: [DeadlineAlert] = []
     for var alert in alerts {
-      if !hasTime, !alert.unit.isWholeDays {
+      if hasTime == false, !alert.unit.isWholeDays {
         alert.unit = .days
         alert.amount = 0
       }
-      if hasTime { alert.timeOfDay = nil }
+      if hasTime == true { alert.timeOfDay = nil }
       if seen.insert(alert.signature).inserted { list.append(alert) }
     }
     return list.sorted {

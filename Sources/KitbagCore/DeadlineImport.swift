@@ -23,7 +23,8 @@ public enum DeadlineImport {
   /// `window`). Deadlines that came from the same event in an earlier import keep their id and their alerts, so importing
   /// again updates; a new one gets the alerts `defaultAlerts` gives for its kind (the person's own choice, in the app).
   public static func deadlines(
-    from events: [CalendarEvent], courses: [Course], existing: [Deadline] = [], calendar: Calendar, window: DateInterval,
+    from events: [CalendarEvent], courses: [Course], existing: [Deadline] = [], calendar: Calendar,
+    window: DateInterval,
     defaultAlerts: (DeadlineKind) -> [DeadlineAlert] = { DeadlineAlert.standard(for: $0) }
   ) -> [Deadline] {
     var results: [Deadline] = []

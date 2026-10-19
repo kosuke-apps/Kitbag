@@ -17,12 +17,12 @@ final class BackupFolderStore {
 
   @ObservationIgnored private let defaults: UserDefaults
   /// The backups kept in the folder: the newest ones, one per day.
-  static let keep = 10
+  nonisolated static let keep = 10
 
   /// Device-specific values that a backup must not carry to another device.
-  static let bookmarkKey = "kitbag.backupFolderBookmark"
-  static let lastBackupKey = "kitbag.backupFolderLast"
-  static let nameKey = "kitbag.backupFolderName"
+  nonisolated static let bookmarkKey = "kitbag.backupFolderBookmark"
+  nonisolated static let lastBackupKey = "kitbag.backupFolderLast"
+  nonisolated static let nameKey = "kitbag.backupFolderName"
 
   init(defaults: UserDefaults = .standard) {
     self.defaults = defaults

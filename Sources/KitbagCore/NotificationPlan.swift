@@ -52,7 +52,8 @@ public struct NotificationPreferences: Codable, Equatable, Sendable {
     defaultAlerts =
       try container.decodeIfPresent([String: [DeadlineAlert]].self, forKey: .defaultAlerts) ?? defaults.defaultAlerts
     followUpDays = min(
-      max(try container.decodeIfPresent(Int.self, forKey: .followUpDays) ?? defaults.followUpDays, 0), Self.maxFollowUps)
+      max(try container.decodeIfPresent(Int.self, forKey: .followUpDays) ?? defaults.followUpDays, 0), Self.maxFollowUps
+    )
   }
 
   /// The alerts a new deadline of `kind` starts with.

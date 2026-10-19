@@ -101,7 +101,7 @@ struct AlertList: View {
         } else {
           alerts.append(saved)
         }
-        alerts = DeadlineAlert.normalized(alerts, hasTime: hasTime ?? true)
+        alerts = DeadlineAlert.normalized(alerts, hasTime: hasTime)
         changed()
       }
       .presentationDetents([.medium, .large])
@@ -110,14 +110,15 @@ struct AlertList: View {
 
   private func add(_ preset: DeadlineAlert) {
     alerts.append(preset)
-    alerts = DeadlineAlert.normalized(alerts, hasTime: hasTime ?? true)
+    alerts = DeadlineAlert.normalized(alerts, hasTime: hasTime)
     changed()
   }
 
   /// The usual choices; the ones already in the list are dimmed.
   private var presets: [DeadlineAlert] {
     switch hasTime {
-    case true?: [.minutes(0), .minutes(5), .minutes(15), .minutes(30), .hours(1), .hours(2), .days(1), .days(2), .weeks(1)]
+    case true?:
+      [.minutes(0), .minutes(5), .minutes(15), .minutes(30), .hours(1), .hours(2), .days(1), .days(2), .weeks(1)]
     case false?: [.days(0), .days(1), .days(2), .days(3), .weeks(1)]
     case nil: [.days(0), .minutes(15), .minutes(30), .hours(1), .hours(3), .days(1), .days(2), .weeks(1)]
     }
@@ -185,7 +186,7 @@ struct AlertEditor: View {
     NavigationStack {
       Form {
         Section {
-          Stepper(value: $alert.amount, in: 0...(alert.unit == .minutes ? 999 : 99)) {
+          Stepper(value: $alert.amount, in: 0...Self.largest(alert.unit)) {
             Text(alert.title(hasTime: hasTime))
           }
           Picker(selection: $alert.unit) {
@@ -252,9 +253,13 @@ struct AlertEditor: View {
       }
       .onChange(of: alert.unit) { _, unit in
         if !unit.isWholeDays { alert.timeOfDay = nil }
+        alert.amount = min(alert.amount, Self.largest(unit))
       }
     }
   }
+
+  /// The most a unit can count to: 999 minutes (a little over sixteen hours), 99 of the others.
+  private static func largest(_ unit: DeadlineAlert.Unit) -> Int { unit == .minutes ? 999 : 99 }
 
   private var units: [DeadlineAlert.Unit] {
     hasTime == false ? [.days, .weeks] : DeadlineAlert.Unit.allCases
