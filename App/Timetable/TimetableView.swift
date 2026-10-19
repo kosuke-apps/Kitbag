@@ -119,7 +119,8 @@ struct TimetableView: View {
     }
   }
 
-  /// The week as an A4 page. Tap a class for its course; the button at the corner opens it large, to zoom.
+  /// The week as an A4 page. Tap a class for its course; tap anywhere else on the page, or the button at the corner, to open
+  /// it large, to zoom.
   private func pageCard(_ term: Timetable) -> some View {
     GeometryReader { proxy in
       TimetablePage(
@@ -128,6 +129,9 @@ struct TimetableView: View {
       ) { slot in
         sheet = .course(termID: term.id, courseID: slot.course.id)
       }
+      // A class opens its course; anywhere else on the page opens the page large.
+      .contentShape(Rectangle())
+      .onTapGesture { showingViewer = true }
     }
     .aspectRatio(1 / 1.4142, contentMode: .fit)
     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -306,7 +310,7 @@ struct TimetableView: View {
   }
 }
 
-/// The page, large and zoomable: pinch or use the buttons; tap a class to open its course.
+/// The page, large and zoomable: pinch (around your fingers), double-tap or use the buttons; tap a class to open its course.
 struct TimetablePageViewer: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.palette) private var palette
@@ -316,22 +320,13 @@ struct TimetablePageViewer: View {
   let exportPDF: () -> Void
 
   @State private var zoom: CGFloat = 1
-  @State private var zoomAtGestureStart: CGFloat = 1
 
   var body: some View {
     NavigationStack {
-      GeometryReader { proxy in
-        let width = proxy.size.width
-        ScrollView([.horizontal, .vertical]) {
-          TimetablePage(
-            timetable: term, heading: term.pageHeading, style: .screen,
-            size: CGSize(width: width * zoom, height: width * zoom * 1.4142), onSelect: onSelect)
-        }
-        .scrollBounceBehavior(.basedOnSize)
-        .gesture(
-          MagnifyGesture()
-            .onChanged { zoom = min(max(zoomAtGestureStart * $0.magnification, 1), 4) }
-            .onEnded { _ in zoomAtGestureStart = zoom })
+      ZoomableScrollView(zoom: $zoom, range: 1...4, aspectRatio: 1.4142) { size in
+        // The page is drawn by a view controller of its own, which does not see this view's environment.
+        TimetablePage(timetable: term, heading: term.pageHeading, style: .screen, size: size, onSelect: onSelect)
+          .tint(palette.accent)
       }
       .themedScreen()
       .navigationBarTitleDisplayMode(.inline)
@@ -371,6 +366,5 @@ struct TimetablePageViewer: View {
 
   private func setZoom(_ value: CGFloat) {
     zoom = min(max(value, 1), 4)
-    zoomAtGestureStart = zoom
   }
 }
