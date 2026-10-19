@@ -87,6 +87,7 @@ struct PlacePicker: View {
 
 /// The weather on the Today screen: now, today's range, and the place.
 struct WeatherCard: View {
+  @Environment(\.kitbagStyle) private var style
   let forecast: Forecast
   @AppStorage("weather.units") private var unitsRaw = UnitPreference.automatic.rawValue
 
@@ -122,9 +123,9 @@ struct WeatherCard: View {
       LinearGradient(
         colors: [tint.opacity(0.30), tint.opacity(0.06)], startPoint: .topLeading, endPoint: .bottomTrailing
       )
-      .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+      .clipShape(RoundedRectangle(cornerRadius: 20 * style.radiusScale, style: .continuous))
     }
-    .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    .contentShape(RoundedRectangle(cornerRadius: 20 * style.radiusScale, style: .continuous))
     .accessibilityElement(children: .combine)
   }
 }

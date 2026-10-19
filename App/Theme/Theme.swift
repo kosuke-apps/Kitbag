@@ -143,20 +143,45 @@ struct ThemedBackground: View {
   }
 }
 
-/// A surface for a group of content: a translucent card with a hairline edge and a soft shadow.
+/// A surface for a group of content: a translucent card with a hairline edge and a soft shadow. How round it is, how
+/// much it is padded, whether it is frosted glass and how strong its shadow is come from the style the person chose.
 struct ThemedCard: ViewModifier {
   @Environment(\.palette) private var palette
+  @Environment(\.kitbagStyle) private var style
   var padding: CGFloat = 16
   var radius: CGFloat = 20
 
   func body(content: Content) -> some View {
-    let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
+    let shape = RoundedRectangle(cornerRadius: radius * style.radiusScale, style: .continuous)
     content
-      .padding(padding)
+      .padding(padding * style.paddingScale)
       .frame(maxWidth: .infinity, alignment: .leading)
-      .background(palette.card, in: shape)
-      .overlay(shape.strokeBorder(palette.cardStroke, lineWidth: 0.75))
-      .shadow(color: palette.shadow, radius: 14, y: 5)
+      .background { surface(shape) }
+      .overlay { edge(shape) }
+      .shadow(
+        color: palette.shadow.opacity(min(style.shadowScale, 1)), radius: 14 * style.shadowScale,
+        y: 5 * style.shadowScale)
+  }
+
+  @ViewBuilder private func surface(_ shape: RoundedRectangle) -> some View {
+    if style.usesMaterial {
+      shape.fill(.ultraThinMaterial).overlay(shape.fill(palette.card.opacity(0.45)))
+    } else {
+      shape.fill(palette.card)
+    }
+  }
+
+  @ViewBuilder private func edge(_ shape: RoundedRectangle) -> some View {
+    if style.usesMaterial {
+      // A light edge that is brighter at the top left, as glass catches the light.
+      shape.strokeBorder(
+        LinearGradient(
+          colors: [Color.white.opacity(0.45), palette.cardStroke, Color.white.opacity(0.08)], startPoint: .topLeading,
+          endPoint: .bottomTrailing),
+        lineWidth: style.strokeWidth)
+    } else {
+      shape.strokeBorder(palette.cardStroke, lineWidth: style.strokeWidth)
+    }
   }
 }
 

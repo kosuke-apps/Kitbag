@@ -194,6 +194,17 @@
         }
       }
     },
+    "Bento": {
+      "comment": "A style: tiles of different sizes side by side.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ベント"
+          }
+        }
+      }
+    },
     "Cancel": {
       "comment": "Button that dismisses a confirmation.",
       "localizations": {
@@ -234,6 +245,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "授業"
+          }
+        }
+      }
+    },
+    "Classic": {
+      "comment": "A style: rounded cards stacked.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クラシック"
+          }
+        }
+      }
+    },
+    "Compact": {
+      "comment": "A style: small and close together.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクト"
           }
         }
       }
@@ -344,6 +377,17 @@
         }
       }
     },
+    "Editorial": {
+      "comment": "A style: like a printed page.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エディトリアル"
+          }
+        }
+      }
+    },
     "Every deadline can have several reminders, set when you edit it. The morning time is used for deadlines with no time of day. Reminding again repeats at that time on the mornings after the day it was due, for deadlines you have not ticked off.": {
       "localizations": {
         "ja": {
@@ -425,6 +469,27 @@
           "stringUnit": {
             "state": "translated",
             "value": "Headway の通知"
+          }
+        }
+      }
+    },
+    "Frosted, rounder cards that let the colours behind them show through.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すりガラスのようにぼかした，より丸いカードです．背景の色が透けて見えます．"
+          }
+        }
+      }
+    },
+    "Glass": {
+      "comment": "A style: frosted glass cards.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ガラス"
           }
         }
       }
@@ -576,6 +641,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ライト"
+          }
+        }
+      }
+    },
+    "Like a printed page: sharp corners, thin rules, big serif headings and no boxes around the day.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "印刷物のような見た目です．角は直角で，細い罫線と大きな明朝系の見出しを使い，1日の予定を箱で囲みません．"
           }
         }
       }
@@ -975,6 +1050,16 @@
         }
       }
     },
+    "Rounded cards with a soft shadow, one under another.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "やわらかい影の丸いカードを縦に並べます．"
+          }
+        }
+      }
+    },
     "Scheduled": {
       "comment": "Title of the list of waiting reminders.",
       "localizations": {
@@ -1094,6 +1179,16 @@
         }
       }
     },
+    "Small and close together, to see the whole day without scrolling.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小さく詰めて並べ，スクロールせずに1日全体が見えるようにします．"
+          }
+        }
+      }
+    },
     "Stop backing up to a folder": {
       "comment": "Button.",
       "localizations": {
@@ -1101,6 +1196,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "フォルダへのバックアップをやめる"
+          }
+        }
+      }
+    },
+    "Style": {
+      "comment": "Header of the choice of look (shapes and layout) apart from colours.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スタイル"
           }
         }
       }
@@ -1229,6 +1335,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "このテーマは常にダークです．"
+          }
+        }
+      }
+    },
+    "Tiles of different sizes side by side: the weather next to the next class, tools as tiles.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大きさの違うタイルを並べます．天気と次の授業が横並びになり，ツールもタイルになります．"
           }
         }
       }

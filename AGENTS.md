@@ -93,12 +93,27 @@ adds what is specific to this project.
   - `App/Guests/`: `GuestRuntimes.swift` (one runtime per guest, created at launch because background-task
     registration must happen before the app has finished launching), `HeadwayGuest.swift` (the adapter).
   - `App/Modules/ModuleID.swift`: the tools on the home screen: title, icon, content.
-  - `App/Home/`: `HomeView` (Today section, icon grid, full-screen cover), `ModuleTile` (icon and name; a guest's
-    icon image or an SF Symbol square), `ModuleScreen` (the container with the house button at the top right: a tool
+  - `App/Home/`: `HomeView` (the date pinned at the top through `safeAreaInset` so that everything else scrolls under it, a
+    material bar that gets an edge once something has passed beneath; then Today, the tools, the signature footer; the
+    full-screen cover), `ModuleTile` (an icon and name, a tile card, or a list row, by the style; `ToolsView` chooses; a
+    guest's icon image or an SF Symbol square), `ModuleScreen` (the container with the house button at the top right: a tool
     keeps the top-right corner free, so its own toolbar uses the leading side).
-  - `App/Today/TodayView.swift`: the date (opens the calendar), the weather card, the next-class card (opens the
-    timetable), today's classes, due-soon deadlines and pinned notes. Each part opens its tool through a `ModuleRoute`
-    (a tool plus where to start: a day, or a note).
+  - Styles (`App/Theme/Style.swift`): a style is the look apart from the colours, chosen in Settings > Theme > Style
+    (`StylePicker`, `ThemeStore.styleID`, stored as `kitbag.style` so that a backup carries it; no value means Classic).
+    `KitbagStyle` is put in the environment (`\.kitbagStyle`) and carries scales for card radius, padding and shadow, whether
+    cards are frosted glass, the Today layout, the tools layout, the date header and the spacing. `ThemedCard` reads it, so
+    every card in every tool follows. Classic (stacked cards), Glass (frosted, rounder), Bento (tiles side by side, tools as
+    tiles), Editorial (sharp corners, rules, serif, no boxes in Today, tools as a list) and Compact (dense, four icons to a
+    row). The file is also compiled into the widgets target (`Theme.swift` uses it). A new style is a `StyleID` case, a
+    `KitbagStyle`, and, if it arranges Today differently, a `TodayLayout`; add its thumbnail in `StylePicker`.
+  - `App/Today/`: `TodayView` works out what Today shows once (`TodayModel`) and hands it to the layout the style names:
+    `TodayStack` (in the same file), `TodayBento`, `TodayEditorial`, `TodayCompact`; the shared parts (`NextClassCard`,
+    `DueSoonLines`, `PinnedNoteCard`, ...) live in `TodayView.swift`. `TodayHeader` is the date (opens the calendar), drawn
+    large, as a page head or on one line by the style. The parts keep the order and visibility the person chose
+    (`LayoutStore`); a part with nothing to show is left out. Each part opens its tool through a `ModuleRoute` (a tool
+    plus where to start: a day, or a note). To look at a style without the settings, launch the simulator build with
+    `-kitbag.style bento -kitbag.theme midnight -kitbag.language ja` (a launch argument overrides the saved value) and open a
+    tool with `xcrun simctl openurl <udid> kitbag://settings`.
   - `App/Calendar/`: `DeadlineStore` and `ReminderScheduler` (local notifications), `CalendarView` (month or upcoming,
     a button at the bottom right to add), `MonthView` (month page and the selected day's agenda), `DeadlineViews`
     (row and editor), `DeadlineStyle` (symbols, colours, names), `SubscriptionStore` (the subscriptions in

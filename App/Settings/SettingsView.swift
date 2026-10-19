@@ -32,6 +32,17 @@ struct SettingsView: View {
         Section {
           ThemePicker()
             .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+          VStack(alignment: .leading, spacing: 10) {
+            Text("Style", tableName: "Settings")
+              .font(.subheadline.weight(.semibold))
+              .padding(.horizontal, 16)
+            StylePicker()
+            Text(themes.style.summary)
+              .font(.footnote)
+              .foregroundStyle(.secondary)
+              .padding(.horizontal, 16)
+          }
+          .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
           Picker(selection: $themes.appearance) {
             ForEach(AppearanceMode.allCases) { mode in
               Text(mode.title).tag(mode)

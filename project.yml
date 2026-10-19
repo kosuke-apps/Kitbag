@@ -80,6 +80,7 @@ targets:
       - path: Widgets
       - path: Shared
       - path: App/Theme/Theme.swift
+      - path: App/Theme/Style.swift
       - path: App/Timetable/CourseColor+Style.swift
       - path: App/Calendar/DeadlineStyle.swift
       - path: App/Timetable/TimetablePage.swift

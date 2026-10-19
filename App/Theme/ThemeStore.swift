@@ -35,6 +35,10 @@ final class ThemeStore {
   var appearance: AppearanceMode {
     didSet { defaults.set(appearance.rawValue, forKey: "kitbag.appearance") }
   }
+  /// The look apart from the colours (`Style.swift`).
+  var styleID: StyleID {
+    didSet { defaults.set(styleID.rawValue, forKey: "kitbag.style") }
+  }
 
   @ObservationIgnored private let defaults: UserDefaults
 
@@ -42,15 +46,18 @@ final class ThemeStore {
     self.defaults = defaults
     themeID = ThemeID(rawValue: defaults.string(forKey: "kitbag.theme") ?? "") ?? .ivory
     appearance = AppearanceMode(rawValue: defaults.string(forKey: "kitbag.appearance") ?? "") ?? .system
+    styleID = StyleID(rawValue: defaults.string(forKey: "kitbag.style") ?? "") ?? .classic
   }
 
   /// Reads the choices again, after a backup was restored.
   func reload() {
     themeID = ThemeID(rawValue: defaults.string(forKey: "kitbag.theme") ?? "") ?? .ivory
     appearance = AppearanceMode(rawValue: defaults.string(forKey: "kitbag.appearance") ?? "") ?? .system
+    styleID = StyleID(rawValue: defaults.string(forKey: "kitbag.style") ?? "") ?? .classic
   }
 
   var theme: KitbagTheme { .theme(themeID) }
+  var style: KitbagStyle { .style(styleID) }
 
   /// The scheme to force: the theme's own (a dark theme), or else the person's choice; nil follows the system.
   var preferredScheme: ColorScheme? { theme.forcedScheme ?? appearance.colorScheme }
@@ -62,7 +69,7 @@ struct ThemeRoot<Content: View>: View {
   @ViewBuilder var content: Content
 
   var body: some View {
-    ThemeEnvironment(theme: store.theme) { content }
+    ThemeEnvironment(theme: store.theme, style: store.style) { content }
       .background { WindowAppearance(scheme: store.preferredScheme) }
   }
 }
@@ -71,6 +78,7 @@ struct ThemeRoot<Content: View>: View {
 private struct ThemeEnvironment<Content: View>: View {
   @Environment(\.colorScheme) private var scheme
   let theme: KitbagTheme
+  let style: KitbagStyle
   @ViewBuilder var content: Content
 
   var body: some View {
@@ -78,6 +86,7 @@ private struct ThemeEnvironment<Content: View>: View {
     content
       .environment(\.palette, palette)
       .environment(\.titleDesign, theme.design)
+      .environment(\.kitbagStyle, style)
       .tint(palette.accent)
   }
 }
