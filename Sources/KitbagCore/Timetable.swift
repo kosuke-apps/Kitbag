@@ -11,7 +11,7 @@ public enum Season: String, CaseIterable, Codable, Sendable {
 /// rows to draw, where in the term a day falls.
 public struct Timetable: Hashable, Codable, Identifiable, Sendable {
   public var id: UUID
-  /// The heading of the printed timetable, for example `"2026 Fall Semester Timetable (UW-Madison)"`.
+  /// The heading of the printed timetable, for example `"2026 Fall Semester Timetable (Example University)"`.
   public var title: String
   public var year: Int?
   public var season: Season?

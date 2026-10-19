@@ -7,6 +7,26 @@ In web terms: the guest repository is a package that Kitbag installs at a pinned
 lockfile). Kitbag does not copy the code into its own repository; it builds the guest's source as a separate module and
 mounts the guest's root component, the way a host page would mount another team's app.
 
+## Getting the guests (a fresh checkout)
+
+`tools/fetch_guests.sh` clones the guests next to Kitbag at the tags that `tools/guests.txt` pins:
+
+```bash
+tools/fetch_guests.sh     # ../Headway at v0.6.7 and ../Mantissa at v0.22.0, from github.com/kosuke-apps
+```
+
+They are the public repositories <https://github.com/kosuke-apps/Headway> and <https://github.com/kosuke-apps/Mantissa>.
+A folder that already exists is not touched (only a missing tag is fetched), so a checkout you work in is safe;
+`KITBAG_GUEST_BASE` takes the repositories from another place, such as a local folder.
+
+Headway also needs data that is in no repository: `data/maps/madison.pmtiles` (OpenStreetMap data in a Protomaps build),
+`data/seed/mmt_gtfs.zip` (the City of Madison's timetable) and `data/punctuality/punctuality.json` (statistics Headway
+builds from recordings of the City's live feeds; an empty table if there are none). Build them in Headway's checkout with
+Headway's tools, `tools/fetch_basemap.sh`, `tools/fetch_timetable.sh` and `tools/build_punctuality.sh` (its README lists what
+they need), before `tools/sync_guests.sh`, which stops with a message if one is missing. The City's terms of use cover its
+feeds and anything derived from them (Headway's `docs/data-sources.md`): Kitbag and Headway publish the statistics as part of
+the app, never the recordings, and a release of Kitbag carries the data inside the app as Headway's releases do.
+
 ## What happens
 
 1. `tools/sync_guests.sh` runs `git archive <tag>` on the guest's repository and unpacks it into `Guests/<Name>/`

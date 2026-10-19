@@ -2,11 +2,14 @@
 
 One iPhone app that holds a student's everyday tools behind a Today screen, and runs other apps inside itself.
 
-A free Apple ID lets you install three apps on a device, and each stops launching after 7 days. Kitbag takes one slot:
-tap an app icon on its home screen and the app opens full screen inside Kitbag; tap the house button at the top right to
-come back.
+With a free Apple ID, an app you sideload is widely reported to stop launching after 7 days, and a device to hold only
+three such apps at a time (that comes from the sideloading tools' pages and community reports, not from Apple's
+documentation). Kitbag takes one of those slots: tap an app icon on its home screen and the app opens full screen inside
+Kitbag; tap the house button at the top right to come back.
 
-This is a trial prototype for the author's own use at UW–Madison. It was built with AI assistance.
+This is a prototype for the author's own use as a student.
+
+This app was built with the help of Claude (Anthropic) through Claude Code; design, review and testing are by Kosuke Satake. Anthropic does not endorse this app.
 
 ## Features
 
@@ -46,19 +49,41 @@ This is a trial prototype for the author's own use at UW–Madison. It was built
   repositories, unchanged.
 
 
-## Getting started
+## Install
 
-Requires Xcode 27 and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
+Apple only runs signed apps, so there are two ways.
 
-1. Check out [Headway](https://github.com/kosuke-apps/Headway) next to this folder, and build its data once with its own
-   tools (see its README).
-2. `tools/sync_guests.sh`
-3. `xcodegen generate`
-4. Open `Kitbag.xcodeproj`, or:
+**Take a release build (no build needed, but a second tool is).** Each
+[release](https://github.com/kosuke-apps/Kitbag/releases) has an unsigned `Kitbag-<version>-unsigned.ipa` and its
+checksum. Check the download with `shasum -a 256 -c Kitbag-<version>-unsigned.ipa.sha256`, then install the `.ipa` with a
+sideloading tool that signs with your own Apple ID, such as [AltStore](https://altstore.io) or
+[Sideloadly](https://sideloadly.io). The file is deliberately unsigned, so it carries no signature of mine. With a free
+Apple ID, such tools are widely reported to install an app that stops opening after 7 days (it has to be signed again) and
+to allow three apps at a time; that comes from the tools' own pages and community reports, not from Apple's documentation,
+so check the tool's page for the current limits. Kitbag's widgets and its keychain use entitlements (an App Group, a
+keychain group) that an unsigned file does not carry; a tool that does not add them leaves the widgets empty. The author
+has not tried this route; the file is checked only as far as its contents (unsigned, licence texts present, no personal
+data).
+
+**Build it yourself (how the author installs it).** You need a Mac with Xcode 27 and
+[XcodeGen](https://github.com/yonaskolb/XcodeGen), and, for Headway's data, [pmtiles](https://github.com/protomaps/go-pmtiles)
+and Node (`brew install xcodegen pmtiles node`).
+
+1. `tools/fetch_guests.sh` checks out [Headway](https://github.com/kosuke-apps/Headway) and
+   [Mantissa](https://github.com/kosuke-apps/Mantissa) next to this folder, at the release tags that `tools/guests.txt`
+   pins. A checkout that already exists is left alone.
+2. Build Headway's data once, with Headway's own tools (see its README):
+   `cd ../Headway && tools/fetch_basemap.sh && tools/fetch_timetable.sh && tools/build_punctuality.sh`. It is the map of
+   Madison (OpenStreetMap data, a Protomaps build) and the City of Madison's transit timetable. Neither repository contains
+   that data: the City's terms apply to its feeds and to anything derived from them, so you fetch it yourself (Headway's
+   `docs/data-sources.md` summarises the terms).
+3. `tools/sync_guests.sh`
+4. `xcodegen generate`
+5. Open `Kitbag.xcodeproj`, or:
    `xcodebuild -project Kitbag.xcodeproj -scheme Kitbag -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -derivedDataPath build/DerivedData build CODE_SIGNING_ALLOWED=NO`
 
 To run on an iPhone with a free Apple ID, copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig` and put your team
-in it.
+in it. `tools/make_unsigned_ipa.sh` builds the release file (`build/release/Kitbag-<version>-unsigned.ipa` and its checksum).
 
 ## Keeping it installed (free Apple ID)
 

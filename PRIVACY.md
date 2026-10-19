@@ -1,7 +1,7 @@
 # Privacy
 
 Kitbag has no account, no analytics, no advertising and no server of its own. Nothing about you or your phone is sent to
-the author. This was checked against the source on 2026-10-18 (every network address in Kitbag's own code is listed
+the author. This was checked against the source on 2026-10-19 (every network address in Kitbag's own code is listed
 below). The apps that run inside Kitbag, Headway and Mantissa, are covered at the end.
 
 ## What stays on your phone
