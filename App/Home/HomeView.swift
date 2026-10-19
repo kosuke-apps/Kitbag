@@ -60,18 +60,17 @@ struct HomeView: View {
       route = ModuleRoute(module)
     }
     .restoreBackup($backupToRestore)
-    .fullScreenCover(
-      item: $route,
-      onDismiss: {
-        // A reminder set in Headway is waiting by now; give it Headway's icon.
-        Task { await deadlines.decorateGuestNotifications() }
-      }
-    ) { route in
+    .fullScreenCover(item: $route, onDismiss: toolClosed) { route in
       ModuleScreen(placement: route.module.homeButtonPlacement, close: { self.route = nil }) {
         route.module.content(guests: guests, route: route)
       }
       .environment(\.openModule) { self.route = $0 }
     }
+  }
+
+  /// A tool was closed: a reminder set in Headway is waiting by now, so give it Headway's icon.
+  private func toolClosed() {
+    Task { await deadlines.decorateGuestNotifications() }
   }
 }
 
