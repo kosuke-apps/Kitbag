@@ -18,7 +18,7 @@ are in Headway's Settings > Licences screen inside Kitbag.
 | [MapLibre Native](https://github.com/maplibre/maplibre-native) | Swift package, via maplibre-gl-native-distribution 6.31.0 | BSD 2-Clause |
 | [SwiftProtobuf](https://github.com/apple/swift-protobuf) | Swift package (Headway's dependency) | Apache License 2.0 |
 | [ZIPFoundation](https://github.com/weichsel/ZIPFoundation) | Swift package (Headway's dependency) | MIT |
-| [Open-Meteo](https://open-meteo.com/) (weather forecasts and place search over the network) | `Sources/KitbagCore/Weather.swift`, `App/Weather/` | Data CC BY 4.0, credited in the Weather screen; the free API is for non-commercial use only (no advertising, no subscription), under 10,000 calls a day, no key. Terms read on 2026-10-18 at open-meteo.com/en/terms |
+| [Open-Meteo](https://open-meteo.com/) (weather forecasts and place search over the network) | `Sources/KitbagCore/Weather.swift`, `App/Weather/` | Data CC BY 4.0, credited in the Weather screen; the free API is for non-commercial use only (no advertising, no subscription), under 10,000 calls a day, no key. Terms read on 2026-10-18 at open-meteo.com/en/terms; they say nothing about open-source apps, so what keeps Kitbag inside them is that it is free, with no advertising, no subscription and no price (donations are allowed). The author agreed to this on 2026-10-18. Add ads or a price and a commercial plan is needed |
 | Noto Sans glyphs, protomaps map styles, OpenStreetMap data, City of Madison feeds | Headway's resources, copied into the app by `project.yml` | as listed in Headway's `THIRD_PARTY.md` |
 
 ## Used to build, not shipped
