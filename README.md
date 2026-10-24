@@ -47,6 +47,8 @@ This app was built with the help of Claude (Anthropic) through Claude Code; desi
   order.
 - Headway (live Madison bus map) and Mantissa (offline exact calculator) run inside it as guests, from their own
   repositories, unchanged.
+  The punctuality percentages in Headway are statistics of the City's live feeds that Headway recorded from 3 to 18 October
+  2026: 13 days, with 8 to 12 October missing because the recording stopped, so they are rough until more days are recorded.
 
 
 ## Install
