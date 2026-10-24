@@ -1,3 +1,4 @@
+import KitbagCore
 import SwiftUI
 import UserNotifications
 
@@ -75,6 +76,8 @@ struct KitbagApp: App {
         .task { importTimetableIfAsked() }
         .task { await backupFolderIfAsked() }
         .task { await fakeHeadwayReminderIfAsked() }
+        .task { await weatherManualIfAsked() }
+        .task { await weatherCancelTestIfAsked() }
       #endif
       .task {
         deadlines.applyWidgetActions()
@@ -157,6 +160,37 @@ struct KitbagApp: App {
         UNNotificationRequest(
           identifier: "kitbag.test.icon", content: own,
           trigger: UNTimeIntervalNotificationTrigger(timeInterval: 25, repeats: false)))
+    }
+
+    /// For trying the weather in manual mode without the settings screens: launch with `-kitbagWeatherManual YES` and the
+    /// weather is updated only on request, on every kind of connection, for a place that is chosen if none is (Madison, a
+    /// fixed test place). Only in debug builds.
+    @MainActor fileprivate func weatherManualIfAsked() async {
+      guard UserDefaults.standard.bool(forKey: "kitbagWeatherManual") else { return }
+      dataUse.settings.weatherOnWiFi = .manual
+      dataUse.settings.weatherOnMobile = .manual
+      if weather.place == nil {
+        await weather.choose(
+          Place(name: "Madison", detail: "Wisconsin, United States", latitude: 43.073, longitude: -89.401))
+      }
+    }
+
+    /// For checking that a cancelled refresh is not a failed one: SwiftUI cancels the task of a pull to refresh when the screen
+    /// redraws, so this starts five refreshes and cancels each after 40 ms, then logs how each ended. Launch with
+    /// `-kitbagWeatherCancelTest YES`. Only in debug builds.
+    @MainActor fileprivate func weatherCancelTestIfAsked() async {
+      guard UserDefaults.standard.bool(forKey: "kitbagWeatherCancelTest"), weather.place != nil else { return }
+      try? await Task.sleep(for: .seconds(3))
+      for round in 1...5 {
+        let before = weather.forecast?.fetchedAt
+        let task = Task { await weather.refresh(force: true) }
+        try? await Task.sleep(for: .milliseconds(40))
+        task.cancel()
+        await task.value
+        let updated = weather.forecast?.fetchedAt != before
+        NSLog("kitbag-test: weather round %d phase=%@ updated=%@", round, "\(weather.phase)", "\(updated)")
+        try? await Task.sleep(for: .seconds(1))
+      }
     }
 
     /// For checking the backup folder without the picker: `-kitbagBackupFolder <name>` makes a folder of that name in the app's

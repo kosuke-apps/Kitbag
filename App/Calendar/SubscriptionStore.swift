@@ -145,7 +145,8 @@ final class SubscriptionStore {
 
   private func fetch(_ url: URL) async throws -> [CalendarEvent] {
     do {
-      let (data, response) = try await dataUse.fetch(URLRequest(url: url), source: .calendars, session: session)
+      let (data, response) = try await dataUse.fetch(
+        URLRequest(url: url), source: .calendars, session: session, survivesCancellation: true)
       if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
         throw SubscriptionError.server(http.statusCode)
       }

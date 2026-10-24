@@ -86,7 +86,14 @@ final class DataUseStore {
   /// Downloads a request and counts what it cost: the headers and the body as they crossed the network (compressed, as
   /// they were sent), not the size after they were unpacked. On "not on mobile data" the request also carries iOS's own
   /// refusal to use mobile data or Low Data Mode, so that it cannot slip out if the phone changes connection meanwhile.
-  func fetch(_ request: URLRequest, source: DataSource, session: URLSession) async throws -> (Data, URLResponse) {
+  ///
+  /// `survivesCancellation` is for a download that is wanted whatever the screen does next (the forecast, a calendar). SwiftUI
+  /// cancels the task of a pull to refresh when the screen redraws (the first thing a refresh does is to change what the
+  /// screen shows), and the task of `.task` when the person leaves the screen; a cancelled request failed half way with
+  /// "cancelled" and was shown as a failure. The request then runs on a task of its own, which a cancel does not reach.
+  func fetch(
+    _ request: URLRequest, source: DataSource, session: URLSession, survivesCancellation: Bool = false
+  ) async throws -> (Data, URLResponse) {
     var request = request
     let connection = connection
     let gate = settings.choice(for: source == .places ? .weather : source, on: .mobile)
@@ -97,7 +104,12 @@ final class DataUseStore {
     }
     let meter = MeteringDelegate()
     do {
-      let result = try await session.data(for: request, delegate: meter)
+      let result: (Data, URLResponse)
+      if survivesCancellation {
+        result = try await Task { try await session.data(for: request, delegate: meter) }.value
+      } else {
+        result = try await session.data(for: request, delegate: meter)
+      }
       record(source, bytes: meter.bytes ?? result.0.count, metered: connection.isMetered)
       return result
     } catch {

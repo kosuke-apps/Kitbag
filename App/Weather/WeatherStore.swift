@@ -1,7 +1,10 @@
 import CoreLocation
 import KitbagCore
+import OSLog
 import Observation
 import SwiftUI
+
+private let log = Logger(subsystem: "dev.kosuke.kitbag", category: "weather")
 
 /// The weather for one place, fetched from Open-Meteo and kept in a file so that the last forecast shows at once.
 @MainActor
@@ -75,17 +78,26 @@ final class WeatherStore {
     case .fetch:
       blocked = nil
     }
-    guard phase != .loading else { return }
+    guard phase != .loading else {
+      log.info("refresh skipped: one is already running")
+      return
+    }
     phase = .loading
+    log.info("refresh started (force: \(force))")
     do {
       let (data, _) = try await dataUse.fetch(
-        URLRequest(url: OpenMeteo.forecastURL(for: place)), source: .weather, session: session)
+        URLRequest(url: OpenMeteo.forecastURL(for: place)), source: .weather, session: session,
+        survivesCancellation: true)
       let fetched = try OpenMeteo.decodeForecast(data, place: place, fetchedAt: Date())
       forecast = fetched
       phase = .idle
       if let encoded = try? JSONEncoder().encode(fetched) { try? AppFiles.write(encoded, to: cacheURL) }
+      log.info("refresh done")
     } catch {
-      phase = .failed
+      let nsError = error as NSError
+      log.error("refresh failed: \(nsError.domain) \(nsError.code) \(error.localizedDescription)")
+      // Being cancelled (the app was closed under it) is not a failure of the service: the old forecast stays as it was.
+      phase = (error is CancellationError || (error as? URLError)?.code == .cancelled) ? .idle : .failed
     }
   }
 
