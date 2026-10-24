@@ -18,11 +18,12 @@ final class DataUseStore {
 
   @ObservationIgnored private let defaults: UserDefaults
   @ObservationIgnored private let network: NetworkCondition
-  static let settingsKey = "kitbag.dataUse.settings"
-  static let usageKey = "kitbag.dataUse.usage"
+  nonisolated static let settingsKey = "kitbag.dataUse.settings"
+  nonisolated static let usageKey = "kitbag.dataUse.usage"
 
-  init(defaults: UserDefaults = .standard, network: NetworkCondition = .shared) {
+  init(defaults: UserDefaults = .standard, network: NetworkCondition? = nil) {
     self.defaults = defaults
+    let network = network ?? .shared
     self.network = network
     settings = Self.loadSettings(from: defaults)
     usage = Self.loadUsage(from: defaults)
