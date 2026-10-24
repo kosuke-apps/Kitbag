@@ -124,11 +124,17 @@ if ! wait_for_phone 240; then
 fi
 
 # Move this app's provisioning profile aside so that the build fetches a new one (seven fresh days).
+# What was moved is remembered, so that a build that fails (Xcode signed out, no network) puts it back: with no new profile,
+# the old one is still better than none.
+typeset -a MOVED_FROM MOVED_TO
 if [[ -d "$PROFILES" ]]; then
   for file in "$PROFILES"/*.mobileprovision(N); do
     name="$(security cms -D -i "$file" 2>/dev/null | plutil -extract Name raw - 2>/dev/null)"
     if [[ "$name" == *"$BUNDLE_ID" ]]; then
-      mv "$file" "$ASIDE_DIR/$(date +%Y%m%d-%H%M%S)-${file:t}"
+      target="$ASIDE_DIR/$(date +%Y%m%d-%H%M%S)-${file:t}"
+      mv "$file" "$target"
+      MOVED_FROM+=("$file")
+      MOVED_TO+=("$target")
       log "Moved the old provisioning profile aside: ${file:t}"
     fi
   done
@@ -150,6 +156,14 @@ for attempt in 1 2 3; do
   wait_for_phone 120 || true
 done
 if (( ! built )); then
+  for i in {1..${#MOVED_FROM}}; do
+    [[ -e "${MOVED_TO[$i]}" && ! -e "${MOVED_FROM[$i]}" ]] && mv "${MOVED_TO[$i]}" "${MOVED_FROM[$i]}"
+  done
+  if grep -q "No Accounts" "$STATE_DIR/build.log"; then
+    log "Xcode is signed out of its Apple ID, so it cannot ask for a new signature: open Xcode > Settings > Accounts and sign in, then run this again."
+    notify "Xcode is signed out of your Apple ID. Sign in under Xcode > Settings > Accounts, then run tools/refresh_device.sh."
+    exit 1
+  fi
   log "The build failed; see $STATE_DIR/build.log"
   notify "The build for your iPhone failed. See $STATE_DIR/build.log"
   exit 1
