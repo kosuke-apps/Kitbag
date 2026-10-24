@@ -12,7 +12,7 @@ mounts the guest's root component, the way a host page would mount another team'
 `tools/fetch_guests.sh` clones the guests next to Kitbag at the tags that `tools/guests.txt` pins:
 
 ```bash
-tools/fetch_guests.sh     # ../Headway at v0.6.7 and ../Mantissa at v0.22.0, from github.com/kosuke-apps
+tools/fetch_guests.sh     # ../Headway at v0.6.7 and ../Mantissa at v0.24.0, from github.com/kosuke-apps
 ```
 
 They are the public repositories <https://github.com/kosuke-apps/Headway> and <https://github.com/kosuke-apps/Mantissa>.
@@ -52,7 +52,7 @@ Kitbag mirrors these by hand. When a release changes one, change it here too.
 | Swift package dependencies and their versions | `project.yml`, `packages` (same versions as the guest's `project.yml`) |
 | Resource files (styles, glyphs, data) | `project.yml`, target `Kitbag`, `sources` |
 | String Catalog | merged by `tools/merge_guest_strings.py` (a clash between two guests is printed; the first guest in `tools/guests.txt` wins) |
-| Accent colour (an `AccentColor` asset) | the adapter's `accentColor(_:)` and `tint(_:)`: Headway has none and uses the system blue, Mantissa's rose is copied by hand |
+| Accent colour (an `AccentColor` asset) | the adapter's `accentColor(_:)` and `tint(_:)`: Headway has none and uses the system blue, Mantissa's colour is copied by hand (it changed in v0.24.0, so check it on every upgrade) |
 | Where the house button fits | `ModuleID.homeButtonPlacement`: a floating corner button, or a slim bar for a guest that uses the top right (Mantissa) |
 | App icon | not carried (Kitbag has its own); the tile uses `Guests/GuestIcons/<Name>.png` |
 | Its own settings screen, version text | unchanged; a guest reads its version from `Bundle.main`, which is Kitbag's, so while a guest is open `GuestVersionShim` (`App/Support/GuestShims.swift`) answers with the guest's own, taken from `Guests/GuestVersions.json` (written by `tools/sync_guests.sh` from the guest's `project.yml`) |
