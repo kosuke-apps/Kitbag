@@ -94,8 +94,9 @@ Xcode asks Apple for a new provisioning profile. Kitbag shows what is left at th
 Settings) and warns with a notification two days before, the evening before and on the day.
 
 `tools/refresh_device.sh` renews it from the Mac without opening Xcode: it moves this app's provisioning profile aside so
-that the build fetches a new one, builds for the phone and installs over the local network with `devicectl` (no USB cable,
-no AirDrop; the phone and the Mac must be on the same Wi-Fi and the phone awake). It waits up to a few minutes for the
+that the build fetches a new one, builds for the phone and installs with `devicectl`, over the local network or, when the phone is plugged in, over a USB
+cable (whichever the phone can be reached by; no AirDrop; over the network the phone and the Mac must be on the same
+Wi-Fi, and the phone must be awake). It waits up to a few minutes for the
 phone to be reachable and, if it is not, tries again later. The phone must be paired for network use once (Xcode >
 Window > Devices and Simulators > "Connect via network"). `tools/refresh_device.sh --check` says when it last ran and
 whether the phone is reachable. `tools/install_refresh_agent.sh` installs a launchd agent that runs it every hour and does

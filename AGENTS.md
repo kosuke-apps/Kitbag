@@ -45,7 +45,7 @@ adds what is specific to this project.
 - Bundle identifier `dev.kosuke.kitbag`. Free Apple ID: `Config/Local.xcconfig` holds the team (not committed).
 - A free Apple ID's signature lasts seven days. The app reads the expiry from `embedded.mobileprovision`
   (`ProvisioningProfile` in KitbagCore, `SigningStatus` in the app), shows it quietly at the bottom of the home screen
-  and warns by notification. `tools/refresh_device.sh` renews it over Wi-Fi from the Mac (it moves the app's provisioning
+  and warns by notification. `tools/refresh_device.sh` renews it over Wi-Fi or a USB cable from the Mac (`devicectl` picks the transport) (it moves the app's provisioning
   profile aside, because Xcode only asks Apple for a new one when the old one is gone), and
   `tools/install_refresh_agent.sh` runs that from launchd. Checked: a rebuilt app gets a new profile with seven fresh days
   and installs over Wi-Fi in about a minute. Not checked: the agent over several days, and a locked phone.
@@ -88,6 +88,10 @@ adds what is specific to this project.
   - `App/Settings/SettingsView.swift`: theme and appearance, the app icon (alternate icons made by
     `tools/make_icons.swift`, shown from `IconPreviews.xcassets`), and the lists that order and hide tools and Today's parts.
   - `App/Home/LayoutStore.swift`: the tool order and the Today parts, kept in UserDefaults.
+  - `App/Support/GuestShims.swift`: two runtime adjustments for the guests, which are built unchanged: Headway's
+    notifications get its icon and name as they are added (`GuestNotificationBranding`), and `Bundle.main`'s version
+    is the guest's own while that guest is open (`GuestVersionShim`, fed by `Guests/GuestVersions.json`, written by
+    `tools/guest_versions.py` from `tools/sync_guests.sh`; `HomeView` says which guest is open). Details in `docs/guests.md`.
   - `App/Support/AppFiles.swift`: where data files live (Application Support/Kitbag) and how an unreadable one is set
     aside. A file written by hand is rewritten once on load so that every id stays the same.
   - `App/Guests/`: `GuestRuntimes.swift` (one runtime per guest, created at launch because background-task
@@ -251,7 +255,7 @@ adds what is specific to this project.
     `tools/make_icon.swift`).
   - `Local/` (not committed): the author's own files, for example `timetable-2026-fall.json`, the author's real
     timetable. Put it on a device through Timetable > menu > Import a file; into a simulator with the command below.
-  - `tools/`: `sync_guests.sh`, `guests.txt`, `merge_guest_strings.py`, `make_icons.swift`, `add_strings.py`.
+  - `tools/`: `sync_guests.sh`, `guests.txt`, `merge_guest_strings.py`, `guest_versions.py`, `make_icons.swift`, `add_strings.py`.
 - Constraints: never edit anything under `Guests/` and never write to a guest's repository. Strings are localized
   (English base, Japanese); Kitbag's own strings live in the "Shell" table. The guest Headway keeps its own in-app
   language setting; a Kitbag-wide language choice is not built yet.

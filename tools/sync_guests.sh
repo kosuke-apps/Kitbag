@@ -46,4 +46,5 @@ while read -r name repo tag icon extras; do
   count=$((count + 1))
 done < tools/guests.txt
 python3 tools/merge_guest_strings.py
+python3 tools/guest_versions.py
 echo "synced $count guest(s)"

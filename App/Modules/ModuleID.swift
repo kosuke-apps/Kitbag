@@ -58,6 +58,15 @@ enum ModuleID: String, CaseIterable, Identifiable {
     }
   }
 
+  /// The name of the guest app in tools/guests.txt, or nil for a tool Kitbag draws itself.
+  var guestName: String? {
+    switch self {
+    case .headway: "Headway"
+    case .mantissa: "Mantissa"
+    default: nil
+    }
+  }
+
   /// Where the house button goes. Mantissa uses the top right for its own settings button, so it gets a slim bar.
   var homeButtonPlacement: HomeButtonPlacement {
     self == .mantissa ? .topBar : .corner

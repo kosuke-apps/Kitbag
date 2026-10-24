@@ -113,23 +113,23 @@ struct ReminderScheduler {
 
   // MARK: Notifications of the apps inside Kitbag
 
-  private static let decoratedKey = "kitbag.decorated"
-
-  /// Puts the icon of the app on the notifications that Headway has scheduled. Headway's code, which Kitbag does not change,
+  /// Puts the icon of the app on the notifications that Headway scheduled before Kitbag could brand them on their way in
+  /// (`GuestNotificationBranding`, which does the same for every new one). Headway's code, which Kitbag does not change,
   /// makes them with no picture; Kitbag finds the waiting ones by the `headway.` its identifiers start with and sets each
   /// one again with the same identifier, the same text and sound, and the same moment (a trigger of "in so many seconds" is
   /// worked out again from when it would have come), with Headway's icon attached and its name as the subtitle. One that is
   /// already done is left alone. If Headway changes how it names them, this quietly does nothing.
   func decorateGuestNotifications() async {
+    let marker = GuestNotificationBranding.decoratedKey
     for request in await center.pendingNotificationRequests()
-    where request.identifier.hasPrefix("headway.") && request.content.userInfo[Self.decoratedKey] == nil {
+    where request.identifier.hasPrefix("headway.") && request.content.userInfo[marker] == nil {
       guard let content = request.content.mutableCopy() as? UNMutableNotificationContent,
         let icon = NotificationIcon.attachment(for: .headway)
       else { continue }
       content.attachments = [icon]
       if content.subtitle.isEmpty { content.subtitle = L10n.string(ModuleID.headway.title) }
       var info = content.userInfo
-      info[Self.decoratedKey] = true
+      info[marker] = true
       content.userInfo = info
       var trigger = request.trigger
       if let interval = trigger as? UNTimeIntervalNotificationTrigger, let next = interval.nextTriggerDate() {

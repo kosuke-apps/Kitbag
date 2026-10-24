@@ -25,6 +25,8 @@ struct KitbagApp: App {
   /// are made here, before the handler is set, because Headway installs its own handler when it starts and the last one
   /// wins; `@State` would make them later, when the first view is drawn, and Headway's would replace Kitbag's.
   init() {
+    // Before the guests start, so that whatever they post when they start is already branded (see GuestShims).
+    GuestShims.install()
     let guests = GuestRuntimes()
     // What is downloaded is counted and decided by one store, which watches the connection from the start.
     let dataUse = DataUseStore()
@@ -119,7 +121,7 @@ struct KitbagApp: App {
 
     /// For checking the icon on Headway's notifications without setting a reminder in Headway: launch with
     /// `-kitbagFakeHeadwayReminder YES` and a notification named like Headway's comes in 25 seconds, after Kitbag has given it
-    /// Headway's icon. Only in debug builds.
+    /// Headway's icon, and another at once, with no trigger. Only in debug builds.
     @MainActor fileprivate func fakeHeadwayReminderIfAsked() async {
       guard UserDefaults.standard.bool(forKey: "kitbagFakeHeadwayReminder") else { return }
       let content = UNMutableNotificationContent()
@@ -131,7 +133,20 @@ struct KitbagApp: App {
         identifier: "headway.reminder.test", content: content,
         trigger: UNTimeIntervalNotificationTrigger(timeInterval: 25, repeats: false))
       try? await UNUserNotificationCenter.current().add(request)
-      await deadlines.decorateGuestNotifications()
+      // One posted at once, as Headway does for a route that runs late: it has no trigger, so it can only be branded on its way in.
+      let now = UNMutableNotificationContent()
+      now.title = "Route D is running late"
+      now.body = "Posted at once, with no trigger"
+      now.sound = .default
+      try? await UNUserNotificationCenter.current().add(
+        UNNotificationRequest(identifier: "headway.watch.test", content: now, trigger: nil))
+      let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
+      for note in delivered where note.request.identifier == "headway.watch.test" {
+        let content = note.request.content
+        NSLog(
+          "kitbag-test: delivered %@ subtitle=%@ attachments=%d", note.request.identifier, content.subtitle,
+          content.attachments.count)
+      }
       // And one of Kitbag's own, with the calendar's icon, to compare how an attached picture is drawn.
       let own = UNMutableNotificationContent()
       own.title = "Calendar icon test"

@@ -137,6 +137,16 @@ struct SettingsView: View {
             Text("Version", tableName: "Settings")
           }
 
+          ForEach([ModuleID.headway, .mantissa]) { module in
+            if let name = module.guestName, let guest = GuestVersionShim.version(of: name) {
+              LabeledContent {
+                Text("\(guest.version) (\(guest.build))")
+              } label: {
+                Text(module.title)
+              }
+            }
+          }
+
           NavigationLink {
             LicensesView()
           } label: {

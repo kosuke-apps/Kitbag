@@ -55,7 +55,7 @@ Kitbag mirrors these by hand. When a release changes one, change it here too.
 | Accent colour (an `AccentColor` asset) | the adapter's `accentColor(_:)` and `tint(_:)`: Headway has none and uses the system blue, Mantissa's rose is copied by hand |
 | Where the house button fits | `ModuleID.homeButtonPlacement`: a floating corner button, or a slim bar for a guest that uses the top right (Mantissa) |
 | App icon | not carried (Kitbag has its own); the tile uses `Guests/GuestIcons/<Name>.png` |
-| Its own settings screen, version text | unchanged; the version shown is Kitbag's, because the guest reads `Bundle.main` |
+| Its own settings screen, version text | unchanged; a guest reads its version from `Bundle.main`, which is Kitbag's, so while a guest is open `GuestVersionShim` (`App/Support/GuestShims.swift`) answers with the guest's own, taken from `Guests/GuestVersions.json` (written by `tools/sync_guests.sh` from the guest's `project.yml`) |
 
 Known limits: every guest's launch work is paid when Kitbag starts, unless its adapter creates it lazily (Mantissa's does);
 two guests that define a resource with the same name clash (image assets are not carried at all, string catalogs are
@@ -83,7 +83,14 @@ would have to be forwarded to from `KitbagNotificationDelegate`.
 
 **Icon on a guest's notifications.** iOS draws the icon of the app on the left of every notification and an app cannot
 change it, so a notification from Headway shows Kitbag's icon. Kitbag adds what it can: Headway's reminders are made by
-Headway's own code with no picture, so `ReminderScheduler.decorateGuestNotifications` finds the waiting ones by the
-`headway.` their identifiers start with and sets each again (same identifier, text, sound and moment) with Headway's icon
-attached and "Headway" as the subtitle. It runs after every plan, when a tool is closed and when the app goes to the
-background. If a release of Headway names its notifications differently this quietly stops working; nothing else breaks.
+Headway's own code with no picture, and some are posted at once (a route running late, found while the app is in the
+background), which cannot be changed afterwards. So `GuestNotificationBranding` (`App/Support/GuestShims.swift`)
+replaces the one method that adds a notification (`UNUserNotificationCenter.add(_:withCompletionHandler:)`, exchanged
+with the Objective-C runtime at launch): a request whose identifier starts with `headway.` gets Headway's icon attached
+and "Headway" as the subtitle on its way in, whether it is scheduled or posted at once; any other request passes
+through untouched. `ReminderScheduler.decorateGuestNotifications` is kept for the ones scheduled before an update
+(it runs after every plan, when a tool is closed and when the app goes to the background). Check with
+`-kitbagFakeHeadwayReminder YES` in a debug build: it posts one scheduled and one immediate `headway.*` notification
+and logs the subtitle and attachment count of the delivered one (the thumbnail itself is not drawn in the simulator).
+If a release of Headway names its notifications differently, or a system update changes that method, this quietly
+stops working; nothing else breaks.

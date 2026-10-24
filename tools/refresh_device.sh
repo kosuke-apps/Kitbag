@@ -7,8 +7,10 @@
 #   tools/refresh_device.sh --check    say when it last ran and whether the phone answers; change nothing
 #
 # It makes no sound and shows nothing: the result goes to ~/Library/Logs/KitbagRefresh.log (set KITBAG_NOTIFY=1 for a
-# macOS notification as well). What it needs: the phone paired with this Mac for network use (Xcode > Window > Devices
-# and Simulators > "Connect via network"), on the same Wi-Fi and awake, and your team in Config/Local.xcconfig. A
+# macOS notification as well). What it needs: the phone paired with this Mac, awake, and your team in Config/Local.xcconfig.
+# It works over the local network (pair it once for network use: Xcode > Window > Devices and Simulators > "Connect via
+# network"; the phone and the Mac on the same Wi-Fi) and over a USB cable, which needs no network: plug the phone in, unlock
+# it, and the script uses whichever the system finds. A
 # signature only gets a new seven days when Xcode asks Apple for a new provisioning profile, and it only does that when
 # the old one is gone, so the profile of this app is moved aside first (to the folder below, never deleted).
 set -u
@@ -48,9 +50,10 @@ last=0
 now="$(date +%s)"
 age_days=$(( (now - last) / 86400 ))
 
-# What this Mac knows about the paired phone: its UDID and whether the connection is up. Prints "<udid> <state>", where the
-# state is "unavailable" when the phone is asleep, locked away or on another network, and "connected"/"disconnected" (both
-# usable) when it can be reached. Xcode builds for the phone only in the usable states.
+# What this Mac knows about the paired phone: its UDID, whether the connection is up and how it is connected. Prints
+# "<udid> <state> <transport>", where the state is "unavailable" when the phone is asleep, locked away, on another network
+# and not plugged in, and "connected"/"disconnected" (both usable) when it can be reached, and the transport is "wired" (a
+# USB cable) or "localNetwork" (Wi-Fi). Xcode builds for the phone only in the usable states.
 phone_state() {
   local json="$(mktemp)"
   xcrun devicectl list devices --json-output "$json" >/dev/null 2>&1
@@ -63,8 +66,9 @@ except Exception:
     sys.exit(1)
 for device in devices:
     if device.get("deviceProperties", {}).get("name") == name:
-        state = device.get("connectionProperties", {}).get("tunnelState", "unavailable")
-        print(device["hardwareProperties"]["udid"], state)
+        connection = device.get("connectionProperties", {})
+        state = connection.get("tunnelState", "unavailable")
+        print(device["hardwareProperties"]["udid"], state, connection.get("transportType", "unknown"))
         sys.exit(0)
 sys.exit(1)
 PY
@@ -84,8 +88,8 @@ wait_for_phone() {
   while true; do
     poke
     if line="$(phone_state)"; then
-      UDID="${line% *}"
-      [[ "${line#* }" != "unavailable" ]] && return 0
+      read -r UDID state TRANSPORT <<<"$line"
+      [[ "$state" != "unavailable" ]] && return 0
     fi
     (( $(date +%s) >= deadline )) && return 1
     sleep 10
@@ -96,7 +100,14 @@ if [[ "$mode" == "check" ]]; then
   if (( last == 0 )); then print "Never installed by this script."; else print "Last install: $(date -r "$last" '+%Y-%m-%d %H:%M') (${age_days} days ago)."; fi
   poke
   if line="$(phone_state)"; then
-    print "The phone is ${line#* } (unavailable means asleep, away from this Wi-Fi, or its network pairing has lapsed)."
+    read -r _ state transport <<<"$line"
+    how="over the local network"
+    [[ "$transport" == "wired" ]] && how="over a USB cable"
+    if [[ "$state" == "unavailable" ]]; then
+      print "The phone is unavailable: asleep, away from this Wi-Fi, or its pairing has lapsed. Plugging it in with a USB cable and unlocking it also works."
+    else
+      print "The phone is $state, $how."
+    fi
   else
     print "No paired device is called \"$DEVICE\"."
   fi
@@ -108,7 +119,7 @@ if [[ "$mode" == "due" ]] && (( last > 0 )) && (( age_days < MAX_AGE_DAYS )); th
 fi
 
 if ! wait_for_phone 240; then
-  log "The phone ($DEVICE) is not available (asleep, away from this Wi-Fi, or its pairing has lapsed); will try again on the next run."
+  log "The phone ($DEVICE) is not available (asleep, away from this Wi-Fi, or its pairing has lapsed; a USB cable works too); will try again on the next run."
   exit 1
 fi
 
@@ -144,7 +155,7 @@ if (( ! built )); then
   exit 1
 fi
 
-log "Installing..."
+log "Installing (${TRANSPORT:-unknown} connection)..."
 if ! xcrun devicectl device install app --device "$UDID" "$APP" --timeout 120 >"$STATE_DIR/install.log" 2>&1; then
   log "The install failed; see $STATE_DIR/install.log"
   notify "Kitbag could not be installed on your iPhone. Is it awake and on the same Wi-Fi?"
