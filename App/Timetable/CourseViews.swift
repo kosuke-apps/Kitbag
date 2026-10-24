@@ -76,6 +76,7 @@ struct CourseDetailView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.palette) private var palette
   @Environment(\.titleDesign) private var design
+  @Environment(GradeScaleStore.self) private var gradeScales
   @AppStorage("kitbag.gradeScale") private var scaleID = GradeScale.usAB.id
 
   let courseID: UUID
@@ -200,7 +201,8 @@ struct CourseDetailView: View {
   }
 
   private func grade(_ course: Course) -> some View {
-    let scale = GradeScale.scale(id: scaleID)
+    // The grades of the scale of the course's term (else the one chosen for the GPA screen), among the person's own scales.
+    let scale = gradeScales.scale(id: store.term(id: termID)?.gradeScaleID ?? scaleID)
     return Section {
       Picker(
         selection: Binding(

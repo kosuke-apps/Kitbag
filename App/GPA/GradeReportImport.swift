@@ -66,6 +66,7 @@ enum GradeReportImport {
 /// Shows what a grade list contains before anything is added: the terms, the number of courses and credits in each.
 struct GradeReportPreview: View {
   @Environment(TimetableStore.self) private var store
+  @Environment(GradeScaleStore.self) private var gradeScales
   @Environment(\.dismiss) private var dismiss
   @Environment(\.palette) private var palette
 
@@ -85,7 +86,7 @@ struct GradeReportPreview: View {
           .font(.subheadline)
         } footer: {
           Text(
-            "The terms are named by year and semester and graded on the Japan (AA, A, B, C, D) scale. The student's name and number in the report are not kept.",
+            "The terms are named by year and semester and graded on the AA, A, B, C, D scale. The student's name and number in the report are not kept.",
             tableName: "GPA")
         }
         .listRowBackground(palette.card)
@@ -120,6 +121,8 @@ struct GradeReportPreview: View {
         }
         ToolbarItem(placement: .confirmationAction) {
           Button {
+            // The imported terms refer to this scale by its id, so the person needs a copy of it to see and change.
+            gradeScales.adopt(ids: [GradeReportImport.scaleID])
             GradeReportImport.apply(terms, to: store)
             dismiss()
           } label: {

@@ -248,15 +248,47 @@ struct GradeTests {
     #expect(GPA.lowestGrade(reaching: 4.2, scale: uw) == nil)
   }
 
-  @Test func listsTheScalesAndFallsBack() {
-    #expect(GradeScale.all.map(\.id) == ["us-ab", "us-plus-minus", "japan", "japan-aa"])
+  @Test func listsThePresetsAndFallsBack() {
+    #expect(GradeScale.presets.map(\.id) == ["us-ab", "us-plus-minus", "japan", "japan-aa"])
     #expect(GradeScale.scale(id: "japan").points(for: "S") == 4.0)
     #expect(GradeScale.scale(id: "unknown").id == "us-ab")
     #expect(GradeScale.usPlusMinus.points(for: "A-") == 3.7)
   }
 
+  @Test func presetsAreNamedByTheirGradesNotByAPlace() {
+    #expect(
+      GradeScale.presets.map(\.name) == [
+        "A, AB, B, BC, C, D, F", "A+, A, A-, B+ … D, F", "S, A, B, C, D", "AA, A, B, C, D",
+      ])
+    let places = ["us", "usa", "america", "japan", "japanese", "tohoku", "madison", "uw"]
+    for preset in GradeScale.presets {
+      let words = (preset.name ?? "").lowercased().split { !$0.isLetter }.map(String.init)
+      #expect(places.allSatisfy { !words.contains($0) })
+    }
+  }
+
+  @Test func aCopyOfAPresetThatWasChangedWinsOverThePreset() {
+    var mine = GradeScale.japanAA
+    mine.name = "My AA scale"
+    mine.grades[0].points = 4.3
+    #expect(GradeScale.scale(id: "japan-aa", custom: [mine]).points(for: "AA") == 4.3)
+    #expect(GradeScale.scale(id: "japan-aa", custom: [mine]).name == "My AA scale")
+    #expect(GradeScale.scale(id: "japan-aa").points(for: "AA") == 4.0)
+  }
+
+  @Test func adoptsOnlyThePresetsThatSomethingStillUses() {
+    let own = GradeScale(id: "custom-1", name: "Mine", grades: [.init(label: "P", points: nil, earnsCredit: true)])
+    // A term on the AA scale and the choice for the GPA screen on the first preset.
+    let adopted = GradeScale.presetsToAdopt(inUse: ["japan-aa", "us-ab", "custom-1"], among: [own])
+    #expect(adopted.map(\.id) == ["us-ab", "japan-aa"])
+    // One that the person already has a copy of is not added again, and nothing in use means nothing added.
+    #expect(
+      GradeScale.presetsToAdopt(inUse: ["japan-aa", "us-ab"], among: [own, GradeScale.japanAA]).map(\.id) == ["us-ab"])
+    #expect(GradeScale.presetsToAdopt(inUse: ["custom-1"], among: [own]).isEmpty)
+  }
+
   @Test func readsTheIDsFromTheFirstVersions() throws {
-    // Two scales were first named after a school; files, backups and settings written then still say so.
+    // Two presets were first named after a school; files, backups and settings written then still say so.
     #expect(GradeScale.scale(id: "uw-madison").id == "us-ab")
     #expect(GradeScale.scale(id: "tohoku").id == "japan-aa")
     #expect(GradeScale.canonicalID("us-plus-minus") == "us-plus-minus")

@@ -65,7 +65,7 @@ adds what is specific to this project.
     for the class on now or next, `hourRange` and `visibleDays` for the grid, the file format with a `version`),
     `LocalDate` (a day as `"2026-10-22"`, independent of time zone) and `MonthGrid` (the rows of a month page),
     `Season` and the term fields of `Timetable` (dates, week numbers, no classes outside the term), `TimetableLibrary`
-    (all the terms; which one is in force today), `GradeScale` and `GPA` (a four-point scale with AB and BC, US plus/minus and two Japanese scales;
+    (all the terms; which one is in force today), `GradeScale` and `GPA` (four presets named by their grades, which a person copies into scales of their own;
     averages by credits; the average a target needs), `HomeLayout` (a saved order and hidden items, merged with what
     exists), `Deadline` and `DeadlineBook` (grouping by how soon), `DeadlineAlert` (one reminder of a deadline as a distance from when it is due: minutes, hours, days or weeks before, with a time of day for a deadline with no time), `Note` and `NoteBook` (title from the first
     line without its marks, pinned first, search over text and attachment names), `NoteAttachment` (a photo or file kept
@@ -155,7 +155,7 @@ adds what is specific to this project.
     a PDF reads an English "Grade list" (as some Japanese universities issue) with PDFKit, `GradeReportParser` turns its wrapped text into courses
     (checked on a real report: the credits it finds equal the report's own totals), `ReportedTerm.group` makes terms, and the
     preview sheet shows them before anything is added. Terms are titled `<year> First|Second semester`, graded on the
-    built-in `japan-aa` scale (AA 4, A 3, B 2, C 1, D 0), kept as grades-only terms, and matched by title so that a newer
+    `japan-aa` preset (AA 4, A 3, B 2, C 1, D 0; the import gives the person a copy of it first), kept as grades-only terms, and matched by title so that a newer
     report updates instead of duplicating (a term that an early version titled with a school's name in front is taken as the
     same term and gets the plain title). The two scales that were first named after a school (`uw-madison`, `tohoku`) are now
     `us-ab` and `japan-aa`; `GradeScale.legacyIDs` makes old files, backups and settings read as the new ids. The student's name and number are never kept. Tests use an invented report in the
@@ -163,7 +163,11 @@ adds what is specific to this project.
   - `App/GPA/`: `GPAView` (the cumulative GPA over the terms that count, each term's on its own grade scale, credits
     earned, a what-if card that imagines grades for open courses, imagined courses and courses left out, and the target),
     `GPACourseEditor` (a course for its credits, grade and how it counts: in the GPA, left out, or pass/fail),
-    `GradeScaleStore` and `GradeScalesView` (the person's own grading systems, saved in UserDefaults). A term can be
+    `GradeScaleStore` and `GradeScalesView` (the person's own grading systems, saved in UserDefaults; every scale can be
+    changed, a preset is only copied when one is added, and one that a term or the GPA screen still uses cannot be
+    deleted). Earlier versions had four fixed scales: `GradeScaleStore.adoptInUse` gives a person a copy, with the same
+    id, of each preset that a term or the chosen scale refers to, at launch and after a restore, so the GPA does not
+    change; the presets' display names never name a country or a school. A term can be
     entered only for its grades (`Timetable.gradesOnly`: no grid, never the term in force), use its own scale (study abroad)
     or stay out of the cumulative GPA. All of it is KitbagCore: `GradeScale` (Codable, with which grades earn credit),
     `GPAMode`, `GPA.cumulative`, `GPA.earnedCredits`.

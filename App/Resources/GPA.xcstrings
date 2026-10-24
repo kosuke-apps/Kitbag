@@ -132,17 +132,6 @@
         }
       }
     },
-    "Built in": {
-      "comment": "Section title of the built-in grade scales.",
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "標準"
-          }
-        }
-      }
-    },
     "Cancel": {
       "comment": "Button.",
       "localizations": {
@@ -154,6 +143,16 @@
         }
       }
     },
+    "Choose another scale for them first.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "先に，それぞれ別の評価方式を選んでください．"
+          }
+        }
+      }
+    },
     "Code": {
       "comment": "Field name.",
       "localizations": {
@@ -161,17 +160,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "科目コード"
-          }
-        }
-      }
-    },
-    "Copy of %@": {
-      "comment": "Menu item that starts a grade scale from a built-in one.",
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ をコピー"
           }
         }
       }
@@ -332,6 +320,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "残りの単位数を入力してください．"
+          }
+        }
+      }
+    },
+    "From a preset": {
+      "comment": "Heading of the presets in the menu that adds a grade scale.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ひな形から"
           }
         }
       }
@@ -522,33 +521,22 @@
         }
       }
     },
+    "It is the scale for the whole GPA screen.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GPA 画面全体の評価方式になっています．"
+          }
+        }
+      }
+    },
     "It reads an English grade list PDF in which each course is followed by its credits, grade and term, as some Japanese universities issue. Other layouts are not recognised.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "科目名のあとに単位数・評価・学期が続く英語の成績表 PDF（日本の一部の大学が発行する形式）に対応しています．ほかのレイアウトは認識できません．"
-          }
-        }
-      }
-    },
-    "Japan (AA, A, B, C, D)": {
-      "comment": "Name of a built-in grade scale.",
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "日本（AA, A, B, C, D）"
-          }
-        }
-      }
-    },
-    "Japan (S, A, B, C, D)": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "日本（S, A, B, C, D）"
           }
         }
       }
@@ -777,6 +765,17 @@
         }
       }
     },
+    "Terms graded on it: %lld.": {
+      "comment": "%lld is a number of terms.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この評価方式で採点している学期: %lld 件．"
+          }
+        }
+      }
+    },
     "That is %@ or better on average.": {
       "localizations": {
         "ja": {
@@ -798,12 +797,23 @@
         }
       }
     },
-    "The terms are named by year and semester and graded on the Japan (AA, A, B, C, D) scale. The student's name and number in the report are not kept.": {
+    "The terms are named by year and semester and graded on the AA, A, B, C, D scale. The student's name and number in the report are not kept.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "学期は年度と学期で名づけられ，日本（AA, A, B, C, D）の評価方式で採点されます．成績表にある学生の氏名と学籍番号は保存されません．"
+            "value": "学期は年度と学期で名づけられ，AA, A, B, C, D の評価方式で採点されます．成績表にある学生の氏名と学籍番号は保存されません．"
+          }
+        }
+      }
+    },
+    "This grade scale is in use": {
+      "comment": "Title of the alert shown when deleting a scale that something still uses.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この評価方式は使用中です"
           }
         }
       }
@@ -819,27 +829,6 @@
         }
       }
     },
-    "US with AB and BC (A, AB, B…)": {
-      "comment": "Name of a built-in grade scale.",
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "米国式・AB と BC あり（A, AB, B…）"
-          }
-        }
-      }
-    },
-    "US with plus and minus": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "米国式（プラス・マイナスあり）"
-          }
-        }
-      }
-    },
     "What if": {
       "comment": "Heading of the calculator that imagines grades.",
       "localizations": {
@@ -851,24 +840,24 @@
         }
       }
     },
-    "Write the grades your school gives and the points each is worth. A grade with no points is not part of the GPA.": {
-      "comment": "Footer under the list of the person's grade scales.",
+    "Write the grades your school gives and the points each is worth. A grade with no points is not part of the GPA. A preset is only a starting point: it becomes your own scale, which you can change.": {
+      "comment": "Footer of the grade scales list.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "学校が付ける成績と，それぞれのポイントを書きます．ポイントのない成績は GPA に含まれません．"
+            "value": "学校が出す成績と，それぞれの点数を書きます．点数のない成績は GPA に含まれません．ひな形は出発点にすぎません．追加するとあなた自身の評価方式になり，自由に変更できます．"
           }
         }
       }
     },
-    "Yours": {
-      "comment": "Section title of the grade scales the person wrote.",
+    "Your grade scales": {
+      "comment": "Section title of the person's own grade scales.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "自分で作ったもの"
+            "value": "あなたの評価方式"
           }
         }
       }

@@ -3,16 +3,6 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 extension GradeScale {
-  var title: LocalizedStringResource {
-    switch id {
-    case "us-ab": LocalizedStringResource("US with AB and BC (A, AB, B…)", table: "GPA")
-    case "us-plus-minus": LocalizedStringResource("US with plus and minus", table: "GPA")
-    case "japan": LocalizedStringResource("Japan (S, A, B, C, D)", table: "GPA")
-    case "japan-aa": LocalizedStringResource("Japan (AA, A, B, C, D)", table: "GPA")
-    default: LocalizedStringResource("Grade scale", table: "GPA")
-    }
-  }
-
   /// The best grade points the scale gives.
   var top: Double { counted.compactMap(\.points).max() ?? 4 }
 }

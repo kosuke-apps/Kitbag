@@ -16,7 +16,7 @@ struct KitbagApp: App {
   @State private var themes = ThemeStore()
   @State private var layout = LayoutStore()
   @State private var notificationPreferences: NotificationPreferencesStore
-  @State private var gradeScales = GradeScaleStore()
+  @State private var gradeScales: GradeScaleStore
   @State private var backupFolder = BackupFolderStore()
   @Environment(\.scenePhase) private var scenePhase
 
@@ -37,6 +37,11 @@ struct KitbagApp: App {
     deadlines.courseCode = { [timetable] in timetable.course(id: $0)?.code }
     deadlines.library = { [timetable] in timetable.library }
     deadlines.preferences = { [preferences] in preferences.preferences }
+    // The scales that terms and the GPA screen refer to by id are part of the person's own (see GradeScaleStore).
+    let gradeScales = GradeScaleStore()
+    gradeScales.terms = { [timetable] in timetable.terms }
+    gradeScales.adoptInUse()
+    _gradeScales = State(initialValue: gradeScales)
     _guests = State(initialValue: guests)
     _dataUse = State(initialValue: dataUse)
     _weather = State(initialValue: WeatherStore(dataUse: dataUse))

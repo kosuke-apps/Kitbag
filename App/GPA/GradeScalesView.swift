@@ -1,16 +1,18 @@
 import KitbagCore
 import SwiftUI
 
-/// The grading systems: the built-in ones for reading, and the person's own to write and change.
+/// The person's grading systems, to write, change and delete. A preset is only a starting point: it is copied, and the copy
+/// is the person's own.
 struct GradeScalesView: View {
   @Environment(GradeScaleStore.self) private var store
   @Environment(\.palette) private var palette
   @State private var editing: GradeScale?
+  @State private var inUse: GradeScale?
 
   var body: some View {
     List {
       Section {
-        ForEach(store.custom) { scale in
+        ForEach(store.scales) { scale in
           Button {
             editing = scale
           } label: {
@@ -19,7 +21,7 @@ struct GradeScalesView: View {
           .buttonStyle(.plain)
           .swipeActions {
             Button(role: .destructive) {
-              store.remove(id: scale.id)
+              delete(scale)
             } label: {
               Label {
                 Text("Delete", tableName: "GPA")
@@ -35,12 +37,16 @@ struct GradeScalesView: View {
           } label: {
             Text("From scratch", tableName: "GPA")
           }
-          ForEach(GradeScale.all) { base in
-            Button {
-              editing = GradeScale(id: "custom-\(UUID().uuidString)", name: base.displayName, grades: base.grades)
-            } label: {
-              Text("Copy of \(base.displayName)", tableName: "GPA")
+          Section {
+            ForEach(GradeScale.presets) { preset in
+              Button {
+                editing = GradeScale(id: "custom-\(UUID().uuidString)", name: preset.displayName, grades: preset.grades)
+              } label: {
+                Text(preset.displayName)
+              }
             }
+          } header: {
+            Text("From a preset", tableName: "GPA")
           }
         } label: {
           Label {
@@ -50,18 +56,11 @@ struct GradeScalesView: View {
           }
         }
       } header: {
-        Text("Yours", tableName: "GPA")
+        Text("Your grade scales", tableName: "GPA")
       } footer: {
         Text(
-          "Write the grades your school gives and the points each is worth. A grade with no points is not part of the GPA.",
+          "Write the grades your school gives and the points each is worth. A grade with no points is not part of the GPA. A preset is only a starting point: it becomes your own scale, which you can change.",
           tableName: "GPA")
-      }
-      .listRowBackground(palette.card)
-
-      Section {
-        ForEach(GradeScale.all) { scale in row(scale) }
-      } header: {
-        Text("Built in", tableName: "GPA")
       }
       .listRowBackground(palette.card)
     }
@@ -72,6 +71,35 @@ struct GradeScalesView: View {
     .sheet(item: $editing) { scale in
       GradeScaleEditor(scale: scale)
     }
+    .alert(
+      Text("This grade scale is in use", tableName: "GPA"),
+      isPresented: Binding(get: { inUse != nil }, set: { if !$0 { inUse = nil } })
+    ) {
+      Button {
+      } label: {
+        Text("OK", tableName: "Notes")
+      }
+    } message: {
+      if let inUse { Text(usageMessage(inUse)) }
+    }
+  }
+
+  /// A scale that something refers to is not deleted: the terms would lose the grades they are read by.
+  private func delete(_ scale: GradeScale) {
+    let usage = store.usage(of: scale.id)
+    if usage.terms > 0 || usage.isChosen {
+      inUse = scale
+    } else {
+      store.remove(id: scale.id)
+    }
+  }
+
+  private func usageMessage(_ scale: GradeScale) -> String {
+    let usage = store.usage(of: scale.id)
+    var reasons: [String] = []
+    if usage.isChosen { reasons.append(L10n.string("It is the scale for the whole GPA screen.", table: "GPA")) }
+    if usage.terms > 0 { reasons.append(L10n.string("Terms graded on it: \(usage.terms).", table: "GPA")) }
+    return (reasons + [L10n.string("Choose another scale for them first.", table: "GPA")]).joined(separator: " ")
   }
 
   private func row(_ scale: GradeScale) -> some View {

@@ -1,8 +1,8 @@
 import Foundation
 
-/// A grading system: the grades a university gives and how many grade points each is worth. The built-in scales cover
-/// A four-point scale with AB and BC, the American plus/minus scale and a common Japanese one; a person can write their own, because schools (and
-/// study abroad) differ.
+/// A grading system: the grades a university gives and how many grade points each is worth. Schools (and study abroad)
+/// differ, so every scale a person uses is their own and can be changed; the ones in `GradeScale.presets` are only
+/// starting points that are copied when a person asks for one.
 public struct GradeScale: Hashable, Identifiable, Codable, Sendable {
   public struct Grade: Hashable, Codable, Sendable {
     public var label: String
@@ -19,9 +19,10 @@ public struct GradeScale: Hashable, Identifiable, Codable, Sendable {
     }
   }
 
-  /// A stable id. Built-in scales have a fixed one; a scale the person wrote has a made-up one.
+  /// A stable id. A preset has a fixed one, which its copy keeps when something already refers to it; a scale the person
+  /// wrote has a made-up one.
   public let id: String
-  /// The name of a scale the person wrote; the built-in ones are named by the app.
+  /// What the person calls it. A preset is named by its grades, never by a country or a school.
   public var name: String?
   public var grades: [Grade]
 
@@ -47,36 +48,50 @@ public struct GradeScale: Hashable, Identifiable, Codable, Sendable {
   public var counted: [Grade] { grades.filter { $0.points != nil } }
 
   private static func scale(
-    _ id: String, _ counted: [(String, Double)], passes: [String] = [], others: [String] = []
+    _ id: String, name: String, _ counted: [(String, Double)], passes: [String] = [], others: [String] = []
   ) -> GradeScale {
     GradeScale(
-      id: id,
+      id: id, name: name,
       grades: counted.map { Grade(label: $0.0, points: $0.1) }
         + (passes + others).map { Grade(label: $0, points: nil, earnsCredit: passes.contains($0)) })
   }
 
-  /// A, AB, B, BC, C, D, F on a four-point scale (some American universities).
+  // The presets are named by the grades they use, so that a person can tell them apart without being told where they are
+  // from. The ids are older than the names and stay as they are: files and backups refer to them.
+
+  /// A, AB, B, BC, C, D, F on a four-point scale.
   public static let usAB = scale(
-    "us-ab", [("A", 4.0), ("AB", 3.5), ("B", 3.0), ("BC", 2.5), ("C", 2.0), ("D", 1.0), ("F", 0.0)],
+    "us-ab", name: "A, AB, B, BC, C, D, F",
+    [("A", 4.0), ("AB", 3.5), ("B", 3.0), ("BC", 2.5), ("C", 2.0), ("D", 1.0), ("F", 0.0)],
     passes: ["S", "CR", "P"], others: ["U", "N", "I"])
 
-  /// The common American scale with plus and minus.
+  /// A+ down to F, with plus and minus.
   public static let usPlusMinus = scale(
-    "us-plus-minus",
+    "us-plus-minus", name: "A+, A, A-, B+ … D, F",
     [
       ("A+", 4.0), ("A", 4.0), ("A-", 3.7), ("B+", 3.3), ("B", 3.0), ("B-", 2.7), ("C+", 2.3), ("C", 2.0), ("C-", 1.7),
       ("D+", 1.3), ("D", 1.0), ("F", 0.0),
     ], passes: ["P"], others: ["NP", "I", "W"])
 
-  /// The five-step Japanese scale (S, A, B, C, D as 4, 3, 2, 1, 0) that many universities use; check yours.
+  /// S, A, B, C, D as 4, 3, 2, 1, 0; check yours.
   public static let japan = scale(
-    "japan", [("S", 4.0), ("A", 3.0), ("B", 2.0), ("C", 1.0), ("D", 0.0)], passes: ["P"], others: ["I"])
+    "japan", name: "S, A, B, C, D", [("S", 4.0), ("A", 3.0), ("B", 2.0), ("C", 1.0), ("D", 0.0)], passes: ["P"],
+    others: ["I"])
 
-  /// The Japanese scale with AA, A, B, C and D (秀, 優, 良, 可, 不可) as 4, 3, 2, 1 and 0; check yours.
+  /// AA, A, B, C, D as 4, 3, 2, 1, 0; check yours.
   public static let japanAA = scale(
-    "japan-aa", [("AA", 4.0), ("A", 3.0), ("B", 2.0), ("C", 1.0), ("D", 0.0)], passes: ["P"], others: ["F", "I"])
+    "japan-aa", name: "AA, A, B, C, D", [("AA", 4.0), ("A", 3.0), ("B", 2.0), ("C", 1.0), ("D", 0.0)], passes: ["P"],
+    others: ["F", "I"])
 
-  public static let all: [GradeScale] = [usAB, usPlusMinus, japan, japanAA]
+  /// The starting points offered when a person adds a scale.
+  public static let presets: [GradeScale] = [usAB, usPlusMinus, japan, japanAA]
+
+  /// The presets that a person's scales do not yet include a copy of, among those whose ids are in `ids`. Something that
+  /// refers to a preset by its id (a term, the scale chosen for the GPA screen) needs a scale of that id to show and to
+  /// change; the copy keeps the id, so nothing that refers to it has to change.
+  public static func presetsToAdopt(inUse ids: Set<String>, among scales: [GradeScale]) -> [GradeScale] {
+    presets.filter { preset in ids.contains(preset.id) && !scales.contains { $0.id == preset.id } }
+  }
 
   /// The ids that two built-in scales had in the first versions, when they were named after a school. Files, backups and
   /// settings written then still say these; they are read as the ids the scales have now.
@@ -84,10 +99,11 @@ public struct GradeScale: Hashable, Identifiable, Codable, Sendable {
 
   public static func canonicalID(_ id: String) -> String { legacyIDs[id] ?? id }
 
-  /// The scale with this id among the built-in ones and the person's own, or the first one (`usAB`) when there is none.
+  /// The scale with this id among the person's own and then the presets (so a copy of a preset that the person changed wins
+  /// over the preset), or the first preset (`usAB`) when there is none.
   public static func scale(id: String, custom: [GradeScale] = []) -> GradeScale {
     let id = canonicalID(id)
-    return (all + custom).first { $0.id == id } ?? usAB
+    return (custom + presets).first { $0.id == id } ?? usAB
   }
 }
 
