@@ -87,10 +87,10 @@ Headway's own code with no picture, and some are posted at once (a route running
 background), which cannot be changed afterwards. So `GuestNotificationBranding` (`App/Support/GuestShims.swift`)
 replaces the one method that adds a notification (`UNUserNotificationCenter.add(_:withCompletionHandler:)`, exchanged
 with the Objective-C runtime at launch): a request whose identifier starts with `headway.` gets Headway's icon attached
-and "Headway" as the subtitle on its way in, whether it is scheduled or posted at once; any other request passes
-through untouched. `ReminderScheduler.decorateGuestNotifications` is kept for the ones scheduled before an update
+on its way in (the name is not repeated as a subtitle: the icon says it), whether it is scheduled or posted
+at once; any other request passes through untouched. `ReminderScheduler.decorateGuestNotifications` is kept for the ones scheduled before an update
 (it runs after every plan, when a tool is closed and when the app goes to the background). Check with
 `-kitbagFakeHeadwayReminder YES` in a debug build: it posts one scheduled and one immediate `headway.*` notification
-and logs the subtitle and attachment count of the delivered one (the thumbnail itself is not drawn in the simulator).
+and logs the attachment count of the delivered one (the thumbnail itself is not drawn in the simulator).
 If a release of Headway names its notifications differently, or a system update changes that method, this quietly
 stops working; nothing else breaks.

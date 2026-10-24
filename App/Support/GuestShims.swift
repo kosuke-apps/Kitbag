@@ -6,7 +6,7 @@ import UserNotifications
 /// are made with the Objective-C runtime, touch only what belongs to a guest, and leave everything else as it was; if one
 /// stops applying (a system update changes the method it replaces) the guest just behaves as it did before.
 ///
-/// - A notification that Headway posts gets Headway's icon and name (`GuestNotificationBranding`).
+/// - A notification that Headway posts gets Headway's icon (`GuestNotificationBranding`).
 /// - While a guest is on screen, the version it shows for itself is its own, not Kitbag's (`GuestVersionShim`).
 enum GuestShims {
   /// Called once, when the app starts.
@@ -20,10 +20,10 @@ enum GuestShims {
 
 /// Puts the icon of the app on a notification that Headway posts. iOS draws Kitbag's own icon at the left of every
 /// notification and does not let the app change it; what can differ is a picture attached to the notification, drawn as a
-/// thumbnail at the right, and its subtitle. Headway's code makes its notifications with neither, and some are posted at once
-/// (a route running late, found while the app runs in the background), so they cannot be touched afterwards: this replaces the
-/// one method that adds a notification, so that a request whose identifier starts with `headway.` is given the picture and the
-/// subtitle on its way in. Headway's reminders that were scheduled earlier are set again by `ReminderScheduler`.
+/// thumbnail at the right. Headway's code makes its notifications without one, and some are posted at once (a route running
+/// late, found while the app runs in the background), so they cannot be touched afterwards: this replaces the one method
+/// that adds a notification, so that a request whose identifier starts with `headway.` is given the picture on its way in.
+/// Headway's reminders that were scheduled earlier are set again by `ReminderScheduler`.
 enum GuestNotificationBranding {
   static let decoratedKey = "kitbag.decorated"
   private static let lock = NSLock()
@@ -40,7 +40,7 @@ enum GuestNotificationBranding {
     method_exchangeImplementations(original, replacement)
   }
 
-  /// The request as it should be added: Headway's with its icon attached and its name as the subtitle; any other as it is.
+  /// The request as it should be added: Headway's with its icon attached; any other as it is.
   static func decorated(_ request: UNNotificationRequest) -> UNNotificationRequest {
     guard request.identifier.hasPrefix("headway."), request.content.userInfo[decoratedKey] == nil,
       let png = lock.withLock({ icon }),
@@ -51,7 +51,6 @@ enum GuestNotificationBranding {
       let attachment = try? UNNotificationAttachment(identifier: "headway", url: url)
     else { return request }
     content.attachments = [attachment]
-    if content.subtitle.isEmpty { content.subtitle = "Headway" }
     var info = content.userInfo
     info[decoratedKey] = true
     content.userInfo = info

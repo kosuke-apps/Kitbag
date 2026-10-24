@@ -117,7 +117,7 @@ struct ReminderScheduler {
   /// (`GuestNotificationBranding`, which does the same for every new one). Headway's code, which Kitbag does not change,
   /// makes them with no picture; Kitbag finds the waiting ones by the `headway.` its identifiers start with and sets each
   /// one again with the same identifier, the same text and sound, and the same moment (a trigger of "in so many seconds" is
-  /// worked out again from when it would have come), with Headway's icon attached and its name as the subtitle. One that is
+  /// worked out again from when it would have come), with Headway's icon attached. One that is
   /// already done is left alone. If Headway changes how it names them, this quietly does nothing.
   func decorateGuestNotifications() async {
     let marker = GuestNotificationBranding.decoratedKey
@@ -127,7 +127,6 @@ struct ReminderScheduler {
         let icon = NotificationIcon.attachment(for: .headway)
       else { continue }
       content.attachments = [icon]
-      if content.subtitle.isEmpty { content.subtitle = L10n.string(ModuleID.headway.title) }
       var info = content.userInfo
       info[marker] = true
       content.userInfo = info
