@@ -73,14 +73,14 @@ struct WeatherTests {
   }
 
   @Test func buildsTheForecastRequest() throws {
-    let url = OpenMeteo.forecastURL(for: .madison)
+    let url = OpenMeteo.forecastURL(for: .sample)
     let items = Dictionary(
       uniqueKeysWithValues: (URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []).map {
         ($0.name, $0.value ?? "")
       })
     #expect(url.host == "api.open-meteo.com")
-    #expect(items["latitude"] == "43.0731")
-    #expect(items["longitude"] == "-89.4012")
+    #expect(items["latitude"] == "39.7817")
+    #expect(items["longitude"] == "-89.6501")
     #expect(items["timezone"] == "auto")
     #expect(items["current"]?.contains("temperature_2m") == true)
     #expect(items["hourly"]?.contains("precipitation_probability") == true)
@@ -100,7 +100,7 @@ struct WeatherTests {
 
   @Test func decodesAForecast() throws {
     let fetched = moment("2026-10-18T14:16")
-    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .madison, fetchedAt: fetched)
+    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .sample, fetchedAt: fetched)
     #expect(forecast.timeZoneID == "America/Chicago")
     #expect(forecast.current.temperature == 12.5)
     #expect(forecast.current.time == moment("2026-10-18T14:15"))
@@ -126,7 +126,7 @@ struct WeatherTests {
   }
 
   @Test func findsTheHoursAheadAndToday() throws {
-    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .madison, fetchedAt: .now)
+    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .sample, fetchedAt: .now)
     let now = moment("2026-10-18T14:20")
     #expect(
       forecast.hours(from: now, count: 2).map(\.time) == [moment("2026-10-18T14:00"), moment("2026-10-18T15:00")])
@@ -135,7 +135,7 @@ struct WeatherTests {
   }
 
   @Test func findsTheHoursAndTheSummaryOfADay() throws {
-    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .madison, fetchedAt: .now)
+    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .sample, fetchedAt: .now)
     let today = LocalDate(year: 2026, month: 10, day: 18)
     #expect(forecast.hours(on: today).count == 3)
     #expect(forecast.hours(on: LocalDate(year: 2026, month: 10, day: 19)).isEmpty)
@@ -144,7 +144,7 @@ struct WeatherTests {
   }
 
   @Test func readsAnOldCachedForecastWithoutTheNewFields() throws {
-    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .madison, fetchedAt: .now)
+    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .sample, fetchedAt: .now)
     var object = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(forecast)) as? [String: Any])
     var hours = try #require(object["hourly"] as? [[String: Any]])
     for index in hours.indices {
@@ -161,7 +161,7 @@ struct WeatherTests {
 
   @Test func readsTheTimesInThePlacesZoneNotThePhones() throws {
     // 14:15 in Chicago (UTC-5 in October) is 19:15 UTC.
-    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .madison, fetchedAt: .now)
+    let forecast = try OpenMeteo.decodeForecast(Data(forecastJSON.utf8), place: .sample, fetchedAt: .now)
     #expect(
       forecast.current.time
         == Date(timeIntervalSince1970: moment("2026-10-18T19:15", zone: "UTC").timeIntervalSince1970))
@@ -170,7 +170,7 @@ struct WeatherTests {
   @Test func reportsAServiceError() {
     let json = #"{"error": true, "reason": "Latitude must be in range of -90 to 90°."}"#
     #expect(throws: OpenMeteoError.service("Latitude must be in range of -90 to 90°.")) {
-      try OpenMeteo.decodeForecast(Data(json.utf8), place: .madison, fetchedAt: .now)
+      try OpenMeteo.decodeForecast(Data(json.utf8), place: .sample, fetchedAt: .now)
     }
   }
 
@@ -181,27 +181,27 @@ struct WeatherTests {
     .replacingOccurrences(of: "[12.0, 12.5, 12.9, null]", with: "[]")
     .replacingOccurrences(of: "[2, 2, 3, 61]", with: "[]")
     #expect(throws: OpenMeteoError.missingData) {
-      try OpenMeteo.decodeForecast(Data(json.utf8), place: .madison, fetchedAt: .now)
+      try OpenMeteo.decodeForecast(Data(json.utf8), place: .sample, fetchedAt: .now)
     }
   }
 
   @Test func decodesPlaces() throws {
     let json = """
       { "results": [
-        { "id": 1, "name": "Madison", "latitude": 43.073, "longitude": -89.401, "country": "United States", "admin1": "Wisconsin", "timezone": "America/Chicago" },
-        { "id": 2, "name": "Madison", "latitude": 34.7, "longitude": -86.7, "country": "United States" }
+        { "id": 1, "name": "Springfield", "latitude": 39.78, "longitude": -89.65, "country": "United States", "admin1": "Illinois", "timezone": "America/Chicago" },
+        { "id": 2, "name": "Springfield", "latitude": 37.2, "longitude": -93.3, "country": "United States" }
       ], "generationtime_ms": 0.5 }
       """
     let places = try OpenMeteo.decodePlaces(Data(json.utf8))
-    #expect(places.map(\.name) == ["Madison", "Madison"])
-    #expect(places[0].detail == "Wisconsin, United States")
+    #expect(places.map(\.name) == ["Springfield", "Springfield"])
+    #expect(places[0].detail == "Illinois, United States")
     #expect(places[1].detail == "United States")
     #expect(try OpenMeteo.decodePlaces(Data(#"{"generationtime_ms": 0.2}"#.utf8)).isEmpty)
   }
 
   @Test func roundTripsAForecastThroughJSON() throws {
     let forecast = try OpenMeteo.decodeForecast(
-      Data(forecastJSON.utf8), place: .madison, fetchedAt: moment("2026-10-18T14:16"))
+      Data(forecastJSON.utf8), place: .sample, fetchedAt: moment("2026-10-18T14:16"))
     let data = try JSONEncoder().encode(forecast)
     #expect(try JSONDecoder().decode(Forecast.self, from: data) == forecast)
   }
@@ -234,4 +234,10 @@ struct WeatherTests {
     #expect(averages.cloudCover == nil)
     #expect(forecast.averages(on: LocalDate(year: 2026, month: 1, day: 1)).humidity == nil)
   }
+}
+
+extension Place {
+  /// A place for the tests to ask about.
+  static let sample = Place(
+    name: "Springfield", detail: "Illinois, United States", latitude: 39.7817, longitude: -89.6501)
 }

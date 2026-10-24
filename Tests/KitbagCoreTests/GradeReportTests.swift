@@ -105,18 +105,18 @@ struct GradeReportTests {
     #expect(
       terms.map { "\($0.year)-\($0.semester.rawValue)" } == ["2024-second", "2025-first", "2025-second", "2026-second"])
     #expect(terms[0].courses.count == 3)
-    #expect(terms[0].title(prefix: "Tohoku") == "Tohoku 2024 Second semester")
+    #expect(terms[0].title == "2024 Second semester")
     #expect(terms[1].season == .spring)
     #expect(terms[0].season == .fall)
   }
 
-  @Test func theTohokuScaleCountsAAThroughD() {
-    let scale = GradeScale.tohoku
+  @Test func theJapaneseAAScaleCountsAAThroughD() {
+    let scale = GradeScale.japanAA
     #expect(scale.points(for: "AA") == 4)
     #expect(scale.points(for: "A") == 3)
     #expect(scale.points(for: "D") == 0)
     #expect(scale.earnsCredit("C"))
     #expect(!scale.earnsCredit("D"))
-    #expect(GradeScale.scale(id: "tohoku").id == "tohoku")
+    #expect(GradeScale.scale(id: "japan-aa").id == "japan-aa")
   }
 }

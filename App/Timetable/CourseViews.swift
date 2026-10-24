@@ -76,7 +76,7 @@ struct CourseDetailView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.palette) private var palette
   @Environment(\.titleDesign) private var design
-  @AppStorage("kitbag.gradeScale") private var scaleID = GradeScale.uwMadison.id
+  @AppStorage("kitbag.gradeScale") private var scaleID = GradeScale.usAB.id
 
   let courseID: UUID
   let termID: UUID

@@ -3,12 +3,11 @@ import PDFKit
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Reads a grade list PDF and turns it into terms that hold only grades. The terms are matched by their title, so reading a newer
-/// report of the same school adds what is new and updates what changed, and never duplicates a term.
+/// Reads a grade list PDF and turns it into terms that hold only grades. The terms are matched by their title (`2024 First
+/// semester`), so reading a newer report adds what is new and updates what changed, and never duplicates a term.
 enum GradeReportImport {
-  /// The school name that titles the terms, and the grade scale they are graded on.
-  static let schoolPrefix = "Tohoku"
-  static let scaleID = GradeScale.tohoku.id
+  /// The grade scale the terms are graded on.
+  static let scaleID = GradeScale.japanAA.id
 
   /// The courses in the PDF, or nil when it is not a grade list this reader knows.
   static func read(_ url: URL) -> [ReportedCourse]? {
@@ -33,9 +32,11 @@ enum GradeReportImport {
   ) {
     var courseCount = 0
     for reported in terms {
-      let title = reported.title(prefix: schoolPrefix)
+      let title = reported.title
+      // The first versions put a school's name in front of the title (`<School> 2024 First semester`); such a term is the
+      // same term, and takes the plain title.
       var term =
-        store.terms.first { $0.gradesOnly && $0.title == title }
+        store.terms.first { $0.gradesOnly && ($0.title == title || $0.title.hasSuffix(" " + title)) }
         ?? Timetable(
           title: title, year: reported.year, season: reported.season, gradeScaleID: scaleID, gradesOnly: true)
       for item in reported.courses {
@@ -51,6 +52,7 @@ enum GradeReportImport {
         }
         courseCount += 1
       }
+      term.title = title
       store.upsertTerm(term)
     }
     return (terms.count, courseCount)
@@ -83,7 +85,7 @@ struct GradeReportPreview: View {
           .font(.subheadline)
         } footer: {
           Text(
-            "The terms are named after the school and graded on its scale (Tohoku: AA, A, B, C, D). The student's name and number in the report are not kept.",
+            "The terms are named by year and semester and graded on the Japan (AA, A, B, C, D) scale. The student's name and number in the report are not kept.",
             tableName: "GPA")
         }
         .listRowBackground(palette.card)
@@ -99,7 +101,7 @@ struct GradeReportPreview: View {
               }
             }
           } header: {
-            Text(term.title(prefix: GradeReportImport.schoolPrefix))
+            Text(term.title)
           }
           .listRowBackground(palette.card)
         }

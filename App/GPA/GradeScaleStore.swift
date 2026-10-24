@@ -21,6 +21,14 @@ final class GradeScaleStore {
   init(defaults: UserDefaults = .standard) {
     self.defaults = defaults
     custom = Self.load(from: defaults)
+    Self.migrateChoice(in: defaults)
+  }
+
+  /// The scale chosen for the GPA screen may still be stored under an id from the first versions (`GradeScale.legacyIDs`).
+  private static func migrateChoice(in defaults: UserDefaults) {
+    guard let stored = defaults.string(forKey: "kitbag.gradeScale") else { return }
+    let current = GradeScale.canonicalID(stored)
+    if current != stored { defaults.set(current, forKey: "kitbag.gradeScale") }
   }
 
   /// The built-in scales, then the person's.
@@ -45,6 +53,7 @@ final class GradeScaleStore {
   /// Reads the scales again, after a backup was restored.
   func reload() {
     custom = Self.load(from: defaults)
+    Self.migrateChoice(in: defaults)
   }
 
   private static func load(from defaults: UserDefaults) -> [GradeScale] {

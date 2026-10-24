@@ -190,9 +190,9 @@ struct TimetableLibraryTests {
 
 @Suite("Grades")
 struct GradeTests {
-  private let uw = GradeScale.uwMadison
+  private let uw = GradeScale.usAB
 
-  @Test func knowsTheUWScale() {
+  @Test func knowsTheABScale() {
     #expect(uw.points(for: "A") == 4.0)
     #expect(uw.points(for: "AB") == 3.5)
     #expect(uw.points(for: "BC") == 2.5)
@@ -249,9 +249,19 @@ struct GradeTests {
   }
 
   @Test func listsTheScalesAndFallsBack() {
-    #expect(GradeScale.all.map(\.id) == ["uw-madison", "us-plus-minus", "japan", "tohoku"])
+    #expect(GradeScale.all.map(\.id) == ["us-ab", "us-plus-minus", "japan", "japan-aa"])
     #expect(GradeScale.scale(id: "japan").points(for: "S") == 4.0)
-    #expect(GradeScale.scale(id: "unknown").id == "uw-madison")
+    #expect(GradeScale.scale(id: "unknown").id == "us-ab")
     #expect(GradeScale.usPlusMinus.points(for: "A-") == 3.7)
+  }
+
+  @Test func readsTheIDsFromTheFirstVersions() throws {
+    // Two scales were first named after a school; files, backups and settings written then still say so.
+    #expect(GradeScale.scale(id: "uw-madison").id == "us-ab")
+    #expect(GradeScale.scale(id: "tohoku").id == "japan-aa")
+    #expect(GradeScale.canonicalID("us-plus-minus") == "us-plus-minus")
+    let json = #"{"title":"Old term","gradeScaleID":"tohoku","courses":[]}"#
+    let term = try JSONDecoder().decode(Timetable.self, from: Data(json.utf8))
+    #expect(term.gradeScaleID == "japan-aa")
   }
 }

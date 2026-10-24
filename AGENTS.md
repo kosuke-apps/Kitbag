@@ -10,13 +10,13 @@ adds what is specific to this project.
   notes, deadlines), tools written for Kitbag (timetable, deadlines and calendar, notes, weather) and the author's
   other apps (Headway now, Mantissa later) running inside it as full-screen "guests". A free Apple ID allows three
   apps on a device and expires each after 7 days, so fewer installs also means fewer reinstalls.
-- Intended users: the author first (an exchange student at UW–Madison); anyone who builds the project themselves.
+- Intended users: any student, at any school (the author first, who built it for the everyday use of a student); anyone who builds the project themselves. Nothing in the app is tied to a school or a city: the grading scales are named by their grades, the weather place is the person's own, and the apps inside it (Headway, Mantissa) are the only things that are specific, each by its own purpose.
 - Core user journey: open Kitbag, see the Today screen, tap an app icon below it, the tool opens full screen inside
   Kitbag, tap the house button at the top right to come back.
 - Status: a trial prototype. Working: the home screen with a Today section (date that opens the calendar, weather,
   the class that is on or comes next, today's classes, what is due soon, pinned notes), Settings (theme and appearance, app
   icon, which tools and which parts of Today are shown and in what order), the tools Timetable (grid in the
-  look of a printed UW–Madison timetable as an A4 page, a PDF export, terms with dates, credits and course details), GPA
+  look of a printed school timetable as an A4 page, a PDF export, terms with dates, credits and course details), GPA
   (grades, term and cumulative GPA, what-if and target calculators), Calendar (deadlines with reminders,
   month page and list, import and export of calendar files, subscription to Canvas or Google calendars), Notes (Markdown with live formatting, photos and files, search, course, pin) and Weather (one dense screen: now, a strip of days from a week back to ten ahead, a chart and an hourly table with twelve measures, the day's totals; Open-Meteo), and Headway and Mantissa as
   guests.  Nothing in it is a placeholder for an
@@ -65,7 +65,7 @@ adds what is specific to this project.
     for the class on now or next, `hourRange` and `visibleDays` for the grid, the file format with a `version`),
     `LocalDate` (a day as `"2026-10-22"`, independent of time zone) and `MonthGrid` (the rows of a month page),
     `Season` and the term fields of `Timetable` (dates, week numbers, no classes outside the term), `TimetableLibrary`
-    (all the terms; which one is in force today), `GradeScale` and `GPA` (UW–Madison, US plus/minus and Japanese scales;
+    (all the terms; which one is in force today), `GradeScale` and `GPA` (a four-point scale with AB and BC, US plus/minus and two Japanese scales;
     averages by credits; the average a target needs), `HomeLayout` (a saved order and hidden items, merged with what
     exists), `Deadline` and `DeadlineBook` (grouping by how soon), `DeadlineAlert` (one reminder of a deadline as a distance from when it is due: minutes, hours, days or weeks before, with a time of day for a deadline with no time), `Note` and `NoteBook` (title from the first
     line without its marks, pinned first, search over text and attachment names), `NoteAttachment` (a photo or file kept
@@ -148,11 +148,13 @@ adds what is specific to this project.
     viewer), `TermViews` (term name and dates, header, editor), `CourseViews` (card, detail with grade, deadlines and
     notes of the course, editor with credits), `CourseColor+Style` (pastel, dark and strong tones).
   - Grade list import (`Sources/KitbagCore/GradeReport.swift`, `App/GPA/GradeReportImport.swift`): GPA > + > Import grades from
-    a PDF reads Tohoku University's English "Grade list" with PDFKit, `GradeReportParser` turns its wrapped text into courses
+    a PDF reads an English "Grade list" (as some Japanese universities issue) with PDFKit, `GradeReportParser` turns its wrapped text into courses
     (checked on a real report: the credits it finds equal the report's own totals), `ReportedTerm.group` makes terms, and the
-    preview sheet shows them before anything is added. Terms are titled `Tohoku <year> First|Second semester`, graded on the
-    built-in `tohoku` scale (AA 4, A 3, B 2, C 1, D 0), kept as grades-only terms, and matched by title so that a newer
-    report updates instead of duplicating. The student's name and number are never kept. Tests use an invented report in the
+    preview sheet shows them before anything is added. Terms are titled `<year> First|Second semester`, graded on the
+    built-in `japan-aa` scale (AA 4, A 3, B 2, C 1, D 0), kept as grades-only terms, and matched by title so that a newer
+    report updates instead of duplicating (a term that an early version titled with a school's name in front is taken as the
+    same term and gets the plain title). The two scales that were first named after a school (`uw-madison`, `tohoku`) are now
+    `us-ab` and `japan-aa`; `GradeScale.legacyIDs` makes old files, backups and settings read as the new ids. The student's name and number are never kept. Tests use an invented report in the
     same layout; the real report is never committed.
   - `App/GPA/`: `GPAView` (the cumulative GPA over the terms that count, each term's on its own grade scale, credits
     earned, a what-if card that imagines grades for open courses, imagined courses and courses left out, and the target),

@@ -27,18 +27,6 @@ struct PlacePicker: View {
               Image(systemName: "location.fill")
             }
           }
-          Button {
-            Task {
-              await store.choose(.madison)
-              dismiss()
-            }
-          } label: {
-            Label {
-              Text("Madison, Wisconsin", tableName: "Weather")
-            } icon: {
-              Image(systemName: "mappin")
-            }
-          }
         }
         if searching {
           ProgressView().frame(maxWidth: .infinity)

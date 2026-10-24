@@ -5,10 +5,10 @@ import UniformTypeIdentifiers
 extension GradeScale {
   var title: LocalizedStringResource {
     switch id {
-    case "uw-madison": LocalizedStringResource("UW–Madison (A, AB, B…)", table: "GPA")
+    case "us-ab": LocalizedStringResource("US with AB and BC (A, AB, B…)", table: "GPA")
     case "us-plus-minus": LocalizedStringResource("US with plus and minus", table: "GPA")
     case "japan": LocalizedStringResource("Japan (S, A, B, C, D)", table: "GPA")
-    case "tohoku": LocalizedStringResource("Tohoku University (AA, A, B, C, D)", table: "GPA")
+    case "japan-aa": LocalizedStringResource("Japan (AA, A, B, C, D)", table: "GPA")
     default: LocalizedStringResource("Grade scale", table: "GPA")
     }
   }
@@ -24,7 +24,7 @@ struct GPAView: View {
   @Environment(GradeScaleStore.self) private var gradeScales
   @Environment(\.titleDesign) private var design
   @Environment(\.palette) private var palette
-  @AppStorage("kitbag.gradeScale") private var scaleID = GradeScale.uwMadison.id
+  @AppStorage("kitbag.gradeScale") private var scaleID = GradeScale.usAB.id
 
   // What if
   @State private var imagined: [UUID: String] = [:]
@@ -167,7 +167,9 @@ struct GPAView: View {
           Text("OK", tableName: "Notes")
         }
       } message: {
-        Text("It reads the English grade list of Tohoku University.", tableName: "GPA")
+        Text(
+          "It reads an English grade list PDF in which each course is followed by its credits, grade and term, as some Japanese universities issue. Other layouts are not recognised.",
+          tableName: "GPA")
       }
       .sheet(item: $sheet) { sheet in
         switch sheet {

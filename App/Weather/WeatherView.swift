@@ -22,6 +22,26 @@ struct WeatherView: View {
       Group {
         if let forecast = store.forecast {
           content(forecast)
+        } else if store.place == nil && !store.followsLocation {
+          ContentUnavailableView {
+            Label {
+              Text("Choose a place for the weather", tableName: "Weather")
+            } icon: {
+              Image(systemName: "mappin.and.ellipse")
+            }
+          } description: {
+            Text(
+              "Search for a city, or use where your phone is. Kitbag keeps only the place you choose.",
+              tableName: "Weather"
+            )
+          } actions: {
+            Button {
+              showingPlaces = true
+            } label: {
+              Text("Choose a place", tableName: "Weather")
+            }
+            .buttonStyle(.borderedProminent)
+          }
         } else if store.phase == .failed {
           ContentUnavailableView {
             Label {

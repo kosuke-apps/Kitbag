@@ -1,7 +1,7 @@
 import Foundation
 
 /// A grading system: the grades a university gives and how many grade points each is worth. The built-in scales cover
-/// UW–Madison, the American plus/minus scale and a common Japanese one; a person can write their own, because schools (and
+/// A four-point scale with AB and BC, the American plus/minus scale and a common Japanese one; a person can write their own, because schools (and
 /// study abroad) differ.
 public struct GradeScale: Hashable, Identifiable, Codable, Sendable {
   public struct Grade: Hashable, Codable, Sendable {
@@ -55,9 +55,9 @@ public struct GradeScale: Hashable, Identifiable, Codable, Sendable {
         + (passes + others).map { Grade(label: $0, points: nil, earnsCredit: passes.contains($0)) })
   }
 
-  /// UW–Madison: A, AB, B, BC, C, D, F on a four-point scale.
-  public static let uwMadison = scale(
-    "uw-madison", [("A", 4.0), ("AB", 3.5), ("B", 3.0), ("BC", 2.5), ("C", 2.0), ("D", 1.0), ("F", 0.0)],
+  /// A, AB, B, BC, C, D, F on a four-point scale (some American universities).
+  public static let usAB = scale(
+    "us-ab", [("A", 4.0), ("AB", 3.5), ("B", 3.0), ("BC", 2.5), ("C", 2.0), ("D", 1.0), ("F", 0.0)],
     passes: ["S", "CR", "P"], others: ["U", "N", "I"])
 
   /// The common American scale with plus and minus.
@@ -72,15 +72,22 @@ public struct GradeScale: Hashable, Identifiable, Codable, Sendable {
   public static let japan = scale(
     "japan", [("S", 4.0), ("A", 3.0), ("B", 2.0), ("C", 1.0), ("D", 0.0)], passes: ["P"], others: ["I"])
 
-  /// Tohoku University: AA, A, B, C and D (秀, 優, 良, 可, 不可) as 4, 3, 2, 1 and 0; check yours.
-  public static let tohoku = scale(
-    "tohoku", [("AA", 4.0), ("A", 3.0), ("B", 2.0), ("C", 1.0), ("D", 0.0)], passes: ["P"], others: ["F", "I"])
+  /// The Japanese scale with AA, A, B, C and D (秀, 優, 良, 可, 不可) as 4, 3, 2, 1 and 0; check yours.
+  public static let japanAA = scale(
+    "japan-aa", [("AA", 4.0), ("A", 3.0), ("B", 2.0), ("C", 1.0), ("D", 0.0)], passes: ["P"], others: ["F", "I"])
 
-  public static let all: [GradeScale] = [uwMadison, usPlusMinus, japan, tohoku]
+  public static let all: [GradeScale] = [usAB, usPlusMinus, japan, japanAA]
 
-  /// The scale with this id among the built-in ones and the person's own, or UW–Madison's when there is none.
+  /// The ids that two built-in scales had in the first versions, when they were named after a school. Files, backups and
+  /// settings written then still say these; they are read as the ids the scales have now.
+  public static let legacyIDs = ["uw-madison": "us-ab", "tohoku": "japan-aa"]
+
+  public static func canonicalID(_ id: String) -> String { legacyIDs[id] ?? id }
+
+  /// The scale with this id among the built-in ones and the person's own, or the first one (`usAB`) when there is none.
   public static func scale(id: String, custom: [GradeScale] = []) -> GradeScale {
-    (all + custom).first { $0.id == id } ?? uwMadison
+    let id = canonicalID(id)
+    return (all + custom).first { $0.id == id } ?? usAB
   }
 }
 

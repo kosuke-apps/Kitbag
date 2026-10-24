@@ -5,7 +5,7 @@ import Testing
 
 @Suite("GPA options")
 struct GPAOptionsTests {
-  private let scale = GradeScale.uwMadison
+  private let scale = GradeScale.usAB
 
   @Test func leavesOutExcludedAndPassFailCourses() {
     let entries = [
@@ -30,9 +30,9 @@ struct GPAOptionsTests {
 
   @Test func addsUpTermsOnTheirOwnScalesAndSkipsLeftOutTerms() {
     let home = GPA.TermInput(
-      entries: [GPA.Entry(credits: 3, grade: "A"), GPA.Entry(credits: 3, grade: "B")], scale: .uwMadison)
+      entries: [GPA.Entry(credits: 3, grade: "A"), GPA.Entry(credits: 3, grade: "B")], scale: .usAB)
     let abroad = GPA.TermInput(entries: [GPA.Entry(credits: 4, grade: "S")], scale: .japan)
-    let leftOut = GPA.TermInput(entries: [GPA.Entry(credits: 4, grade: "A")], scale: .uwMadison, included: false)
+    let leftOut = GPA.TermInput(entries: [GPA.Entry(credits: 4, grade: "A")], scale: .usAB, included: false)
     let cumulative = GPA.cumulative([home, abroad, leftOut])
     // 3 × 4.0 + 3 × 3.0 on UW's scale, plus 4 × 4.0 for S on the Japanese one.
     #expect(cumulative?.credits == 10)
@@ -52,7 +52,7 @@ struct GPAOptionsTests {
     let back = try JSONDecoder().decode(GradeScale.self, from: data)
     #expect(back == mine)
     #expect(GradeScale.scale(id: "custom-1", custom: [mine]).name == "Abroad")
-    #expect(GradeScale.scale(id: "unknown", custom: [mine]).id == "uw-madison")
+    #expect(GradeScale.scale(id: "unknown", custom: [mine]).id == "us-ab")
     #expect(mine.earnsCredit("Pass"))
     #expect(!mine.earnsCredit("4"))
     #expect(mine.earnsCredit("2"))

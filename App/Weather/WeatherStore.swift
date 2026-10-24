@@ -15,7 +15,8 @@ final class WeatherStore {
 
   private(set) var forecast: Forecast?
   private(set) var phase: Phase = .idle
-  private(set) var place: Place
+  /// The place that was chosen (or found from the phone's location); nil until one is.
+  private(set) var place: Place?
   /// True when the place follows the phone's location rather than a place that was chosen.
   private(set) var followsLocation: Bool
   /// Set when the phone's location could not be used (access off, or no fix).
@@ -48,18 +49,13 @@ final class WeatherStore {
     self.defaults = defaults
     self.session = session
     self.dataUse = dataUse
-    if let data = defaults.data(forKey: "weather.place"), let saved = try? JSONDecoder().decode(Place.self, from: data)
-    {
-      place = saved
-    } else {
-      place = .madison
-    }
+    let saved = defaults.data(forKey: "weather.place").flatMap { try? JSONDecoder().decode(Place.self, from: $0) }
+    let cached = (try? Data(contentsOf: cacheURL)).flatMap { try? JSONDecoder().decode(Forecast.self, from: $0) }
+    // The first versions started with a fixed place and kept the last forecast: a phone that never chose a place keeps showing
+    // the place of that forecast, instead of asking.
+    place = saved ?? cached?.place
     followsLocation = defaults.bool(forKey: "weather.followsLocation")
-    if let data = try? Data(contentsOf: cacheURL), let cached = try? JSONDecoder().decode(Forecast.self, from: data),
-      cached.place == place
-    {
-      forecast = cached
-    }
+    if let cached, cached.place == place { forecast = cached }
   }
 
   // MARK: Fetching
@@ -68,6 +64,7 @@ final class WeatherStore {
   /// the screen down, a button, a new place). A failure keeps the old forecast.
   func refresh(force: Bool = false) async {
     if followsLocation && (force || forecast == nil) { await updateLocation() }
+    guard let place else { return }
     let last = forecast.flatMap { $0.place == place ? $0.fetchedAt : nil }
     switch dataUse.decide(.weather, byRequest: force, lastFetched: last) {
     case .tooSoon:
@@ -144,7 +141,7 @@ final class WeatherStore {
   }
 
   private func persist() {
-    if let data = try? JSONEncoder().encode(place) { defaults.set(data, forKey: "weather.place") }
+    if let place, let data = try? JSONEncoder().encode(place) { defaults.set(data, forKey: "weather.place") }
     defaults.set(followsLocation, forKey: "weather.followsLocation")
   }
 }

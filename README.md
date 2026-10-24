@@ -7,7 +7,7 @@ three such apps at a time (that comes from the sideloading tools' pages and comm
 documentation). Kitbag takes one of those slots: tap an app icon on its home screen and the app opens full screen inside
 Kitbag; tap the house button at the top right to come back.
 
-This is a prototype for the author's own use as a student.
+Kitbag began as the author's own everyday tool as a student, and is meant for any student, at any school.
 
 This app was built with the help of Claude (Anthropic) through Claude Code; design, review and testing are by Kosuke Satake. Anthropic does not endorse this app.
 
@@ -33,7 +33,7 @@ This app was built with the help of Claude (Anthropic) through Claude Code; desi
   search, an optional course, and a pin that shows the note on the Today screen.
 - Weather: everything on one screen, with no scrolling: now, a strip of days from a week back to ten ahead, a chart and
   an hourly table (temperature, feels like, rain chance and amount, wind and gusts, humidity, cloud, UV, pressure) for
-  the day you pick, and the day's totals; for Madison, a place you search for, or your location. Data by
+  the day you pick, and the day's totals; for a place you search for, or your location. Data by
   [Open-Meteo](https://open-meteo.com/) (CC BY 4.0).
 - Backup: Settings > Data exports everything (timetable, deadlines, notes with photos and files, settings) as one `.kitbag`
   file to send by AirDrop or keep in Files, and restores one (after asking, and after saving what was there). It is also the

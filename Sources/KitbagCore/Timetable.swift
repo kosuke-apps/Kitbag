@@ -164,7 +164,7 @@ public struct Timetable: Hashable, Codable, Identifiable, Sendable {
       startDate: try container.decodeIfPresent(LocalDate.self, forKey: .startDate),
       endDate: try container.decodeIfPresent(LocalDate.self, forKey: .endDate),
       courses: try container.decodeIfPresent([Course].self, forKey: .courses) ?? [],
-      gradeScaleID: try container.decodeIfPresent(String.self, forKey: .gradeScaleID),
+      gradeScaleID: try container.decodeIfPresent(String.self, forKey: .gradeScaleID).map(GradeScale.canonicalID),
       countsInCumulativeGPA: try container.decodeIfPresent(Bool.self, forKey: .countsInCumulativeGPA) ?? true,
       gradesOnly: try container.decodeIfPresent(Bool.self, forKey: .gradesOnly) ?? false)
   }

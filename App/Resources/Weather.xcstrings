@@ -97,6 +97,26 @@
         }
       }
     },
+    "Choose a place": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地点を選ぶ"
+          }
+        }
+      }
+    },
+    "Choose a place for the weather": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天気の地点を選んでください"
+          }
+        }
+      }
+    },
     "Clear": {
       "localizations": {
         "ja": {
@@ -508,16 +528,6 @@
         }
       }
     },
-    "Madison, Wisconsin": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ウィスコンシン州マディソン"
-          }
-        }
-      }
-    },
     "Mainly clear": {
       "localizations": {
         "ja": {
@@ -713,6 +723,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "都市を検索"
+          }
+        }
+      }
+    },
+    "Search for a city, or use where your phone is. Kitbag keeps only the place you choose.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "都市を検索するか，iPhone のいる場所を使います．Kitbag が保存するのは選んだ地点だけです．"
           }
         }
       }

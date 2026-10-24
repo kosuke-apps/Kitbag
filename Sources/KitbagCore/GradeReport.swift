@@ -17,7 +17,7 @@ public struct ReportedCourse: Hashable, Sendable {
   public var semester: Semester
 }
 
-/// Reads the text of a Tohoku University "Grade list" (the English PDF a student can download), where a course is written as
+/// Reads the text of an English "Grade list" PDF (as some Japanese universities issue), where a course is written as
 /// the subject name, then `2.0 AA ○ 2024 Second semester` and the instructor, wrapped in narrow columns:
 ///
 ///     Introduction to Academic Learning
@@ -135,9 +135,9 @@ public struct ReportedTerm: Hashable, Sendable {
   public var semester: ReportedCourse.Semester
   public var courses: [ReportedCourse]
 
-  /// `Tohoku 2024 Second semester`, the title a term made from it gets.
-  public func title(prefix: String) -> String {
-    "\(prefix) \(year) \(semester == .first ? "First" : "Second") semester"
+  /// `2024 Second semester`, the title a term made from it gets.
+  public var title: String {
+    "\(year) \(semester == .first ? "First" : "Second") semester"
   }
 
   /// The first semester runs from April and the second from October, so they are the spring and the fall of the year.

@@ -3,7 +3,7 @@ import Foundation
 /// A place to show the weather for.
 public struct Place: Codable, Hashable, Sendable {
   public var name: String
-  /// Region and country, for telling two places of one name apart: `"Wisconsin, United States"`.
+  /// Region and country, for telling two places of one name apart: `"Illinois, United States"`.
   public var detail: String
   public var latitude: Double
   public var longitude: Double
@@ -14,10 +14,6 @@ public struct Place: Codable, Hashable, Sendable {
     self.latitude = latitude
     self.longitude = longitude
   }
-
-  /// Where the author studies; the place until another is chosen.
-  public static let madison = Place(
-    name: "Madison", detail: "Wisconsin, United States", latitude: 43.0731, longitude: -89.4012)
 }
 
 /// What the sky is doing, grouped from the WMO weather codes that forecast services use.

@@ -522,13 +522,23 @@
         }
       }
     },
-    "It reads the English grade list of Tohoku University.": {
-      "comment": "Alert message under the unreadable PDF alert.",
+    "It reads an English grade list PDF in which each course is followed by its credits, grade and term, as some Japanese universities issue. Other layouts are not recognised.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "東北大学の英語版の成績表（Grade list）に対応しています．"
+            "value": "科目名のあとに単位数・評価・学期が続く英語の成績表 PDF（日本の一部の大学が発行する形式）に対応しています．ほかのレイアウトは認識できません．"
+          }
+        }
+      }
+    },
+    "Japan (AA, A, B, C, D)": {
+      "comment": "Name of a built-in grade scale.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日本（AA, A, B, C, D）"
           }
         }
       }
@@ -788,13 +798,12 @@
         }
       }
     },
-    "The terms are named after the school and graded on its scale (Tohoku: AA, A, B, C, D). The student's name and number in the report are not kept.": {
-      "comment": "Footer of the grade import preview.",
+    "The terms are named by year and semester and graded on the Japan (AA, A, B, C, D) scale. The student's name and number in the report are not kept.": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "学期は学校名で名づけられ，その評価方式（東北: AA, A, B, C, D）で採点されます．成績表にある氏名と学籍番号は保存されません．"
+            "value": "学期は年度と学期で名づけられ，日本（AA, A, B, C, D）の評価方式で採点されます．成績表にある学生の氏名と学籍番号は保存されません．"
           }
         }
       }
@@ -810,13 +819,13 @@
         }
       }
     },
-    "Tohoku University (AA, A, B, C, D)": {
-      "comment": "Name of the built-in Tohoku grade scale.",
+    "US with AB and BC (A, AB, B…)": {
+      "comment": "Name of a built-in grade scale.",
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "東北大学（AA, A, B, C, D）"
+            "value": "米国式・AB と BC あり（A, AB, B…）"
           }
         }
       }
@@ -827,16 +836,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "米国式（プラス・マイナスあり）"
-          }
-        }
-      }
-    },
-    "UW–Madison (A, AB, B…)": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UW–Madison（A, AB, B…）"
           }
         }
       }
