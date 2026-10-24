@@ -70,11 +70,14 @@ final class BackupFolderStore {
     let assertion = UIApplication.shared.beginBackgroundTask(withName: "Kitbag backup")
     defer { if assertion != .invalid { UIApplication.shared.endBackgroundTask(assertion) } }
     let bookmark = defaults.data(forKey: Self.bookmarkKey)
-    let outcome = await Task.detached(priority: .utility) { () -> Result<Void, Error> in
+    let outcome = await Task.detached(priority: .utility) { () -> Result<Data?, Error> in
       Result { try Self.writeBackup(bookmark: bookmark, now: now) }
     }.value
     switch outcome {
-    case .success:
+    case .success(let renewed):
+      // The system calls a bookmark stale when it still resolves but may not for much longer (after an update, or when the
+      // folder was moved); a new one made now keeps the backups going.
+      if let renewed { defaults.set(renewed, forKey: Self.bookmarkKey) }
       lastBackup = now
       defaults.set(now, forKey: Self.lastBackupKey)
       lastError = nil
@@ -83,10 +86,13 @@ final class BackupFolderStore {
     }
   }
 
-  nonisolated private static func writeBackup(bookmark: Data?, now: Date) throws {
-    let folder = try resolve(bookmark)
+  /// Writes the backup and prunes the old ones. Returns a new bookmark of the folder when the one in use had gone stale.
+  nonisolated private static func writeBackup(bookmark: Data?, now: Date) throws -> Data? {
+    let (folder, stale) = try resolve(bookmark)
     let scoped = folder.startAccessingSecurityScopedResource()
     defer { if scoped { folder.stopAccessingSecurityScopedResource() } }
+    let renewed =
+      stale ? try? folder.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) : nil
 
     let made = try BackupManager().makeTemporaryBackup(now: now)
     defer { try? FileManager.default.removeItem(at: made.deletingLastPathComponent()) }
@@ -111,6 +117,7 @@ final class BackupFolderStore {
         writingItemAt: folder.appending(path: name), options: .forDeleting, error: &pruneError
       ) { url in try? FileManager.default.removeItem(at: url) }
     }
+    return renewed
   }
 
   // MARK: Restoring
@@ -119,7 +126,7 @@ final class BackupFolderStore {
   func newestBackupCopy() async throws -> URL? {
     let bookmark = defaults.data(forKey: Self.bookmarkKey)
     return try await Task.detached(priority: .userInitiated) { () -> URL? in
-      let folder = try Self.resolve(bookmark)
+      let (folder, _) = try Self.resolve(bookmark)
       let scoped = folder.startAccessingSecurityScopedResource()
       defer { if scoped { folder.stopAccessingSecurityScopedResource() } }
       // A file that iCloud has not downloaded yet shows up as `.Name.icloud`; its real name is what a backup is named by.
@@ -148,10 +155,12 @@ final class BackupFolderStore {
 
   // MARK: Helpers
 
-  nonisolated private static func resolve(_ bookmark: Data?) throws -> URL {
+  /// The folder a bookmark points at, and whether the bookmark has gone stale.
+  nonisolated private static func resolve(_ bookmark: Data?) throws -> (url: URL, stale: Bool) {
     guard let bookmark else { throw CocoaError(.fileNoSuchFile) }
     var stale = false
-    return try URL(resolvingBookmarkData: bookmark, options: [], relativeTo: nil, bookmarkDataIsStale: &stale)
+    let url = try URL(resolvingBookmarkData: bookmark, options: [], relativeTo: nil, bookmarkDataIsStale: &stale)
+    return (url, stale)
   }
 
   nonisolated private static func describe(_ error: Error) -> String {
