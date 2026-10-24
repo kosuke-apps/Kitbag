@@ -11,8 +11,8 @@ configFiles:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "0.4.2"
-    CURRENT_PROJECT_VERSION: "7"
+    MARKETING_VERSION: "0.5.0"
+    CURRENT_PROJECT_VERSION: "8"
 packages:
   # Kitbag's own logic (timetable model and queries), tested on the Mac with `swift test`.
   Kitbag:
