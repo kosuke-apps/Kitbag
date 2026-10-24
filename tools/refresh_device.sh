@@ -156,7 +156,7 @@ for attempt in 1 2 3; do
   wait_for_phone 120 || true
 done
 if (( ! built )); then
-  for i in {1..${#MOVED_FROM}}; do
+  for (( i = 1; i <= ${#MOVED_FROM}; i++ )); do
     [[ -e "${MOVED_TO[$i]}" && ! -e "${MOVED_FROM[$i]}" ]] && mv "${MOVED_TO[$i]}" "${MOVED_FROM[$i]}"
   done
   if grep -q "No Accounts" "$STATE_DIR/build.log"; then
