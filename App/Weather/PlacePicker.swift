@@ -32,6 +32,9 @@ struct PlacePicker: View {
           ProgressView().frame(maxWidth: .infinity)
         } else if let reason = store.searchBlocked {
           Text(SubscriptionStore.describe(reason)).foregroundStyle(.secondary)
+        } else if store.searchFailed {
+          Text("Could not search. Check your connection and try again.", tableName: "Weather")
+            .foregroundStyle(.secondary)
         } else if searched && results.isEmpty {
           Text("No places found.", tableName: "Weather").foregroundStyle(.secondary)
         }

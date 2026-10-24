@@ -168,6 +168,17 @@
         }
       }
     },
+    "Could not search. Check your connection and try again.": {
+      "comment": "Shown when the place search could not reach the service.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検索できませんでした．接続を確認して，もう一度お試しください．"
+          }
+        }
+      }
+    },
     "Current location": {
       "comment": "Name of a place when its name could not be found.",
       "localizations": {
@@ -908,6 +919,28 @@
         }
       }
     },
+    "The forecast is loaded only when you ask. Tap the button to load it.": {
+      "comment": "Shown instead of a forecast when updates are manual and nothing is kept yet.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "予報は，更新を指示したときだけ読み込まれます．ボタンを押して読み込んでください．"
+          }
+        }
+      }
+    },
+    "The weather is not loaded": {
+      "comment": "Title when no forecast is kept and updating is held back by the data choices.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天気はまだ読み込まれていません"
+          }
+        }
+      }
+    },
     "Through the day": {
       "comment": "Weather screen.",
       "localizations": {
@@ -1018,6 +1051,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "不明"
+          }
+        }
+      }
+    },
+    "Update now": {
+      "comment": "Button that loads the forecast although updates are manual.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今すぐ更新"
           }
         }
       }

@@ -430,6 +430,17 @@
         }
       }
     },
+    "Updates are manual on Wi-Fi. Pull down or tap refresh.": {
+      "comment": "Shown when updates are set to manual for Wi-Fi.",
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wi-Fi では手動更新です．画面を引き下げるか，更新ボタンを押してください．"
+          }
+        }
+      }
+    },
     "Used this month": {
       "localizations": {
         "ja": {

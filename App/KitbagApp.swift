@@ -83,6 +83,7 @@ struct KitbagApp: App {
         .task { await fakeHeadwayReminderIfAsked() }
         .task { await weatherManualIfAsked() }
         .task { await weatherCancelTestIfAsked() }
+        .task { await snoozeTestIfAsked() }
       #endif
       .task {
         deadlines.applyWidgetActions()
@@ -177,6 +178,45 @@ struct KitbagApp: App {
       if weather.place == nil {
         await weather.choose(
           Place(name: "Madison", detail: "Wisconsin, United States", latitude: 43.073, longitude: -89.401))
+      }
+    }
+
+    /// For checking the buttons of a deadline's notification without waiting for one: it delivers a notification built like a
+    /// deadline's (with its category and the calendar's picture), takes what the phone says was delivered and puts it off the
+    /// three ways the buttons do, then logs whether each snooze is waiting. Launch with `-kitbagSnoozeTest YES`. Only in debug
+    /// builds.
+    @MainActor fileprivate func snoozeTestIfAsked() async {
+      guard UserDefaults.standard.bool(forKey: "kitbagSnoozeTest") else { return }
+      let center = UNUserNotificationCenter.current()
+      // One notification for each button, as in use: a button works on the one notification it was pressed on.
+      for action in [DeadlineAction.snoozeTenMinutes, .snoozeHour, .remindTomorrow] {
+        let deadlineID = UUID()
+        let identifier = "kitbag.test.snooze.\(action.rawValue)"
+        let content = UNMutableNotificationContent()
+        content.title = "Snooze test"
+        content.body = "Delivered with a picture, like a deadline's"
+        content.sound = .default
+        content.categoryIdentifier = ReminderScheduler.categoryID
+        content.userInfo = ["deadlineID": deadlineID.uuidString, "morning": 540]
+        content.attachments = [NotificationIcon.attachment(for: .calendar)].compactMap { $0 }
+        try? await center.add(
+          UNNotificationRequest(
+            identifier: identifier, content: content,
+            trigger: UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)))
+        try? await Task.sleep(for: .seconds(4))
+        let delivered = await center.deliveredNotifications().first { $0.request.identifier == identifier }
+        guard let delivered else {
+          NSLog("kitbag-test: snooze %@ not delivered", action.rawValue)
+          continue
+        }
+        await ReminderScheduler().snooze(
+          deadlineID, content: delivered.request.content, action: action, morning: TimeOfDay(minutes: 540))
+        let pending = await center.pendingNotificationRequests().first {
+          $0.identifier == ReminderScheduler.snoozePrefix + deadlineID.uuidString
+        }
+        NSLog(
+          "kitbag-test: snooze %@ attachments=%d waiting=%@", action.rawValue,
+          delivered.request.content.attachments.count, "\(pending != nil)")
       }
     }
 

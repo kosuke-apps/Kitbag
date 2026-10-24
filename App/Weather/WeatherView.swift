@@ -58,6 +58,31 @@ struct WeatherView: View {
               Text("Try again", tableName: "Weather")
             }
           }
+        } else if let reason = store.blocked {
+          // No forecast is kept (a new place, a reinstall) and the choices about data hold the update back: say so, and
+          // offer to update anyway, instead of a spinner that never ends.
+          ContentUnavailableView {
+            Label {
+              Text("The weather is not loaded", tableName: "Weather")
+            } icon: {
+              Image(systemName: "cloud")
+            }
+          } description: {
+            // "Pull down" would point at nothing here: there is no forecast to pull.
+            if reason == .manualOnly {
+              Text("The forecast is loaded only when you ask. Tap the button to load it.", tableName: "Weather")
+            } else {
+              Text(SubscriptionStore.describe(reason))
+            }
+          } actions: {
+            if reason != .notOnMobile {
+              Button {
+                Task { await store.refresh(force: true) }
+              } label: {
+                Text("Update now", tableName: "Weather")
+              }
+            }
+          }
         } else {
           ProgressView().controlSize(.large)
         }

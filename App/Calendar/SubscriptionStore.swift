@@ -185,7 +185,10 @@ final class SubscriptionStore {
   /// What the choices about data did, in words.
   static func describe(_ block: FetchBlock) -> String {
     switch block {
-    case .manualOnly: L10n.string("Updates are manual on mobile data. Pull down or tap refresh.", table: "DataUse")
+    case .manualOnly:
+      NetworkCondition.shared.connection.isMetered
+        ? L10n.string("Updates are manual on mobile data. Pull down or tap refresh.", table: "DataUse")
+        : L10n.string("Updates are manual on Wi-Fi. Pull down or tap refresh.", table: "DataUse")
     case .notOnMobile:
       L10n.string("Not on mobile data: this waits for Wi-Fi (Settings > Data usage).", table: "DataUse")
     case .monthlyLimit:

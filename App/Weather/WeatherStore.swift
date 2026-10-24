@@ -36,6 +36,8 @@ final class WeatherStore {
   private(set) var blocked: FetchBlock?
   /// The same for a search for a place.
   private(set) var searchBlocked: FetchBlock?
+  /// True when the last search could not reach the service, which is not the same as finding nothing.
+  private(set) var searchFailed = false
 
   /// The shortest a forecast is called fresh, whatever the rhythm.
   private let freshFor: TimeInterval = 15 * 60
@@ -146,9 +148,12 @@ final class WeatherStore {
       return []
     }
     searchBlocked = nil
-    guard let url = OpenMeteo.searchURL(query: query, language: language),
-      let (data, _) = try? await dataUse.fetch(URLRequest(url: url), source: .places, session: session)
-    else { return [] }
+    searchFailed = false
+    guard let url = OpenMeteo.searchURL(query: query, language: language) else { return [] }
+    guard let (data, _) = try? await dataUse.fetch(URLRequest(url: url), source: .places, session: session) else {
+      searchFailed = true
+      return []
+    }
     return (try? OpenMeteo.decodePlaces(data)) ?? []
   }
 
@@ -176,7 +181,27 @@ final class LocationProvider: NSObject, CLLocationManagerDelegate {
     manager.desiredAccuracy = kCLLocationAccuracyKilometer
   }
 
+  /// One request at a time: a second caller waits for the first one's answer (two requests would each replace the other's
+  /// continuation, and one of the callers would wait for ever). A fix that is not there yet is asked for once more after a
+  /// moment, as the system advises, so that a passing "unknown" is not taken for a phone with no location.
+  private var inFlight: Task<Place, Error>?
+
   func currentPlace() async throws -> Place {
+    if let inFlight { return try await inFlight.value }
+    let task = Task {
+      do {
+        return try await locate()
+      } catch LocationError.noFix {
+        try await Task.sleep(for: .seconds(2))
+        return try await locate()
+      }
+    }
+    inFlight = task
+    defer { inFlight = nil }
+    return try await task.value
+  }
+
+  private func locate() async throws -> Place {
     if manager.authorizationStatus == .notDetermined {
       manager.requestWhenInUseAuthorization()
       await withCheckedContinuation { authorization = $0 }
