@@ -86,6 +86,12 @@ public struct GradeScale: Hashable, Identifiable, Codable, Sendable {
   /// The starting points offered when a person adds a scale.
   public static let presets: [GradeScale] = [usAB, usPlusMinus, japan, japanAA]
 
+  /// The ids of the scales that something refers to: the scale of each term that names one, and the one chosen for the GPA
+  /// screen (the first preset until one is chosen). Old ids are read as the ids they became.
+  public static func idsInUse(termScaleIDs: [String?], chosen: String?) -> Set<String> {
+    Set(termScaleIDs.compactMap { $0 }.map(canonicalID)).union([canonicalID(chosen ?? usAB.id)])
+  }
+
   /// The presets that a person's scales do not yet include a copy of, among those whose ids are in `ids`. Something that
   /// refers to a preset by its id (a term, the scale chosen for the GPA screen) needs a scale of that id to show and to
   /// change; the copy keeps the id, so nothing that refers to it has to change.

@@ -65,7 +65,7 @@ final class GradeScaleStore {
 
   /// The ids of the scales that something refers to: the one chosen for the GPA screen and the one of each term.
   func idsInUse() -> Set<String> {
-    Set(terms().compactMap(\.gradeScaleID).map(GradeScale.canonicalID)).union([chosenID])
+    GradeScale.idsInUse(termScaleIDs: terms().map(\.gradeScaleID), chosen: defaults.string(forKey: Self.choiceKey))
   }
 
   /// How many terms use the scale, and whether it is the one chosen for the GPA screen.
