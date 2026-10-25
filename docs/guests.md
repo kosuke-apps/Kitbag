@@ -12,7 +12,7 @@ mounts the guest's root component, the way a host page would mount another team'
 `tools/fetch_guests.sh` clones the guests next to Kitbag at the tags that `tools/guests.txt` pins:
 
 ```bash
-tools/fetch_guests.sh     # ../Headway at v0.6.7 and ../Mantissa at v0.25.0, from github.com/kosuke-apps
+tools/fetch_guests.sh     # ../Headway at v0.7.4 and ../Mantissa at v0.26.0, from github.com/kosuke-apps
 ```
 
 They are the public repositories <https://github.com/kosuke-apps/Headway> and <https://github.com/kosuke-apps/Mantissa>.
@@ -88,9 +88,12 @@ background), which cannot be changed afterwards. So `GuestNotificationBranding` 
 replaces the one method that adds a notification (`UNUserNotificationCenter.add(_:withCompletionHandler:)`, exchanged
 with the Objective-C runtime at launch): a request whose identifier starts with `headway.` gets Headway's icon attached
 on its way in (the name is not repeated as a subtitle: the icon says it), whether it is scheduled or posted
-at once; any other request passes through untouched. `ReminderScheduler.decorateGuestNotifications` is kept for the ones scheduled before an update
+at once; any other request passes through untouched. A request that already carries a picture is left as it is: since
+Headway 0.7 its late and early notifications carry one of their own (the route's colour and the minutes), which is what
+they have to say, and only one picture is drawn. The debug hook posts one of those too
+(`headway.watch.test.badge`) and logs the attachment ids it finds on each delivered notification. `ReminderScheduler.decorateGuestNotifications` is kept for the ones scheduled before an update
 (it runs after every plan, when a tool is closed and when the app goes to the background). Check with
 `-kitbagFakeHeadwayReminder YES` in a debug build: it posts one scheduled and one immediate `headway.*` notification
-and logs the attachment count of the delivered one (the thumbnail itself is not drawn in the simulator).
+and logs the attachments of the delivered ones (the thumbnail itself is not drawn in the simulator).
 If a release of Headway names its notifications differently, or a system update changes that method, this quietly
 stops working; nothing else breaks.

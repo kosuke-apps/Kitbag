@@ -122,7 +122,9 @@ struct ReminderScheduler {
   func decorateGuestNotifications() async {
     let marker = GuestNotificationBranding.decoratedKey
     for request in await center.pendingNotificationRequests()
-    where request.identifier.hasPrefix("headway.") && request.content.userInfo[marker] == nil {
+    where request.identifier.hasPrefix("headway.") && request.content.userInfo[marker] == nil
+      && request.content.attachments.isEmpty
+    {
       guard let content = request.content.mutableCopy() as? UNMutableNotificationContent,
         let icon = NotificationIcon.attachment(for: .headway)
       else { continue }

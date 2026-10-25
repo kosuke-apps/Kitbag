@@ -133,6 +133,8 @@ struct KitbagApp: App {
     /// Headway's icon, and another at once, with no trigger. Only in debug builds.
     @MainActor fileprivate func fakeHeadwayReminderIfAsked() async {
       guard UserDefaults.standard.bool(forKey: "kitbagFakeHeadwayReminder") else { return }
+      // A simulator that has never been asked has not allowed notifications yet.
+      _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
       let content = UNMutableNotificationContent()
       content.title = "Time to leave"
       content.body = "The 80 leaves in 10 minutes"
@@ -149,12 +151,30 @@ struct KitbagApp: App {
       now.sound = .default
       try? await UNUserNotificationCenter.current().add(
         UNNotificationRequest(identifier: "headway.watch.test", content: now, trigger: nil))
+      // And one that carries a picture of its own, as Headway's late and early notifications do since 0.7: it must be left as
+      // it is, not given Headway's icon in its place.
+      let withBadge = UNMutableNotificationContent()
+      withBadge.title = "D2 · 13 min late"
+      withBadge.body = "Its own picture is left alone"
+      let side: CGFloat = 40
+      let badge = UIGraphicsImageRenderer(size: CGSize(width: side, height: side)).image { context in
+        UIColor.systemRed.setFill()
+        context.fill(CGRect(x: 0, y: 0, width: side, height: side))
+      }
+      let badgeURL = FileManager.default.temporaryDirectory.appending(path: "badge-\(UUID().uuidString).png")
+      if let data = badge.pngData(), (try? data.write(to: badgeURL)) != nil,
+        let attachment = try? UNNotificationAttachment(identifier: "badge", url: badgeURL)
+      {
+        withBadge.attachments = [attachment]
+      }
+      try? await UNUserNotificationCenter.current().add(
+        UNNotificationRequest(identifier: "headway.watch.test.badge", content: withBadge, trigger: nil))
       let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
-      for note in delivered where note.request.identifier == "headway.watch.test" {
+      for note in delivered where note.request.identifier.hasPrefix("headway.watch.test") {
         let content = note.request.content
         NSLog(
-          "kitbag-test: delivered %@ subtitle=%@ attachments=%d", note.request.identifier, content.subtitle,
-          content.attachments.count)
+          "kitbag-test: delivered %@ subtitle=%@ attachments=%@", note.request.identifier, content.subtitle,
+          content.attachments.map(\.identifier).joined(separator: ","))
       }
       // And one of Kitbag's own, with the calendar's icon, to compare how an attached picture is drawn.
       let own = UNMutableNotificationContent()

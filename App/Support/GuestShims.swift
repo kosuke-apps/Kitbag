@@ -40,9 +40,12 @@ enum GuestNotificationBranding {
     method_exchangeImplementations(original, replacement)
   }
 
-  /// The request as it should be added: Headway's with its icon attached; any other as it is.
+  /// The request as it should be added: Headway's with its icon attached; any other as it is. A notification that Headway
+  /// gave a picture of its own (since 0.7: the route's colour and the minutes it is late) is left as it is, because the
+  /// picture is what that notification has to say, and only one is drawn.
   static func decorated(_ request: UNNotificationRequest) -> UNNotificationRequest {
     guard request.identifier.hasPrefix("headway."), request.content.userInfo[decoratedKey] == nil,
+      request.content.attachments.isEmpty,
       let png = lock.withLock({ icon }),
       let content = request.content.mutableCopy() as? UNMutableNotificationContent
     else { return request }
