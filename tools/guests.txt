@@ -9,4 +9,4 @@
 #
 # To upgrade a guest, change its tag, run tools/sync_guests.sh, then follow docs/guests.md.
 Headway ../Headway v0.6.7 App/Resources/Assets.xcassets/AppIcon.appiconset/icon-light.png data/maps/madison.pmtiles data/seed/mmt_gtfs.zip data/punctuality/punctuality.json
-Mantissa ../Mantissa v0.24.0 App/Resources/Assets.xcassets/AppIcon.appiconset/icon-light.png
+Mantissa ../Mantissa v0.25.0 App/Resources/Assets.xcassets/AppIcon.appiconset/icon-light.png

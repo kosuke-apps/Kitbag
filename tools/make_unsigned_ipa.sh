@@ -23,6 +23,22 @@ xcodebuild -project Kitbag.xcodeproj -scheme Kitbag -configuration Release -dest
   { echo "the build failed; see $out/build.log"; exit 1; }
 
 cp -R "$out/Kitbag.xcarchive/Products/Applications/Kitbag.app" "$out/Payload/"
+
+# The guests' frameworks keep the debug map of the machine that built them: the path of every object file, under the
+# builder's own folders (-file-prefix-map does not reach it). It is of no use to whoever downloads the app, so it is taken
+# out; `strip -S -x` leaves the symbols that other code links against (checked: the exported symbols are identical).
+while IFS= read -r -d '' file; do
+  if file "$file" | grep -q 'Mach-O'; then strip -S -x "$file"; fi
+done < <(find "$out/Payload" -type f -path '*/Frameworks/*.framework/*' -print0)
+
+# Nothing of this machine may be left anywhere in the payload (binaries and frameworks included, which `strings` does not
+# show but `grep -a` does). Stop here if something is.
+if LC_ALL=C grep -a -r -l -E "/Users/|$HOME" "$out/Payload" >"$out/leftovers.txt"; then
+  echo "error: the payload still holds paths of this machine:"
+  cat "$out/leftovers.txt"
+  exit 1
+fi
+rm -f "$out/leftovers.txt"
 (cd "$out" && zip -qry "Kitbag-$version-unsigned.ipa" Payload &&
   shasum -a 256 "Kitbag-$version-unsigned.ipa" >"Kitbag-$version-unsigned.ipa.sha256")
 rm -rf "$out/Payload"

@@ -12,7 +12,7 @@ mounts the guest's root component, the way a host page would mount another team'
 `tools/fetch_guests.sh` clones the guests next to Kitbag at the tags that `tools/guests.txt` pins:
 
 ```bash
-tools/fetch_guests.sh     # ../Headway at v0.6.7 and ../Mantissa at v0.24.0, from github.com/kosuke-apps
+tools/fetch_guests.sh     # ../Headway at v0.6.7 and ../Mantissa at v0.25.0, from github.com/kosuke-apps
 ```
 
 They are the public repositories <https://github.com/kosuke-apps/Headway> and <https://github.com/kosuke-apps/Mantissa>.
