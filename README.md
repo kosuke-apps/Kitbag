@@ -93,7 +93,7 @@ A build signed with a free Apple ID stops opening after seven days, and the sign
 Xcode asks Apple for a new provisioning profile. Kitbag shows what is left at the bottom of the home screen (and in
 Settings) and warns with a notification two days before, the evening before and on the day.
 
-`tools/refresh_device.sh` renews it from the Mac without opening Xcode: it moves this app's provisioning profile aside so
+`tools/refresh_device.sh` renews it from the Mac without opening Xcode (it uses the one iPhone that is paired; with several, set `KITBAG_DEVICE` to the name of the one to renew): it moves this app's provisioning profile aside so
 that the build fetches a new one, builds for the phone and installs with `devicectl`, over the local network or, when the phone is plugged in, over a USB
 cable (whichever the phone can be reached by; no AirDrop; over the network the phone and the Mac must be on the same
 Wi-Fi, and the phone must be awake). It waits up to a few minutes for the

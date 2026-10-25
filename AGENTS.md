@@ -34,7 +34,7 @@ adds what is specific to this project.
 
 ## Technical context
 
-- The author's iPhone 12 Pro runs iOS 18.6.2, so the deployment target stays iOS 17 and anything newer needs
+- The author's iPhone runs iOS 18.6.2, so the deployment target stays iOS 17 and anything newer needs
   `#available`. Liquid Glass does not exist there: the look is built from materials, gradients and type.
 - Stack: SwiftUI, iOS 17+, XcodeGen (`project.yml`; the `.xcodeproj` is not committed). The app is in Swift 5 mode and
   the logic package `KitbagCore` in Swift 6, as in Mantissa and Headway. Kitbag itself has no third-party dependency;

@@ -15,7 +15,9 @@
 # the old one is gone, so the profile of this app is moved aside first (to the folder below, never deleted).
 set -u
 
-DEVICE="${KITBAG_DEVICE:-iPhone 12 Pro}"
+# The name of the phone as `xcrun devicectl list devices` shows it. Left empty, the one paired iPhone is used; with more
+# than one, set KITBAG_DEVICE to the name of the one to renew.
+DEVICE="${KITBAG_DEVICE:-}"
 BUNDLE_ID="dev.kosuke.kitbag"
 MAX_AGE_DAYS="${KITBAG_MAX_AGE_DAYS:-4}"
 
@@ -64,13 +66,19 @@ try:
     devices = json.load(open(path))["result"]["devices"]
 except Exception:
     sys.exit(1)
-for device in devices:
-    if device.get("deviceProperties", {}).get("name") == name:
-        connection = device.get("connectionProperties", {})
-        state = connection.get("tunnelState", "unavailable")
-        print(device["hardwareProperties"]["udid"], state, connection.get("transportType", "unknown"))
-        sys.exit(0)
-sys.exit(1)
+phones = [d for d in devices
+          if d.get("hardwareProperties", {}).get("reality") == "physical"
+          and d.get("hardwareProperties", {}).get("deviceType") == "iPhone"]
+if name:
+    phones = [d for d in phones if d.get("deviceProperties", {}).get("name") == name]
+if len(phones) != 1:
+    # Nothing paired, or several and no name chosen: the caller says which.
+    sys.exit(2 if phones else 1)
+device = phones[0]
+connection = device.get("connectionProperties", {})
+state = connection.get("tunnelState", "unavailable")
+print(device["hardwareProperties"]["udid"], state, connection.get("transportType", "unknown"),
+      device.get("deviceProperties", {}).get("name", ""))
 PY
   local code=$?
   rm -f "$json"
@@ -79,16 +87,18 @@ PY
 
 # Asks the phone something, which wakes the connection if it is merely idle.
 poke() {
-  xcrun devicectl device info details --device "$DEVICE" --timeout 20 >/dev/null 2>&1
+  [[ -n "${UDID:-}" ]] && xcrun devicectl device info details --device "$UDID" --timeout 20 >/dev/null 2>&1
+  return 0
 }
 
 # Waits up to $1 seconds for the phone to become usable; sets UDID. False when it does not.
 wait_for_phone() {
   local deadline=$(( $(date +%s) + $1 )) line
   while true; do
-    poke
     if line="$(phone_state)"; then
-      read -r UDID state TRANSPORT <<<"$line"
+      read -r UDID state TRANSPORT DEVICE_NAME <<<"$line"
+      poke  # wakes the connection if it is merely idle
+      if line="$(phone_state)"; then read -r UDID state TRANSPORT DEVICE_NAME <<<"$line"; fi
       [[ "$state" != "unavailable" ]] && return 0
     fi
     (( $(date +%s) >= deadline )) && return 1
@@ -98,9 +108,11 @@ wait_for_phone() {
 
 if [[ "$mode" == "check" ]]; then
   if (( last == 0 )); then print "Never installed by this script."; else print "Last install: $(date -r "$last" '+%Y-%m-%d %H:%M') (${age_days} days ago)."; fi
-  poke
   if line="$(phone_state)"; then
-    read -r _ state transport <<<"$line"
+    read -r UDID _ _ _ <<<"$line"
+    poke
+    line="$(phone_state)"
+    read -r _ state transport _ <<<"$line"
     how="over the local network"
     [[ "$transport" == "wired" ]] && how="over a USB cable"
     if [[ "$state" == "unavailable" ]]; then
@@ -109,7 +121,11 @@ if [[ "$mode" == "check" ]]; then
       print "The phone is $state, $how."
     fi
   else
-    print "No paired device is called \"$DEVICE\"."
+    if [[ -n "$DEVICE" ]]; then
+      print "No paired iPhone is called \"$DEVICE\"."
+    else
+      print "No single paired iPhone was found (none, or more than one: set KITBAG_DEVICE to the name of the one to renew)."
+    fi
   fi
   exit 0
 fi
@@ -119,7 +135,7 @@ if [[ "$mode" == "due" ]] && (( last > 0 )) && (( age_days < MAX_AGE_DAYS )); th
 fi
 
 if ! wait_for_phone 240; then
-  log "The phone ($DEVICE) is not available (asleep, away from this Wi-Fi, or its pairing has lapsed; a USB cable works too); will try again on the next run."
+  log "The phone${DEVICE_NAME:+ ($DEVICE_NAME)} is not available (asleep, away from this Wi-Fi, or its pairing has lapsed; a USB cable works too); will try again on the next run."
   exit 1
 fi
 
@@ -141,7 +157,7 @@ if [[ -d "$PROFILES" ]]; then
 fi
 
 cd "$ROOT" || exit 1
-log "Building for $DEVICE..."
+log "Building for ${DEVICE_NAME:-the phone}..."
 # Xcode only sees the phone while its connection is up, which can lapse between the check above and the build, so a build
 # that finds no destination is tried again after asking the phone something.
 built=0
