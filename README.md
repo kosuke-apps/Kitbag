@@ -1,6 +1,52 @@
-# Kitbag
+<p align="center">
+  <img src="docs/icon.png" width="128" alt="Kitbag app icon">
+</p>
 
-One iPhone app that holds a student's everyday tools behind a Today screen, and runs other apps inside itself.
+<h1 align="center">Kitbag</h1>
+
+<p align="center"><b>One iPhone app that holds a student's everyday tools behind a Today screen, and runs other apps inside itself.</b></p>
+
+<p align="center">
+  <a href="https://github.com/kosuke-apps/Kitbag/releases/latest"><b>Download</b></a> &nbsp;·&nbsp;
+  <a href="#install">Install</a> &nbsp;·&nbsp;
+  <a href="PRIVACY.md">Privacy</a> &nbsp;·&nbsp;
+  <a href="https://github.com/kosuke-apps">More apps</a>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/01-today.jpg" width="23%" alt="The Today screen: the date, the weather, the next class, what is due soon and pinned notes">
+  <img src="docs/screenshots/02-timetable.jpg" width="23%" alt="A term's timetable as a weekly page of coloured class blocks">
+  <img src="docs/screenshots/03-gpa.jpg" width="23%" alt="The GPA screen: the cumulative GPA and each term's courses with their grades">
+  <img src="docs/screenshots/04-reminders.jpg" width="23%" alt="A deadline with its reminders, each showing the exact moment it will come">
+</p>
+
+## What it does
+
+- See your day at a glance: the date, the weather, the class that is on or comes next, what is due soon and your pinned notes.
+- Keep your timetable as a weekly page in the look of a printed school timetable, and export it as a PDF.
+- Follow your GPA term by term, with grading systems you can change and what-if calculators.
+- Keep track of deadlines with reminders you choose for each one, and Done and Snooze buttons right on the notification.
+- Write notes in Markdown with photos and files, and read the weather on one screen.
+- Open two more apps inside it, full screen, in a single install slot: Headway (a live bus map of Madison) and Mantissa
+  (an offline exact calculator).
+
+## Install
+
+Kitbag is not in the App Store. Each release is an unsigned `.ipa`, on purpose: sign it with your own Apple ID through a
+sideloading tool such as AltStore or Sideloadly. The author has not tried this route; the details, the limits of a free
+Apple ID and the way the author installs it are under [Install in detail](#install-in-detail).
+
+1. Download `Kitbag-x.y.z-unsigned.ipa` and its `.sha256` from the [latest release](https://github.com/kosuke-apps/Kitbag/releases/latest).
+2. Check the file: `shasum -a 256 -c Kitbag-x.y.z-unsigned.ipa.sha256`.
+3. Open the `.ipa` in the sideloading tool and install it on your iPhone.
+
+## Privacy
+
+No account, no analytics, no advertising and no server of its own: nothing about you or your phone is sent to the author.
+Your timetable, deadlines, notes and grades stay on the phone. The weather, the place search and the calendars you
+subscribe to by address use the network. [`PRIVACY.md`](PRIVACY.md) lists every address, and covers Headway and Mantissa.
+
+## About
 
 With a free Apple ID, an app you sideload is widely reported to stop launching after 7 days, and a device to hold only
 three such apps at a time (that comes from the sideloading tools' pages and community reports, not from Apple's
@@ -51,7 +97,7 @@ This app was built with the help of Claude (Anthropic) through Claude Code; desi
   rough until many days are recorded; the notes of each Release say how many days and which dates the bundled file covers.
 
 
-## Install
+## Install in detail
 
 Apple only runs signed apps, so there are two ways.
 
@@ -116,10 +162,6 @@ Guests are pinned release tags of other repositories, built as separate modules 
 - Lint: `xcrun swift-format lint --strict -r App Sources Tests Package.swift`
 - Build: the `xcodebuild` command above
 - Visual: run in the iOS Simulator, open each guest, tap the house button
-
-## Privacy
-
-No account, no analytics, no server of its own: see `PRIVACY.md`.
 
 ## Licence
 
